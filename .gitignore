@@ -1,1 +1,9 @@
+
+# vs code folders
 .vscode
+
+# python folders
+__pycache__
+
+# fbs folders
+target
