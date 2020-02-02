@@ -15,15 +15,15 @@ class QImageWAO(QMainWindow):
         mspaint,
         grid,
         library,
-        animal_adder,
-        animal_totals,
+        animalAdder,
+        animalTotals,
     ):
         super().__init__()
         self.setCentralWidget(mspaint)
         self._setGrid(grid)
         self._setLibrary(library)
-        self._setAnimalAdder(animal_adder)
-        self._setAnimalTotals(animal_totals)
+        self._setAnimalAdder(animalAdder)
+        self._setAnimalTotals(animalTotals)
 
     def _setGrid(self, grid):
         self.grid = grid

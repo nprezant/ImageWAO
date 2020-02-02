@@ -18,8 +18,8 @@ class AppContext(ApplicationContext):
             self.mspaint,
             self.grid,
             self.library,
-            self.animal_adder,
-            self.animal_totals,
+            self.animalAdder,
+            self.animalTotals,
         )
 
     @cached_property
@@ -35,11 +35,11 @@ class AppContext(ApplicationContext):
         return Library(self)
 
     @cached_property
-    def animal_adder(self):
+    def animalAdder(self):
         return QScrollArea()
 
     @cached_property
-    def animal_totals(self):
+    def animalTotals(self):
         return QScrollArea()
     
     def run(self):
