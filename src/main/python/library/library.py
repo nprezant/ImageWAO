@@ -48,8 +48,7 @@ class Library(QWidget):
     def chooseRootFolder(self):
 
         # prompt user to choose folder
-        dlg = QFileDialog()
-        folder = dlg.getExistingDirectory(
+        folder = QFileDialog().getExistingDirectory(
             self,
             'Choose Flight Folder',
             Path().home().anchor,
