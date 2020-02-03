@@ -76,6 +76,7 @@ class AddressBar(QWidget):
             'Home',
         )
         act.triggered.connect(self.emitHomePath)
+        act.setToolTip(f'Home: {self.home_path.absolutePath()}')
         actions.append(act)
 
         # home path
