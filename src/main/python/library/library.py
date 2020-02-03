@@ -45,6 +45,9 @@ class Library(QWidget):
         layout.addWidget(button)
         self.setLayout(layout)
 
+        # note the root path
+        self.rootPath = None
+
     def chooseRootFolder(self):
 
         # prompt user to choose folder
@@ -95,6 +98,9 @@ class Library(QWidget):
         # add layout items
         self.layout().addWidget(self.address)
         self.layout().addWidget(self.view, stretch=1)
+
+        # note the root path
+        self.rootPath = rootPath
 
     def viewActivated(self, index):
         if self.model.fileInfo(index).isDir():

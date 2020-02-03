@@ -9,6 +9,7 @@ from PySide2.QtWidgets import (
 
 from imagewao import QImageWAO
 from library import Library
+from imports import FlightImportWizard
 
 class AppContext(ApplicationContext):
 
@@ -20,6 +21,7 @@ class AppContext(ApplicationContext):
             self.library,
             self.animalAdder,
             self.animalTotals,
+            self.flightImportWizard,
         )
 
     @cached_property
@@ -41,6 +43,10 @@ class AppContext(ApplicationContext):
     @cached_property
     def animalTotals(self):
         return QScrollArea()
+
+    @cached_property
+    def flightImportWizard(self):
+        return FlightImportWizard(self)
     
     def run(self):
         self.window.resize(650, 350)

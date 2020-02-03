@@ -1,7 +1,7 @@
 
 from PySide2.QtCore import Qt, QCoreApplication
 from PySide2.QtWidgets import (
-    QMainWindow, QDockWidget
+    QMainWindow, QDockWidget, QMenu, QAction, QWizard
 )
 
 QCoreApplication.setOrganizationName('Namibia WAO')
@@ -17,6 +17,7 @@ class QImageWAO(QMainWindow):
         library,
         animalAdder,
         animalTotals,
+        flightImportWizard,
     ):
         super().__init__()
         self.setCentralWidget(mspaint)
@@ -24,6 +25,11 @@ class QImageWAO(QMainWindow):
         self._setLibrary(library)
         self._setAnimalAdder(animalAdder)
         self._setAnimalTotals(animalTotals)
+
+        self.flightImportWizard = flightImportWizard
+
+        self._menusCreated = False
+        self._makeMenus()
 
     def _setGrid(self, grid):
         self.grid = grid
@@ -52,3 +58,30 @@ class QImageWAO(QMainWindow):
         self.animalTotalsDock.setAllowedAreas(Qt.RightDockWidgetArea)
         self.animalTotalsDock.setWidget(self.animalTotals)
         self.addDockWidget(Qt.RightDockWidgetArea, self.animalTotalsDock)
+
+    def _createActions(self):
+        pass
+
+    def _makeMenus(self):
+        self._createMenus()
+        self._clearMenus()
+        self._populateMenus()
+        self._arrangeMenus()
+
+    def _clearMenus(self):
+        self.fileMenu.clear()
+        self.viewMenu.clear()
+
+    def _createMenus(self):
+        if self._menusCreated == False:
+            self.fileMenu = QMenu('&File', self)
+            self.viewMenu = QMenu('&View', self)
+            self._menusCreated = True
+        
+    def _populateMenus(self):
+        a3 = QAction('Import Flight Images', self)
+        a3.triggered.connect(self.flightImportWizard.open)
+        self.fileMenu.addAction(a3)
+
+    def _arrangeMenus(self):
+        self.menuBar().addMenu(self.fileMenu)
