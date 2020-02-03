@@ -46,7 +46,7 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def flightImportWizard(self):
-        return FlightImportWizard(self)
+        return FlightImportWizard()
     
     def run(self):
         self.window.resize(650, 350)

@@ -20,10 +20,8 @@ class FlightImportWizard(QWizard):
     Page_ChangeLibrary = 5
     Page_Conclusion = 6
 
-    def __init__(self, ctx):
+    def __init__(self):
         super().__init__()
-
-        self.ctx = ctx
 
         self.setPage(self.Page_Intro, IntroPage(self))
         self.setPage(self.Page_Parameters, ParametersPage(self))
