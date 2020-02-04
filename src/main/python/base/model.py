@@ -30,6 +30,9 @@ class Transect:
     def addFile(self, fp):
         self.files.append(fp)
 
+    def clearFiles(self):
+        self.files.clear()
+
 
 class TransectTableModel(QAbstractTableModel):
 
@@ -52,9 +55,13 @@ class TransectTableModel(QAbstractTableModel):
         ''' Reads the files in a folder to construct the model '''
 
         searchFolder = Path(folder)/'**'
-        self.transects = []
+        self.transects.clear()
         lastdt = None
         currentTransect = Transect()
+
+        # necessary because otherwise python references the last
+        # transect used (odd behavior...?)
+        currentTransect.clearFiles()
 
         for filename in glob.iglob(str(searchFolder), recursive=True):
 
