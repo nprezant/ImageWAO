@@ -114,8 +114,8 @@ class IntroPage(QWizardPage):
         folder = QFileDialog().getExistingDirectory(
             self,
             'Choose Import Folder',
-            self._defaultImportFolder,
-            QFileDialog().DontUseNativeDialog # allows user to see files too
+            self.pathEdit.text(),
+            QFileDialog().ShowDirsOnly
         )
 
         if not folder == '':
@@ -331,8 +331,8 @@ class SetLibraryPage(QWizardPage):
         folder = QFileDialog().getExistingDirectory(
             self,
             'Import to ...',
-            self._defaultLibraryFolder,
-            QFileDialog().DontUseNativeDialog # allows user to see files too
+            self.pathEdit.text(),
+            QFileDialog().ShowDirsOnly
         )
 
         if not folder == '':
