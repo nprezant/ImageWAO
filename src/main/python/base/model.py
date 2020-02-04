@@ -44,6 +44,10 @@ class TransectTableModel(QAbstractTableModel):
 
         self.sections = ['Name', '# Images', 'Range']
 
+    def renameByOrder(self):
+        for i,t in enumerate(self.transects):
+            t.name = f'Transect{str(i).zfill(2)}'
+
     def readFolder(self, folder, maxDelay, minCount):
         ''' Reads the files in a folder to construct the model '''
 

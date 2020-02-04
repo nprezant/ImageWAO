@@ -1,7 +1,9 @@
 
+import os
+import shutil
 from pathlib import Path
 
-from PySide2.QtCore import QSettings
+from PySide2.QtCore import QSettings, Signal, Slot
 from PySide2.QtWidgets import (
     QWidget, QPushButton, QLineEdit, QLabel, QSpinBox,
     QFormLayout, QGridLayout, QSizePolicy, QFileDialog,
@@ -9,7 +11,7 @@ from PySide2.QtWidgets import (
     QTableView, QTextEdit, 
 )
 
-from base import TransectTableModel, TransectTableView
+from base import Transect, TransectTableModel, TransectTableView
 
 class FlightImportWizard(QWizard):
 
@@ -17,18 +19,30 @@ class FlightImportWizard(QWizard):
     Page_Parameters = 2
     Page_Review = 3
     Page_Metadata = 4
-    Page_ChangeLibrary = 5
+    Page_SetLibrary = 5
     Page_Conclusion = 6
 
     def __init__(self):
         super().__init__()
 
-        self.setPage(self.Page_Intro, IntroPage(self))
-        self.setPage(self.Page_Parameters, ParametersPage(self))
-        self.setPage(self.Page_Review, ReviewPage(self))
-        self.setPage(self.Page_Metadata, MetadataPage(self))
-        self.setPage(self.Page_ChangeLibrary, ChangeLibraryPage(self))
-        self.setPage(self.Page_Conclusion, ConclusionPage(self))
+        # page instances
+        introPage = IntroPage(self)
+        parametersPage = ParametersPage(self)
+        reviewPage = ReviewPage(self)
+        metadataPage = MetadataPage(self)
+        setLibraryPage = SetLibraryPage(self)
+        conclusionPage = ConclusionPage(self)
+
+        # connections
+        reviewPage.modelChanged.connect(conclusionPage.updateModel)
+
+        # set page numbers
+        self.setPage(self.Page_Intro, introPage)
+        self.setPage(self.Page_Parameters, parametersPage)
+        self.setPage(self.Page_Review, reviewPage)
+        self.setPage(self.Page_Metadata, metadataPage)
+        self.setPage(self.Page_SetLibrary, setLibraryPage)
+        self.setPage(self.Page_Conclusion, conclusionPage)
 
         self.setWindowTitle('Flight Import Wizard')
 
@@ -186,6 +200,8 @@ class ParametersPage(QWizardPage):
 
 class ReviewPage(QWizardPage):
 
+    modelChanged = Signal(TransectTableView)
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Review')
@@ -208,6 +224,8 @@ class ReviewPage(QWizardPage):
 
         # read folder
         self.model.readFolder(folder, maxDelay, minCount)
+        self.model.renameByOrder()
+        self.modelChanged.emit(self.model)
     
     def nextId(self):
         return FlightImportWizard.Page_Metadata
@@ -253,22 +271,117 @@ class MetadataPage(QWizardPage):
         self.setLayout(layout)
     
     def nextId(self):
-        return FlightImportWizard.Page_Conclusion
+        return FlightImportWizard.Page_SetLibrary
 
-class ChangeLibraryPage(QWizardPage):
+class SetLibraryPage(QWizardPage):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setTitle('Change Library')
-    
+        self.setTitle('Copy Images')
+
+        topLabel = QLabel(
+            'Choose where you want to import the images to.\n'
+            'By default, this will be your flight library.'
+        )
+        topLabel.setWordWrap(True)
+
+        # import to this path
+        self.pathLabel = QLabel('Import to')
+        self.pathEdit = QLineEdit()
+        self.browse = QPushButton('...')
+        self.browse.setMaximumWidth(
+            self.browse.fontMetrics().boundingRect('...').width() + 20
+        )
+        self.browse.clicked.connect(self._chooseImportFolder)
+        self.registerField('libFolder', self.pathEdit)
+
+        # import to this folder name
+        self.flightFolderLabel = QLabel('Flight folder')
+        self.flightFolderLabel.setMinimumWidth (
+            self.flightFolderLabel.fontMetrics().boundingRect('Flight folder ').width()
+        )
+        self.flightFolderBox = QLineEdit('FlightXX')
+        self.registerField('flightFolder', self.flightFolderBox)
+
+        layout = QGridLayout()
+        layout.addWidget(topLabel, 0, 0, 1, 3)
+        layout.addWidget(self.pathLabel, 1, 0)
+        layout.addWidget(self.pathEdit, 1, 1)
+        layout.addWidget(self.browse, 1, 2)
+        layout.addWidget(self.flightFolderLabel, 2, 0 ,1, 3)
+        layout.addWidget(self.flightFolderBox, 2, 1, 1, 2)
+        layout.setColumnMinimumWidth(0, self.flightFolderLabel.minimumWidth())
+        self.setLayout(layout)
+
+    def initializePage(self):
+        self.pathEdit.setText(str(self._defaultLibraryFolder))
+
+    @property
+    def _defaultLibraryFolder(self):
+        settings = QSettings()
+        path = settings.value(
+            'library/homeDirectory',
+            str(Path().home()).replace(os.sep, '/')
+        )
+        return path
+
+    def _chooseImportFolder(self):
+
+        # prompt user to choose folder
+        folder = QFileDialog().getExistingDirectory(
+            self,
+            'Import to ...',
+            self._defaultLibraryFolder,
+            QFileDialog().DontUseNativeDialog # allows user to see files too
+        )
+
+        if not folder == '':
+            self.pathEdit.setText(folder)
+
     def nextId(self):
         return FlightImportWizard.Page_Conclusion
-
+    
 class ConclusionPage(QWizardPage):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setTitle('Import!')
-    
+        self.setTitle('You\'re all done')
+        self._model = None
+
+    @Slot(TransectTableModel)
+    def updateModel(self, model):
+        self._model = model
+
+    def initializePage(self):
+
+        # ensure model is here
+        model = self._model
+        if model is None:
+            print('Model must be updated for conclusion page')
+            return
+
+        # retreive values
+        libFolder = self.field('libFolder')
+        flightFolder = self.field('flightFolder')
+
+        # construct full path
+        flightPath = Path(libFolder) / flightFolder
+        flightPath.mkdir(exist_ok=True)
+
+        for t in model.transects:
+
+            # make transect folder
+            tFolder = flightPath / t.name
+            tFolder.mkdir(exist_ok=True)
+
+            for i, fp in enumerate(t.files):
+
+                # destination file name
+                name = t.name + '_' + str(i).zfill(3) + fp.suffix
+                dst = tFolder / name
+
+                # copy files
+                shutil.copyfile(fp, dst)
+
     def nextId(self):
         return -1

@@ -1,2 +1,2 @@
 
-from .model import TransectTableModel, TransectTableView
+from .model import Transect, TransectTableModel, TransectTableView
