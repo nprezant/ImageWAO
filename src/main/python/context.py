@@ -10,6 +10,7 @@ from PySide2.QtWidgets import (
 from imagewao import QImageWAO
 from library import Library
 from imports import FlightImportWizard
+from notifications import Notifier
 
 class AppContext(ApplicationContext):
 
@@ -22,6 +23,7 @@ class AppContext(ApplicationContext):
             self.animalAdder,
             self.animalTotals,
             self.flightImportWizard,
+            self.notifier,
         )
 
     @cached_property
@@ -47,6 +49,10 @@ class AppContext(ApplicationContext):
     @cached_property
     def flightImportWizard(self):
         return FlightImportWizard()
+
+    @cached_property
+    def notifier(self):
+        return Notifier()
     
     def run(self):
         self.window.resize(650, 350)
