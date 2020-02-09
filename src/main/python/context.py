@@ -9,7 +9,7 @@ from PySide2.QtWidgets import (
 
 from imagewao import QImageWAO
 from library import Library
-from imports import FlightImportWizard
+from imports import ImportWizards
 from notifications import Notifier
 
 class AppContext(ApplicationContext):
@@ -22,7 +22,7 @@ class AppContext(ApplicationContext):
             self.library,
             self.animalAdder,
             self.animalTotals,
-            self.flightImportWizard,
+            self.importWizards,
             self.notifier,
         )
 
@@ -47,8 +47,8 @@ class AppContext(ApplicationContext):
         return QScrollArea()
 
     @cached_property
-    def flightImportWizard(self):
-        return FlightImportWizard()
+    def importWizards(self):
+        return ImportWizards()
 
     @cached_property
     def notifier(self):

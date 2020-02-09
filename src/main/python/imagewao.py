@@ -17,7 +17,7 @@ class QImageWAO(QMainWindow):
         library,
         animalAdder,
         animalTotals,
-        flightImportWizard,
+        importWizards,
         notifier,
     ):
         super().__init__()
@@ -27,7 +27,7 @@ class QImageWAO(QMainWindow):
         self._setAnimalAdder(animalAdder)
         self._setAnimalTotals(animalTotals)
 
-        self.flightImportWizard = flightImportWizard
+        self.importWizards = importWizards
         self.notifier = notifier
         self.notifier.setParent(self)
 
@@ -82,9 +82,9 @@ class QImageWAO(QMainWindow):
             self._menusCreated = True
         
     def _populateMenus(self):
-        a3 = QAction('Import Flight Images', self)
-        a3.triggered.connect(self.flightImportWizard.open)
-        self.fileMenu.addAction(a3)
+        a = QAction('Import Flight Images', self)
+        a.triggered.connect(self.importWizards.openNewFlight)
+        self.fileMenu.addAction(a)
 
         action = QAction('Notify test', self)
         action.triggered.connect(self.notifier.notify)
