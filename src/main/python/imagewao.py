@@ -1,8 +1,11 @@
 
+from PySide2 import QtCore
 from PySide2.QtCore import Qt, QCoreApplication
 from PySide2.QtWidgets import (
     QMainWindow, QDockWidget, QMenu, QAction, QWizard
 )
+
+from notifications import QToaster
 
 QCoreApplication.setOrganizationName('Namibia WAO')
 QCoreApplication.setOrganizationDomain('imagewao.com')
@@ -18,7 +21,7 @@ class QImageWAO(QMainWindow):
         animalAdder,
         animalTotals,
         importWizards,
-        notifier,
+        # notifier,
     ):
         super().__init__()
         self.setCentralWidget(mspaint)
@@ -28,8 +31,8 @@ class QImageWAO(QMainWindow):
         self._setAnimalTotals(animalTotals)
 
         self.importWizards = importWizards
-        self.notifier = notifier
-        self.notifier.setParent(self)
+        # self.notifier = notifier
+        # self.notifier.setParent(self)
 
         self._menusCreated = False
         self._makeMenus()
@@ -87,7 +90,11 @@ class QImageWAO(QMainWindow):
         self.fileMenu.addAction(a)
 
         action = QAction('Notify test', self)
-        action.triggered.connect(self.notifier.notify)
+        action.setShortcut('Ctrl+n')
+        action.triggered.connect(
+            lambda:
+            QToaster.showMessage(
+            self, 'Hello sweet world', corner=QtCore.Qt.BottomRightCorner, desktop=False))
         self.fileMenu.addAction(action)
 
     def _arrangeMenus(self):
