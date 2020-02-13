@@ -41,13 +41,17 @@ class QToaster(QtWidgets.QFrame):
         self.opacityAni.setDuration(750)
         self.opacityAni.finished.connect(self.checkClosed)
 
+        self.geometryAni = QtCore.QPropertyAnimation(self, b'geometry')
+
         self.corner = QtCore.Qt.TopLeftCorner
         self.margin = 10
+        self.isShown = False
 
     def checkClosed(self):
         # if we have been fading out, we're closing the notification
         if self.opacityAni.direction() == self.opacityAni.Backward:
             self.close()
+            self.closed.emit()
 
     def restore(self):
         # this is a "helper function", that can be called from mouseEnterEvent
@@ -65,8 +69,20 @@ class QToaster(QtWidgets.QFrame):
     def hide(self):
         # start hiding
         self.opacityAni.setDirection(self.opacityAni.Backward)
-        self.opacityAni.setDuration(350)
+        self.opacityAni.setDuration(500)
         self.opacityAni.start()
+
+        # geometry animation
+        # geo = self.geometry()
+        # geo.moveBottom(20)
+        # self.geometryAni.setStartValue(self.geometry())
+        # self.geometryAni.setEndValue(geo)
+        # self.geometryAni.setDuration(500)
+
+        # self.group = QtCore.QParallelAnimationGroup()
+        # self.group.addAnimation(self.opacityAni)
+        # self.group.addAnimation(self.geometryAni)
+        # self.group.start()
 
     def eventFilter(self, source, event):
         if source == self.parent() and event.type() == QtCore.QEvent.Resize:
@@ -111,53 +127,13 @@ class QToaster(QtWidgets.QFrame):
         else:
             self.clearMask()
 
-    @staticmethod
-    def showMessage(parent, message, 
-                    icon=QtWidgets.QStyle.SP_MessageBoxInformation, 
-                    corner=QtCore.Qt.TopLeftCorner, margin=10, closable=True, 
-                    timeout=5000, desktop=False, parentWindow=True):
+    def generate(self, message, 
+            icon=QtWidgets.QStyle.SP_MessageBoxInformation, 
+            corner=QtCore.Qt.TopLeftCorner, margin=10, closable=True, 
+            desktop=False, parentWindow=True):
 
-        if parent and parentWindow:
-            parent = parent.window()
-
-        if not parent or desktop:
-            self = QToaster(None)
-            self.setWindowFlags(self.windowFlags() | QtCore.Qt.FramelessWindowHint |
-                QtCore.Qt.BypassWindowManagerHint)
-            # This is a dirty hack!
-            # parentless objects are garbage collected, so the widget will be
-            # deleted as soon as the function that calls it returns, but if an
-            # object is referenced to *any* other object it will not, at least
-            # for PyQt (I didn't test it to a deeper level)
-            self.__self = self
-
-            currentScreen = QtWidgets.QApplication.primaryScreen()
-            if parent and parent.window().geometry().size().isValid():
-                # the notification is to be shown on the desktop, but there is a
-                # parent that is (theoretically) visible and mapped, we'll try to
-                # use its geometry as a reference to guess which desktop shows
-                # most of its area; if the parent is not a top level window, use
-                # that as a reference
-                reference = parent.window().geometry()
-            else:
-                # the parent has not been mapped yet, let's use the cursor as a
-                # reference for the screen
-                reference = QtCore.QRect(
-                    QtGui.QCursor.pos() - QtCore.QPoint(1, 1), 
-                    QtCore.QSize(3, 3))
-            maxArea = 0
-            for screen in QtWidgets.QApplication.screens():
-                intersected = screen.geometry().intersected(reference)
-                area = intersected.width() * intersected.height()
-                if area > maxArea:
-                    maxArea = area
-                    currentScreen = screen
-            parentRect = currentScreen.availableGeometry()
-        else:
-            self = QToaster(parent)
-            parentRect = parent.rect()
-
-        self.timer.setInterval(timeout)
+        parent = self.parent()
+        parentRect = parent.rect()
 
         # use Qt standard icon pixmaps; see:
         # https://doc.qt.io/qt-5/qstyle.html#StandardPixmap-enum
@@ -179,8 +155,7 @@ class QToaster(QtWidgets.QFrame):
             self.closeButton.setIcon(closeIcon)
             self.closeButton.setAutoRaise(True)
             self.closeButton.clicked.connect(self.close)
-
-        self.timer.start()
+            self.closeButton.clicked.connect(self.closed.emit)
 
         # raise the widget and adjust its size to the minimum
         self.raise_()
@@ -206,52 +181,13 @@ class QToaster(QtWidgets.QFrame):
                 parentRect.bottomLeft() + QtCore.QPoint(margin, -margin))
 
         self.setGeometry(geo)
-        self.show()
-        self.opacityAni.start()
 
+    def show_(self, timeout=5000, toGeom=None, fromGeom=None):
+        if not self.timer.isActive():
+            self.timer.setInterval(timeout)
+            self.timer.start()
+        if not self.isShown:
+            self.show()
+            self.opacityAni.start()
+            self.isShown = True
 
-class W(QtWidgets.QWidget):
-    def __init__(self):
-        QtWidgets.QWidget.__init__(self)
-        layout = QtWidgets.QVBoxLayout(self)
-
-        toasterLayout = QtWidgets.QHBoxLayout()
-        layout.addLayout(toasterLayout)
-
-        self.textEdit = QtWidgets.QLineEdit('Ciao!')
-        toasterLayout.addWidget(self.textEdit)
-
-        self.cornerCombo = QtWidgets.QComboBox()
-        toasterLayout.addWidget(self.cornerCombo)
-        for pos in ('TopLeft', 'TopRight', 'BottomRight', 'BottomLeft'):
-            corner = getattr(QtCore.Qt, '{}Corner'.format(pos))
-            self.cornerCombo.addItem(pos, corner)
-
-        self.windowBtn = QtWidgets.QPushButton('Show window toaster')
-        toasterLayout.addWidget(self.windowBtn)
-        self.windowBtn.clicked.connect(self.showToaster)
-
-        self.screenBtn = QtWidgets.QPushButton('Show desktop toaster')
-        toasterLayout.addWidget(self.screenBtn)
-        self.screenBtn.clicked.connect(self.showToaster)
-
-        # a random widget for the window
-        layout.addWidget(QtWidgets.QTableView())
-
-    def showToaster(self):
-        if self.sender() == self.windowBtn:
-            parent = self
-            desktop = False
-        else:
-            parent = None
-            desktop = True
-        corner = QtCore.Qt.Corner(self.cornerCombo.currentData())
-        QToaster.showMessage(
-            parent, self.textEdit.text(), corner=corner, desktop=desktop)
-
-
-if __name__ == '__main__':
-    app = QtWidgets.QApplication(sys.argv)
-    w = W()
-    w.show()
-    sys.exit(app.exec_())
