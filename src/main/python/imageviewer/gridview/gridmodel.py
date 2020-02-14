@@ -1,4 +1,6 @@
 
+from pathlib import Path
+
 from PySide2 import QtCore, QtWidgets, QtGui
 
 class ImageItem:
@@ -7,55 +9,63 @@ class ImageItem:
 
 class FullImage:
 
-    def __init__(self, pixmap, rows=2, cols=2):
+    def __init__(self, pixmap, rows=2, cols=2, scaledWidth=200):
         self._pixmap = pixmap
         self.rows = rows
         self.cols = cols
-        self._rects = None
+        self._scaledWidth = scaledWidth
 
+        self.rects = []
+        self.parts = []
+        self.scaledParts = []
 
-    def part(self, r, c, width=None):
+        self.compute()
+
+    def part(self, r, c, scaled=True):
         ''' Returns a portions of this image.
         The portion is is computed as the item of the image at
         row r and column c, given that the image is divided
         into the class variable rows and cols.
         '''
-        rect = self.rects[r][c]
-
-        if width is None:
-            return self._pixmap.copy(rect)
+        if scaled:
+            return self.scaledParts[r][c]
         else:
-            return self._pixmap.copy(rect).scaledToWidth(width)
+            return self.parts[r][c]
 
-    @property
-    def rects(self):
+    def compute(self):
         ''' Computes the rects of the image,
-        divided into a grid self.rows by self.cols
+        divided into a grid self.rows by self.cols.
+        Uses those rects to generate tables of the parts and scaled
+        parts of this pixmap.
         '''
-        if self._rects is None:
             
-            self._rects = []
+        self.rects = []
+        self.parts = []
+        self.scaledParts = []
 
-            w = self._pixmap.width()
-            h = self._pixmap.height()
+        w = self._pixmap.width()
+        h = self._pixmap.height()
 
-            segmentWidth = w / self.cols
-            segmentHeight = h / self.rows
+        segmentWidth = w / self.cols
+        segmentHeight = h / self.rows
 
-            for row in range(self.rows):
+        for row in range(self.rows):
 
-                self._rects.append([])
+            self.rects.append([])
+            self.parts.append([])
+            self.scaledParts.append([])
 
-                for col in range(self.cols):
+            for col in range(self.cols):
 
-                    x = w - (self.cols - col) * segmentWidth
-                    y = h - (self.rows - row) * segmentHeight
+                x = w - (self.cols - col) * segmentWidth
+                y = h - (self.rows - row) * segmentHeight
 
-                    rect = QtCore.QRect(x, y, segmentWidth, segmentHeight)
-                    self._rects[-1].append(rect)
+                rect = QtCore.QRect(x, y, segmentWidth, segmentHeight)
 
-        return self._rects
-        
+                self.rects[-1].append(rect)
+                self.parts[-1].append(self._pixmap.copy(rect))
+                self.scaledParts[-1].append(self.parts[-1][-1].scaledToWidth(self._scaledWidth))
+
 
 class ImageDelegate(QtWidgets.QAbstractItemDelegate):
 
@@ -89,19 +99,57 @@ class ImageDelegate(QtWidgets.QAbstractItemDelegate):
         self._pixelHeight = size
     
     
-class ImageGridModel(QtCore.QAbstractTableModel):
+class QImageGridModel(QtCore.QAbstractTableModel):
 
     def __init__(self):
         super().__init__()
 
         self._imageRows = 2
         self._imageCols = 2
+        self._displayWidth = 200
 
-        self._images: FullImage = [
-            FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols),
-            FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols),
-            FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols),
-        ]
+        self._images: FullImage = []
+
+        # self._images = [
+        #     FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols, self._displayWidth),
+        #     FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols, self._displayWidth),
+        #     FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols, self._displayWidth),
+        # ]
+
+    def tryAddFolder(self, path):
+
+        searchFolder = Path(path)
+        
+        # list of relevant files
+        imgFiles = []
+
+        if not searchFolder.is_dir():
+            return
+
+        for filename in searchFolder.glob('*'):
+
+            # rule out non-image files
+            fp = Path(filename)
+            if not fp.is_file():
+                continue
+
+            if not fp.suffix in ('.jpg', '.JPG', '.jpeg', '.JPEG'):
+                continue
+
+            imgFiles.append(fp)
+
+        if len(imgFiles) == 0:
+            return
+        else:
+            self.beginResetModel()
+            self._images = []
+            for fp in imgFiles:
+                self.addImageFromPath(str(fp))
+            self.endResetModel()
+
+    def addImageFromPath(self, path):
+        self._images.append(FullImage(
+            QtGui.QPixmap(path), self._imageRows, self._imageCols, self._displayWidth))
 
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
@@ -121,20 +169,19 @@ class ImageGridModel(QtCore.QAbstractTableModel):
         if index.row() < 0:
             return None
 
-        displayWidth = 200
         image = self._images[int(index.row() / self._imageRows)]
 
         r = index.row() % self._imageRows
         c = index.column()
 
         if role == QtCore.Qt.DecorationRole:
-            return image.part(r, c, displayWidth)
+            return image.part(r, c)
 
         if role == QtCore.Qt.SizeHintRole:
-            return image.part(r, c, displayWidth).size()
+            return image.part(r, c).size()
 
         if role == QtCore.Qt.UserRole:
-            return image.part(r, c)
+            return image.part(r, c, False)
 
         return None
 
@@ -169,15 +216,6 @@ class ImageGridModel(QtCore.QAbstractTableModel):
 
         self.endRemoveRows()
         return True
-
-    def setData(self, index, value, role=QtCore.Qt.EditRole):
-        ''' Adjust the data (set it to <value>) depending on the
-            given index and role.
-        '''
-        if role != QtCore.Qt.EditRole:
-            return False
-        
-        return False
 
     def flags(self, index):
         ''' Set the item flag at the given index. '''

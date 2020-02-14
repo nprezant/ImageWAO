@@ -35,10 +35,14 @@ class QImageWAO(QMainWindow):
         self.notifier.parent = self
 
         self.library.activated.connect(self._setViewerImage)
+        self.library.directoryChanged.connect(self._setGridImages)
         self.grid.clicked.connect(self._gridViewClicked)
 
         self._menusCreated = False
         self._makeMenus()
+
+    def _setGridImages(self, path):
+        self.grid.model().tryAddFolder(path)
 
     def _gridViewClicked(self, index):
         if index.isValid():

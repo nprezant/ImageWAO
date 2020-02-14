@@ -10,6 +10,7 @@ from tools import clearLayout
 class Library(QtWidgets.QWidget):
 
     activated = QtCore.Signal(str)
+    directoryChanged = QtCore.Signal(str)
 
     def __init__(self, ctx):
         super().__init__()
@@ -101,6 +102,7 @@ class Library(QtWidgets.QWidget):
         if self.model.fileInfo(index).isDir():
             self.view.setRootIndex(index)
             self.address.path = QtCore.QDir(self.model.filePath(index))
+            self.directoryChanged.emit(self.model.filePath(index))
         else:
             # Bubble up the path signal
             self.activated.emit(self.model.filePath(index))
