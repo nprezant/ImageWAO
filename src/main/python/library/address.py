@@ -1,21 +1,14 @@
 
 from pathlib import Path
 
-from PySide2.QtGui import QIcon
-from PySide2.QtCore import Qt, QDir, Signal, Slot, QSize
-from PySide2.QtWidgets import (
-    QFileSystemModel, QListView, QWidget, QLabel,
-    QHBoxLayout, QVBoxLayout, QToolButton, QAction,
-    QSizePolicy, QFileDialog, QDialog,
-    QScrollArea,
-)
+from PySide2 import QtCore, QtGui, QtWidgets
 
 from tools import clearLayout
 
 
-class AddressBar(QWidget):
+class AddressBar(QtWidgets.QWidget):
 
-    activated = Signal(str)
+    activated = QtCore.Signal(str)
 
     def __init__(self, ctx):
         super().__init__()
@@ -24,12 +17,12 @@ class AddressBar(QWidget):
         self.ctx = ctx
 
         # path defaults
-        self._homePath = QDir.current()
-        self._path = QDir.current()
+        self._homePath = QtCore.QDir.current()
+        self._path = QtCore.QDir.current()
 
         # layout
-        layout = QHBoxLayout()
-        layout.setAlignment(Qt.AlignLeft)
+        layout = QtWidgets.QHBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignLeft)
         layout.setMargin(0)
         layout.setSpacing(0)
         self.setLayout(layout)
@@ -71,8 +64,8 @@ class AddressBar(QWidget):
         actions = []
 
         # add home action
-        act = QAction(
-            QIcon(self.ctx.get_resource('home.png')),
+        act = QtWidgets.QAction(
+            QtGui.QIcon(self.ctx.get_resource('home.png')),
             'Home',
         )
         act.triggered.connect(self.emitHomePath)
@@ -85,7 +78,7 @@ class AddressBar(QWidget):
 
         # make actions for each path part
         for part in Path(rel).parts:
-            act = QAction(part)
+            act = QtWidgets.QAction(part)
             full = full / part
             act.triggered.connect(
                 lambda _=False, p=str(full): self.emitArbitraryPath(p)
@@ -94,6 +87,6 @@ class AddressBar(QWidget):
 
         # combine actions with buttons and add to layout
         for a in actions:
-            button = QToolButton()
+            button = QtWidgets.QToolButton()
             button.setDefaultAction(a)
             layout.addWidget(button)
