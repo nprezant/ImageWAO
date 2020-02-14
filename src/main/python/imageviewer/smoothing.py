@@ -16,6 +16,8 @@ class QSmoothGraphicsView(QtWidgets.QGraphicsView):
 
         self.controlDown = False
 
+        self.setTransformationAnchor(QtWidgets.QGraphicsView.AnchorUnderMouse)
+
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         key = event.key()
         if key == QtCore.Qt.Key_Up:
@@ -135,6 +137,7 @@ class QSmoothGraphicsView(QtWidgets.QGraphicsView):
         self.animatingV = False
 
     def scaleView(self, scaleFactor):
+        # TODO: Set a maximum and minimum scale size
         factor = self.transform().scale(scaleFactor, scaleFactor).mapRect(QtCore.QRectF(0, 0, 1, 1)).width()
         if (factor < 0.02 or factor > 100):
             return

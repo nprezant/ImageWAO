@@ -4,6 +4,7 @@ from PySide2.QtCore import Qt, QCoreApplication
 from PySide2.QtWidgets import (
     QMainWindow, QDockWidget, QMenu, QAction, QWizard
 )
+from PySide2 import QtGui
 
 QCoreApplication.setOrganizationName('Namibia WAO')
 QCoreApplication.setOrganizationDomain('imagewao.com')
@@ -28,12 +29,24 @@ class QImageWAO(QMainWindow):
         self._setAnimalAdder(animalAdder)
         self._setAnimalTotals(animalTotals)
 
+        self.viewer = mspaint
         self.importWizards = importWizards
         self.notifier = notifier
         self.notifier.parent = self
 
+        self.library.activated.connect(self._setViewerImage)
+        self.grid.clicked.connect(self._gridViewClicked)
+
         self._menusCreated = False
         self._makeMenus()
+
+    def _gridViewClicked(self, index):
+        if index.isValid():
+            self.viewer.setImage(index.data(QtCore.Qt.UserRole))
+
+    def _setViewerImage(self, path):
+        pixmap = QtGui.QPixmap(path)
+        self.viewer.setImage(pixmap)
 
     def _setGrid(self, grid):
         self.grid = grid

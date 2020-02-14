@@ -1,13 +1,10 @@
-# from PySide2.QtCore import Qt, QRectF, QMarginsF, QTimeLine, Signal, QSize
-# from PySide2.QtGui import QKeySequence, QImage, QPixmap, QPalette, QPainter, QWheelEvent, QtGui.QKeyEvent, QIcon, QPen, QColor
-# from PySide2.QtWidgets import (
-#     QGraphicsView, QGraphicsScene, QGraphicsItem, QToolBar, QtWidgets.QAction,
-#     QApplication, QInputDialog, QMenu, QToolButton, QPushButton
-# )
+
+from pathlib import Path
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from .smoothing import QSmoothGraphicsView
+
 
 COLORS = {
     'Teleric Blue': '#3296e6',
@@ -31,14 +28,13 @@ class QPaletteIcon(QtGui.QIcon):
         pixmap = QtGui.QPixmap(100, 100)
         pixmap.fill(QtGui.QColor(color))
         self.addPixmap(pixmap)
-    
 
 class QImageViewer(QSmoothGraphicsView):
 
     # signals
     imageFlattened = QtCore.Signal(QtGui.QImage)
 
-    def __init__(self):
+    def __init__(self, ctx):
         super().__init__()
 
         self.scene = QtWidgets.QGraphicsScene(self)
@@ -47,11 +43,9 @@ class QImageViewer(QSmoothGraphicsView):
 
         self.mainPixmapItem = self.scene.addPixmap(QtGui.QPixmap())
 
-        self._appContext = None
+        self.ctx = ctx
 
         # policies
-        # self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-        # self.setResizeAnchor(QGraphicsView.AnchorUnderMouse)
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
 
@@ -66,24 +60,19 @@ class QImageViewer(QSmoothGraphicsView):
         self._dynamicOval = None
         self._drawnItems = []
 
-        # self.updateDragMode()
+        self.updateDragMode()
 
-    @property
-    def appContext(self):
-        return self._appContext
-
-    @appContext.setter
-    def appContext(self, context):
-        self._appContext = context
-        self.toolbar.clear()
-        self.initToolbar()
+    def trySetFromPath(self, path):
+        p = Path(path)
+        if p.suffix.lower() in ('.jpg', '.png'):
+            self.setMainPixmapFromPath(path)
+        else:
+            print('image not valid')
 
     def setMainPixmapFromPath(self, imgPath):
 
         # set image
-        image = QtGui.QImage(str(imgPath))
-        pixmap = self.mainPixmapItem.pixmap()
-        pixmap.convertFromImage(image)
+        pixmap = QtGui.QPixmap(imgPath)
         self.setMainPixmap(pixmap)
 
     def setMainPixmap(self, pixmap):
@@ -91,8 +80,12 @@ class QImageViewer(QSmoothGraphicsView):
 
         # set scene rect
         boundingRect = self.mainPixmapItem.boundingRect()
-        margin = 0
-        boundingRect += QtCore.QMarginsF(margin,margin,margin,margin)
+        w = boundingRect.width()
+        h = boundingRect.height()
+        marginFactor = 0.5
+        boundingRect += QtCore.QMarginsF(
+            w * marginFactor, h * marginFactor,
+            w * marginFactor, h * marginFactor)
         self.scene.setSceneRect(boundingRect)
 
     def saveImage(self, fileName):
@@ -143,11 +136,6 @@ class QImageViewer(QSmoothGraphicsView):
             pass
         else:
             self.scene.removeItem(item)
-
-    def scaleView(self, scaleFactor):
-        # print(f'self.width: {self.width()}')
-        # print(f'pixmap.width(): {self.scene.map.mainPixmapItem.boundingRect().width()}')
-        self.scale(scaleFactor, scaleFactor)
 
     def centerImage(self):
         self.centerOn(self.mainPixmapItem)
@@ -233,42 +221,44 @@ class QImageViewer(QSmoothGraphicsView):
     def promptForPenWidth(self):
         width, okPressed = QtWidgets.QInputDialog.getInt(self, 'Pen Width','Pen width (px):', self.penWidth, 1, 100, 1)
         if okPressed:
-            self.penWidth = width
-
-    def setResourcePaths(self):
-        if self.appContext is None:
-            self.selectionModeFp = '../resources/base/home.png'
-            self.ovalModeFp = '../resources/base/home.png'
-            self.flattenFp = '../resources/base/home.png'
-            self.undoFp = '../resources/base/home.png'
-            self.penFp = '../resources/base/home.png'
-            self.penWidthFp = '../resources/base/home.png'
-        else:
-            self.selectionModeFp = self.appContext.get_resource('selectIcon.png')
-            self.ovalModeFp = self.appContext.get_resource('ovalIcon.png')
-            self.flattenFp = self.appContext.get_resource('saveIcon.png')
-            self.undoFp = self.appContext.get_resource('undoIcon.png')
-            self.penFp = self.appContext.get_resource('pen.png')
-            self.penWidthFp = self.appContext.get_resource('penWidth.png')
+            self.penWidth = width        
 
     def createActions(self):
-        self.setResourcePaths()
+        selectionModeFp = self.ctx.get_resource('selectIcon.png')
+        ovalModeFp = self.ctx.get_resource('ovalIcon.png')
+        flattenFp = self.ctx.get_resource('saveIcon.png')
+        undoFp = self.ctx.get_resource('undoIcon.png')
         
-        # self.selectionModeAct = QtWidgets.QAction('Select (v)', self, checkable=True, checked=True, shortcut=QtCore.Qt.Key_V, triggered=self.toggleSelectionMode)
-        # self.ovalModeAct = QtWidgets.QAction('Draw &Oval (o)', self, checkable=True, checked=False, shortcut=QtCore.Qt.Key_O, triggered=self.toggleOvalMode)
-        # self.flattenAct = QtWidgets.QAction('Save', self, shortcut=QtGui.QKeySequence.Save, triggered=self.flattenImage)
-        # self.undoAct = QtWidgets.QAction('Undo', self, shortcut=QtGui.QKeySequence.Undo, triggered=self.removeLastDrawnItem)
-        # self.selectionModeAct = QtWidgets.QAction(QtGui.QIcon(self.selectionModeFp), 'Select (v)', self, checkable=True, checked=True, shortcut=QtCore.Qt.Key_V, triggered=self.toggleSelectionMode)
-        # self.ovalModeAct = QtWidgets.QAction(QtGui.QIcon(self.ovalModeFp), 'Draw &Oval (o)', self, checkable=True, checked=False, shortcut=QtCore.Qt.Key_O, triggered=self.toggleOvalMode)
-        # self.flattenAct = QtWidgets.QAction(QtGui.QIcon(self.flattenFp), 'Save', self, shortcut=QtGui.QKeySequence.Save, triggered=self.flattenImage)
-        # self.undoAct = QtWidgets.QAction(QtGui.QIcon(self.undoFp), 'Undo', self, shortcut=QtGui.QKeySequence.Undo, triggered=self.removeLastDrawnItem)
+        self.selectionModeAct = QtWidgets.QAction(QtGui.QIcon(selectionModeFp), 'Select (v)', self)
+        self.selectionModeAct.setCheckable(True)
+        self.selectionModeAct.setChecked(True)
+        self.selectionModeAct.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_V))
+        self.selectionModeAct.triggered.connect(self.toggleSelectionMode)
 
-        self.setPenWidthAct = QtWidgets.QAction('Set Pen Width', self, triggered=self.promptForPenWidth)
+        self.ovalModeAct = QtWidgets.QAction(QtGui.QIcon(ovalModeFp), 'Draw &Oval (o)', self)
+        self.ovalModeAct.setCheckable(True)
+        self.ovalModeAct.setChecked(False)
+        self.ovalModeAct.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_O))
+        self.ovalModeAct.triggered.connect(self.toggleOvalMode)
+        
+        self.flattenAct = QtWidgets.QAction(QtGui.QIcon(flattenFp), 'Save', self)
+        self.flattenAct.setShortcut(QtGui.QKeySequence.Save)
+        self.flattenAct.triggered.connect(self.flattenImage)
+        
+        self.undoAct = QtWidgets.QAction(QtGui.QIcon(undoFp), 'Undo', self)
+        self.undoAct.setShortcut(QtGui.QKeySequence.Undo)
+        self.undoAct.triggered.connect(self.removeLastDrawnItem)
+
+        self.setPenWidthAct = QtWidgets.QAction('Set Pen Width', self)
+        self.setPenWidthAct.triggered.connect(self.promptForPenWidth)
 
     def addPenToolMenu(self):
+        penFp = self.ctx.get_resource('pen.png')
+        penWidthFp = self.ctx.get_resource('penWidth.png')
+
         penButton = QtWidgets.QToolButton(self)
         penButton.setText('Pen')
-        penButton.setIcon(QtGui.QIcon(self.penFp))
+        penButton.setIcon(QtGui.QIcon(penFp))
         penButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         self.penMenu = QtWidgets.QMenu(penButton)
@@ -303,11 +293,11 @@ class QImageViewer(QSmoothGraphicsView):
 
     def initToolbar(self):
         self.createActions()
-        # self.toolbar.addAction(self.flattenAct)
-        # self.toolbar.addAction(self.undoAct)
-        # # self.toolbar.addSeparator()
-        # self.toolbar.addAction(self.selectionModeAct)
-        # self.toolbar.addAction(self.ovalModeAct)
+        self.toolbar.addAction(self.flattenAct)
+        self.toolbar.addAction(self.undoAct)
+        # self.toolbar.addSeparator()
+        self.toolbar.addAction(self.selectionModeAct)
+        self.toolbar.addAction(self.ovalModeAct)
         self.addPenToolMenu()
 
 

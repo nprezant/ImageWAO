@@ -3,15 +3,14 @@
 from fbs_runtime.application_context import cached_property
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 
-from PySide2.QtWidgets import (
-    QGraphicsView, QScrollArea,
-)
+from PySide2 import QtWidgets
 
 from imagewao import QImageWAO
 from library import Library
 from importers import ImportWizards
 from notifications import Notifier
-from imageviewer import QImageViewer
+from imageviewer import QtImageViewer as QImageViewer
+from imageviewer import QImageGridView
 
 class AppContext(ApplicationContext):
 
@@ -29,11 +28,12 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def mspaint(self):
-        return QImageViewer()
+        return QImageViewer(self)
 
     @cached_property
     def grid(self):
-        return QScrollArea()
+        self.view = QImageGridView()
+        return self.view
 
     @cached_property
     def library(self):
@@ -41,11 +41,11 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def animalAdder(self):
-        return QScrollArea()
+        return QtWidgets.QScrollArea()
 
     @cached_property
     def animalTotals(self):
-        return QScrollArea()
+        return QtWidgets.QScrollArea()
 
     @cached_property
     def importWizards(self):
