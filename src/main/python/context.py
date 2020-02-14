@@ -9,7 +9,7 @@ from PySide2.QtWidgets import (
 
 from imagewao import QImageWAO
 from library import Library
-from imports import ImportWizards
+from importers import ImportWizards
 from notifications import Notifier
 
 class AppContext(ApplicationContext):
