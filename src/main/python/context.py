@@ -11,6 +11,7 @@ from imagewao import QImageWAO
 from library import Library
 from importers import ImportWizards
 from notifications import Notifier
+from imageviewer import QImageViewer
 
 class AppContext(ApplicationContext):
 
@@ -28,7 +29,7 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def mspaint(self):
-        return QGraphicsView()
+        return QImageViewer()
 
     @cached_property
     def grid(self):
