@@ -1,16 +1,15 @@
 
 from pathlib import Path
+from multiprocessing import Queue
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
-class ImageItem:
-    def __init__(self, pixmap):
-        self._pixmap = pixmap
+from base import QWorker
 
 class FullImage:
 
-    def __init__(self, pixmap, rows=2, cols=2, scaledWidth=200):
-        self._pixmap = pixmap
+    def __init__(self, image, rows=2, cols=2, scaledWidth=200):
+        self._image = image
         self.rows = rows
         self.cols = cols
         self._scaledWidth = scaledWidth
@@ -43,8 +42,8 @@ class FullImage:
         self.parts = []
         self.scaledParts = []
 
-        w = self._pixmap.width()
-        h = self._pixmap.height()
+        w = self._image.width()
+        h = self._image.height()
 
         segmentWidth = w / self.cols
         segmentHeight = h / self.rows
@@ -63,43 +62,55 @@ class FullImage:
                 rect = QtCore.QRect(x, y, segmentWidth, segmentHeight)
 
                 self.rects[-1].append(rect)
-                self.parts[-1].append(self._pixmap.copy(rect))
+                self.parts[-1].append(self._image.copy(rect))
                 self.scaledParts[-1].append(self.parts[-1][-1].scaledToWidth(self._scaledWidth))
 
+    @staticmethod
+    def CreateFromListQWorker(progress, files, *args):
+        images = []
 
-class ImageDelegate(QtWidgets.QAbstractItemDelegate):
+        for i, fp in enumerate(files):
+            images.append(FullImage(QtGui.QImage(str(fp)), *args))
+            progress.emit(i)
+        
+        return images
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self._pixelHeight = 200
 
-    def paint(self, painter, option, index):
-        if option.state == QtWidgets.QStyle.State_Selected:
-            painter.fillRect(option.rect, option.palette.highlight())
+# class ImageDelegate(QtWidgets.QAbstractItemDelegate):
 
-        painter.save()
-        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
-        painter.setPen(QtCore.Qt.NoPen)
+#     def __init__(self, parent=None):
+#         super().__init__(parent)
+#         self._pixelHeight = 200
 
-        if (option.state == QtWidgets.QStyle.State_Selected):
-            painter.setBrush(option.palette.highlightedText())
-        else:
-            painter.setBrush(option.palette.text())
+#     def paint(self, painter, option, index):
+#         if option.state == QtWidgets.QStyle.State_Selected:
+#             painter.fillRect(option.rect, option.palette.highlight())
 
-        painter.drawRect(
-            QtCore.QRectF(
-                option.rect.x(), option.rect.y(),
-                option.rect.width(), option.rect.height()))
-        painter.restore()
+#         painter.save()
+#         painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+#         painter.setPen(QtCore.Qt.NoPen)
 
-    def sizeHint(self, option, index):
-        return QtCore.QSize(self._pixelHeight, self._pixelHeight)
+#         if (option.state == QtWidgets.QStyle.State_Selected):
+#             painter.setBrush(option.palette.highlightedText())
+#         else:
+#             painter.setBrush(option.palette.text())
 
-    def setPixelSize(self, size):
-        self._pixelHeight = size
+#         painter.drawRect(
+#             QtCore.QRectF(
+#                 option.rect.x(), option.rect.y(),
+#                 option.rect.width(), option.rect.height()))
+#         painter.restore()
+
+#     def sizeHint(self, option, index):
+#         return QtCore.QSize(self._pixelHeight, self._pixelHeight)
+
+#     def setPixelSize(self, size):
+#         self._pixelHeight = size
     
     
 class QImageGridModel(QtCore.QAbstractTableModel):
+
+    s = QtCore.Signal()
 
     def __init__(self):
         super().__init__()
@@ -109,6 +120,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         self._displayWidth = 200
 
         self._images: FullImage = []
+
+        self.threadpool = QtCore.QThreadPool()
 
         # self._images = [
         #     FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols, self._displayWidth),
@@ -141,15 +154,31 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         if len(imgFiles) == 0:
             return
         else:
-            self.beginResetModel()
-            self._images = []
-            for fp in imgFiles:
-                self.addImageFromPath(str(fp))
-            self.endResetModel()
+            self.resetImagesFromList(imgFiles)
 
-    def addImageFromPath(self, path):
-        self._images.append(FullImage(
-            QtGui.QPixmap(path), self._imageRows, self._imageCols, self._displayWidth))
+    
+    def resetImagesFromList(self, imgList):
+
+        self.runner = QWorker(
+            FullImage.CreateFromListQWorker,
+            True, # Pass the progress signal into the create fn
+            imgList, self._imageRows, 
+            self._imageCols, self._displayWidth
+        )
+
+        self.runner.signals.progress.connect(self._displayProgress)
+        self.runner.signals.result.connect(self.resetImagesFromFullImages)
+        self.threadpool.start(self.runner)
+
+    def _displayProgress(self, val):
+        print(f'Progress: {val}')
+
+    def resetImagesFromFullImages(self, fullImages):
+        print('resetting model')
+        self.beginResetModel()
+        self._images = []
+        self._images = fullImages
+        self.endResetModel()
 
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
