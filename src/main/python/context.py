@@ -9,8 +9,8 @@ from imagewao import QImageWAO
 from library import Library
 from importers import ImportWizards
 from notifications import Notifier
-from imageviewer import QtImageViewer as QImageViewer
-from imageviewer import QImageGridView
+from imageviewer import QImageViewer
+from gridview import QImageGridView
 
 class AppContext(ApplicationContext):
 

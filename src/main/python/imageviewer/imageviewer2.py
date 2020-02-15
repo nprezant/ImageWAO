@@ -13,7 +13,7 @@ __author__ = "Marcel Goldschen-Ohm <marcel.goldschen@gmail.com>"
 __version__ = '0.9.0'
 
 
-class QtImageViewer(QGraphicsView):
+class QImageViewer(QGraphicsView):
     """ PyQt image viewer widget for a QPixmap in a QGraphicsView scene with mouse zooming and panning.
     Displays a QImage or QPixmap (QImage is internally converted to a QPixmap).
     To display any other image format, you must first convert it to a QImage or QPixmap.
@@ -199,7 +199,7 @@ if __name__ == '__main__':
     app = QApplication(sys.argv)
 
     # Create image viewer and load an image file to display.
-    viewer = QtImageViewer()
+    viewer = QImageViewer()
     viewer.loadImageFromFile()  # Pops up file dialog.
 
     # Handle left mouse clicks with custom slot.
