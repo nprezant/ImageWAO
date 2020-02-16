@@ -24,11 +24,16 @@ class AppContext(ApplicationContext):
             self.animalTotals,
             self.importWizards,
             self.notifier,
+            self.progressBar,
         )
 
     @cached_property
     def mspaint(self):
         return QImageViewer(self)
+
+    @cached_property
+    def progressBar(self):
+        return QtWidgets.QProgressBar()
 
     @cached_property
     def grid(self):

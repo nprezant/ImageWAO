@@ -21,6 +21,7 @@ class QImageWAO(QMainWindow):
         animalTotals,
         importWizards,
         notifier,
+        progressBar,
     ):
         super().__init__()
         self.setCentralWidget(mspaint)
