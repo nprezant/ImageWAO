@@ -1,16 +1,11 @@
 
-from PySide2 import QtCore
-from PySide2.QtCore import Qt, QCoreApplication
-from PySide2.QtWidgets import (
-    QMainWindow, QDockWidget, QMenu, QAction, QWizard
-)
-from PySide2 import QtGui
+from PySide2 import QtGui, QtCore, QtWidgets
 
-QCoreApplication.setOrganizationName('Namibia WAO')
-QCoreApplication.setOrganizationDomain('imagewao.com')
-QCoreApplication.setApplicationName('ImageWAO')
+QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
+QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
+QtCore.QCoreApplication.setApplicationName('ImageWAO')
 
-class QImageWAO(QMainWindow):
+class QImageWAO(QtWidgets.QMainWindow):
 
     def __init__(
         self,
@@ -55,31 +50,31 @@ class QImageWAO(QMainWindow):
 
     def _setGrid(self, grid):
         self.grid = grid
-        self.gridDock = QDockWidget('Image Grids', self)
-        self.gridDock.setAllowedAreas(Qt.RightDockWidgetArea)
+        self.gridDock = QtWidgets.QDockWidget('Image Grids', self)
+        self.gridDock.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
         self.gridDock.setWidget(self.grid)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.gridDock)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.gridDock)
 
     def _setLibrary(self, library):
         self.library = library
-        self.libraryDock = QDockWidget('Library', self)
-        self.libraryDock.setAllowedAreas(Qt.LeftDockWidgetArea)
+        self.libraryDock = QtWidgets.QDockWidget('Library', self)
+        self.libraryDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea)
         self.libraryDock.setWidget(self.library)
-        self.addDockWidget(Qt.LeftDockWidgetArea, self.libraryDock)
+        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.libraryDock)
 
     def _setAnimalAdder(self, animal_adder):
         self.animalAdder = animal_adder
-        self.animalAdderDock = QDockWidget('Add New Animal', self)
-        self.animalAdderDock.setAllowedAreas(Qt.RightDockWidgetArea)
+        self.animalAdderDock = QtWidgets.QDockWidget('Add New Animal', self)
+        self.animalAdderDock.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
         self.animalAdderDock.setWidget(self.animalAdder)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.animalAdderDock)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.animalAdderDock)
 
     def _setAnimalTotals(self, animal_totals):
         self.animalTotals = animal_totals
-        self.animalTotalsDock = QDockWidget('Total Animal Counts', self)
-        self.animalTotalsDock.setAllowedAreas(Qt.RightDockWidgetArea)
+        self.animalTotalsDock = QtWidgets.QDockWidget('Total Animal Counts', self)
+        self.animalTotalsDock.setAllowedAreas(QtCore.Qt.RightDockWidgetArea)
         self.animalTotalsDock.setWidget(self.animalTotals)
-        self.addDockWidget(Qt.RightDockWidgetArea, self.animalTotalsDock)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.animalTotalsDock)
 
     def _createActions(self):
         pass
@@ -96,16 +91,16 @@ class QImageWAO(QMainWindow):
 
     def _createMenus(self):
         if self._menusCreated == False:
-            self.fileMenu = QMenu('&File', self)
-            self.viewMenu = QMenu('&View', self)
+            self.fileMenu = QtWidgets.QMenu('&File', self)
+            self.viewMenu = QtWidgets.QMenu('&View', self)
             self._menusCreated = True
         
     def _populateMenus(self):
-        a = QAction('Import Flight Images', self)
+        a = QtWidgets.QAction('Import Flight Images', self)
         a.triggered.connect(self.importWizards.openNewFlight)
         self.fileMenu.addAction(a)
 
-        action = QAction('Notify test', self)
+        action = QtWidgets.QAction('Notify test', self)
         action.setShortcut('Ctrl+n')
         action.triggered.connect(
             lambda:
