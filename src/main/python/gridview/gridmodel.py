@@ -110,8 +110,6 @@ class FullImage:
     
 class QImageGridModel(QtCore.QAbstractTableModel):
 
-    s = QtCore.Signal()
-
     def __init__(self):
         super().__init__()
 
@@ -121,7 +119,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         self._images: FullImage = []
 
-        self.threadpool = QtCore.QThreadPool()
+        self._runner = None
+        self._threadpool = QtCore.QThreadPool()
 
         # self._images = [
         #     FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols, self._displayWidth),
@@ -159,16 +158,16 @@ class QImageGridModel(QtCore.QAbstractTableModel):
     
     def resetImagesFromList(self, imgList):
 
-        self.runner = QWorker(
+        self._runner = QWorker(
             FullImage.CreateFromListQWorker,
             True, # Pass the progress signal into the create fn
             imgList, self._imageRows, 
             self._imageCols, self._displayWidth
         )
 
-        self.runner.signals.progress.connect(self._displayProgress)
-        self.runner.signals.result.connect(self.resetImagesFromFullImages)
-        self.threadpool.start(self.runner)
+        self._runner.signals.progress.connect(self._displayProgress)
+        self._runner.signals.result.connect(self.resetImagesFromFullImages)
+        self._threadpool.start(self._runner)
 
     def _displayProgress(self, val):
         print(f'Progress: {val}')
