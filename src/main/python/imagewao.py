@@ -104,7 +104,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         action.setShortcut('Ctrl+n')
         action.triggered.connect(
             lambda:
-            self.notifier.notify('Hello sweet world'))
+            self.notifier.notify('Whey 2 go!'))
         self.fileMenu.addAction(action)
 
     def _arrangeMenus(self):
