@@ -13,6 +13,15 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
         # can resize when the parent is resized
         self.parent().installEventFilter(self)
 
+        # create opacity effect
+        self.opacityEffect = QtWidgets.QGraphicsOpacityEffect(opacity=0)
+        self.setGraphicsEffect(self.opacityEffect)
+        self.opacityAni = QtCore.QPropertyAnimation(self.opacityEffect, b'opacity')
+        self.opacityAni.setStartValue(0.)
+        self.opacityAni.setEndValue(1.)
+        self.opacityAni.setDuration(2000)
+        self.opacityAni.finished.connect(self._checkHidden)
+
         self.h = 10
 
         self.hide()
@@ -23,11 +32,24 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
         When the value is set to any other number, the progress bar will show.
         '''
         if val == 0:
-            self.hide()
+            if not self.isHidden():
+                # Fade out
+                self.opacityAni.setDirection(self.opacityAni.Backward)
+                self.opacityAni.start()
+                return # return so the progress bar stays full
         else:
             if self.isHidden():
+                # Fade in
+                self.opacityEffect.setOpacity(0)
                 self.show()
+                self.opacityAni.setDirection(self.opacityAni.Forward)
+                self.opacityAni.start()
         super().setValue(val)
+
+    def _checkHidden(self):
+        ''' If we have been fading out, we should hide the progress bar'''
+        if self.opacityAni.direction() == self.opacityAni.Backward:
+            self.hide()
 
     def eventFilter(self, source, event):
         if source == self.parent() and event.type() == QtCore.QEvent.Resize:
