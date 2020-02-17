@@ -24,6 +24,20 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
 
         self.h = 10
 
+        # style
+        self.setStyleSheet('''
+            QProgressBar {
+                border: 0px solid grey;
+                border-radius: 5px;
+                background-color: transparent;
+            }
+
+            QProgressBar::chunk {
+                background-color: #007bff; /* light blue */
+                width: 20px;
+            }
+        ''')
+
         self.hide()
 
     def setValue(self, val):
