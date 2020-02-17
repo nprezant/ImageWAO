@@ -11,6 +11,7 @@ from importers import ImportWizards
 from notifications import Notifier
 from imageviewer import QImageViewer
 from gridview import QImageGridView
+from progressbar import QAbsoluteProgressBar
 
 class AppContext(ApplicationContext):
 
@@ -33,7 +34,7 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def progressBar(self):
-        return QtWidgets.QProgressBar()
+        return QAbsoluteProgressBar(self.mspaint)
 
     @cached_property
     def grid(self):

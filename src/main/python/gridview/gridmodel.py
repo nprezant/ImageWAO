@@ -67,12 +67,15 @@ class FullImage:
 
     @staticmethod
     def CreateFromListQWorker(progress, files, *args):
+
         images = []
+        count = len(files)
 
         for i, fp in enumerate(files):
+            progress.emit(int((i / count)*100))
             images.append(FullImage(QtGui.QImage(str(fp)), *args))
-            progress.emit(i)
         
+        progress.emit(100)
         return images
 
 
@@ -109,6 +112,8 @@ class FullImage:
     
     
 class QImageGridModel(QtCore.QAbstractTableModel):
+
+    progress = QtCore.Signal(int)
 
     def __init__(self):
         super().__init__()
@@ -165,19 +170,20 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             self._imageCols, self._displayWidth
         )
 
-        self._runner.signals.progress.connect(self._displayProgress)
+        self._runner.signals.progress.connect(self.progress.emit) # bubble up progress
         self._runner.signals.result.connect(self.resetImagesFromFullImages)
         self._threadpool.start(self._runner)
 
-    def _displayProgress(self, val):
-        print(f'Progress: {val}')
+    def _resetProgress(self):
+        # Reset progress bar after a brief time
+        QtCore.QTimer.singleShot(1000, lambda: self.progress.emit(0))
 
     def resetImagesFromFullImages(self, fullImages):
-        print('resetting model')
         self.beginResetModel()
         self._images = []
         self._images = fullImages
         self.endResetModel()
+        self._resetProgress()
 
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''

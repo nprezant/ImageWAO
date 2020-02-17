@@ -29,10 +29,12 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.importWizards = importWizards
         self.notifier = notifier
         self.notifier.parent = self
+        self.progressBar = progressBar
 
         self.library.activated.connect(self._setViewerImage)
         self.library.directoryChanged.connect(self._setGridImages)
         self.grid.clicked.connect(self._gridViewClicked)
+        self.grid.model().progress.connect(self.progressBar.setValue)
 
         self._menusCreated = False
         self._makeMenus()
