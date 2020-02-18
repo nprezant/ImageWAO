@@ -5,6 +5,10 @@ from .gridmodel import QImageGridModel, UserRoles
 
 class QImageGridView(QtWidgets.QTableView):
 
+    # TODO: Add new signals to be more specific -- e.g.
+    # selectedFilesChanged = QtCore.Signal(Path) # this prevents redundant signal emits
+    # selectedImageChanged = QtCore.Signal(QImage) # this will let the grid determine what the viewer shows
+
     # Convenience signal    
     selectedIndexesChanged = QtCore.Signal(list)
 
