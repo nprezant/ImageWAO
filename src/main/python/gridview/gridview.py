@@ -5,7 +5,10 @@ from .gridmodel import QImageGridModel
 
 class QImageGridView(QtWidgets.QTableView):
 
-     def __init__(self):
+    # Convenience signal    
+    selectionChanged2 = QtCore.Signal(list)
+
+    def __init__(self):
         super().__init__()
         self.setModel(QImageGridModel())
 
@@ -14,6 +17,13 @@ class QImageGridView(QtWidgets.QTableView):
 
         self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+
+        self.selectionModel().selectionChanged.connect(self._emitSelectionChanged)
+
+    def _emitSelectionChanged(self, selected, deselected):
+        model = self.selectionModel()
+        indexes = model.selectedIndexes()
+        self.selectionChanged2.emit(indexes)
 
 
 if __name__ == '__main__':

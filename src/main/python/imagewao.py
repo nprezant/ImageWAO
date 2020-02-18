@@ -33,16 +33,22 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         self.library.activated.connect(self._setViewerImage)
         self.library.directoryChanged.connect(self._setGridImages)
-        self.grid.clicked.connect(self._gridViewClicked)
+        # self.grid.clicked.connect(self._gridViewClicked)
         self.grid.model().progress.connect(self.progressBar.setValue)
+        self.grid.selectionChanged2.connect(self._gridViewChanged)
+        self.grid.selectionChanged2.connect(self._test)
 
         self._menusCreated = False
         self._makeMenus()
 
+    def _test(self, indexes):
+        print(indexes[0].data(QtCore.Qt.UserRole))
+
     def _setGridImages(self, path):
         self.grid.model().tryAddFolder(path)
 
-    def _gridViewClicked(self, index):
+    def _gridViewChanged(self, indexes):
+        index = indexes[0]
         if index.isValid():
             self.viewer.setImage(index.data(QtCore.Qt.UserRole))
 
