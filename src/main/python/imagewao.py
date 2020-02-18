@@ -41,6 +41,10 @@ class QImageWAO(QtWidgets.QMainWindow):
         self._addDockWidget(self.animalAdder, 'Animal Adder', startArea=QtCore.Qt.RightDockWidgetArea)
         self._addDockWidget(self.animalTotals, 'Animal Totals', startArea=QtCore.Qt.RightDockWidgetArea)
 
+        # Hide unused dock widgets
+        self._dockWidgets['Animal Adder'].hide()
+        self._dockWidgets['Animal Totals'].hide()
+
         # Wizards
         self.importWizards = importWizards
 
