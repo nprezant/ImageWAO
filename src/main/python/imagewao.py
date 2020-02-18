@@ -21,16 +21,34 @@ class QImageWAO(QtWidgets.QMainWindow):
         progressBar,
     ):
         super().__init__()
-        self.setCentralWidget(mspaint)
-        self._setGrid(grid)
-        self._setLibrary(library)
-        self._setAnimalAdder(animalAdder)
-        self._setAnimalTotals(animalTotals)
 
+        # The image editor is the central widget
+        self.setCentralWidget(mspaint)
         self.viewer = mspaint
+
+        # Dock widgets are saved in a dictionary
+        self._dockWidgets = {}
+
+        # Dock widget references
+        self.grid = grid
+        self.library = library
+        self.animalAdder = animalAdder
+        self.animalTotals = animalTotals
+
+        # Dock widget creation
+        self._addDockWidget(self.grid, 'Image Grids', startArea=QtCore.Qt.RightDockWidgetArea)
+        self._addDockWidget(self.library, 'Library', startArea=QtCore.Qt.LeftDockWidgetArea)
+        self._addDockWidget(self.animalAdder, 'Animal Adder', startArea=QtCore.Qt.RightDockWidgetArea)
+        self._addDockWidget(self.animalTotals, 'Animal Totals', startArea=QtCore.Qt.RightDockWidgetArea)
+
+        # Wizards
         self.importWizards = importWizards
+
+        # Notifications
         self.notifier = notifier
         self.notifier.parent = self
+
+        # Progress Bar
         self.progressBar = progressBar
 
         # Connections
@@ -43,6 +61,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.grid.selectedIndexesChanged.connect(self._updateViewerFromGrid)
         self.grid.selectedIndexesChanged.connect(self._updateLibraryFromGrid)
 
+        # File | Etc. Menus
         self._menusCreated = False
         self._makeMenus()
 
@@ -69,33 +88,12 @@ class QImageWAO(QtWidgets.QMainWindow):
         pixmap = QtGui.QPixmap(path)
         self.viewer.setImage(pixmap)
 
-    def _setGrid(self, grid):
-        self.grid = grid
-        self.gridDock = QtWidgets.QDockWidget('Image Grids', self)
-        self.gridDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
-        self.gridDock.setWidget(self.grid)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.gridDock)
-
-    def _setLibrary(self, library):
-        self.library = library
-        self.libraryDock = QtWidgets.QDockWidget('Library', self)
-        self.libraryDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
-        self.libraryDock.setWidget(self.library)
-        self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.libraryDock)
-
-    def _setAnimalAdder(self, animal_adder):
-        self.animalAdder = animal_adder
-        self.animalAdderDock = QtWidgets.QDockWidget('Add New Animal', self)
-        self.animalAdderDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
-        self.animalAdderDock.setWidget(self.animalAdder)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.animalAdderDock)
-
-    def _setAnimalTotals(self, animal_totals):
-        self.animalTotals = animal_totals
-        self.animalTotalsDock = QtWidgets.QDockWidget('Total Animal Counts', self)
-        self.animalTotalsDock.setAllowedAreas(QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea)
-        self.animalTotalsDock.setWidget(self.animalTotals)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.animalTotalsDock)
+    def _addDockWidget(self, w, name:str, areas=QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea, startArea=QtCore.Qt.LeftDockWidgetArea):
+        dock = QtWidgets.QDockWidget(name, self)
+        dock.setAllowedAreas(areas)
+        dock.setWidget(w)
+        self.addDockWidget(startArea, dock)
+        self._dockWidgets[name] = dock
 
     def _createActions(self):
         pass
