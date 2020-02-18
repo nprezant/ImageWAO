@@ -110,3 +110,10 @@ class Library(QtWidgets.QWidget):
     def addressActivated(self, path):
         index = self.model.index(path)
         self.viewActivated(index)
+
+    def selectFiles(self, files):
+        ''' Try to select all matching files in the library '''
+        self.view.selectionModel().clearSelection()
+        for f in files:
+            idx = self.model.index(str(f))
+            self.view.selectionModel().select(idx, QtCore.QItemSelectionModel.Select)

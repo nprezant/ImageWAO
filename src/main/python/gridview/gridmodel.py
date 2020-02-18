@@ -6,10 +6,15 @@ from PySide2 import QtCore, QtWidgets, QtGui
 
 from base import QWorker
 
+class UserRoles:
+    EntireImage = QtCore.Qt.UserRole
+    ImagePath = QtCore.Qt.UserRole + 1
+
 class FullImage:
 
-    def __init__(self, image, rows=2, cols=2, scaledWidth=200):
+    def __init__(self, image, path=Path(), rows=2, cols=2, scaledWidth=200):
         self._image = image
+        self.path = path
         self.rows = rows
         self.cols = cols
         self._scaledWidth = scaledWidth
@@ -73,7 +78,7 @@ class FullImage:
 
         for i, fp in enumerate(files):
             progress.emit(int((i / count)*100))
-            images.append(FullImage(QtGui.QImage(str(fp)), *args))
+            images.append(FullImage(QtGui.QImage(str(fp)), Path(fp), *args))
         
         progress.emit(100)
         return images
@@ -126,12 +131,6 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         self._runner = None
         self._threadpool = QtCore.QThreadPool()
-
-        # self._images = [
-        #     FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols, self._displayWidth),
-        #     FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols, self._displayWidth),
-        #     FullImage(QtGui.QPixmap('C:/Flights/FlightXX/Transect02/Transect02_001.JPG'), self._imageRows, self._imageCols, self._displayWidth),
-        # ]
 
     def tryAddFolder(self, path):
 
@@ -214,8 +213,11 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.SizeHintRole:
             return image.part(r, c).size()
 
-        if role == QtCore.Qt.UserRole:
+        if role == UserRoles.EntireImage:
             return image.part(r, c, False)
+
+        if role == UserRoles.ImagePath:
+            return image.path
 
         return None
 

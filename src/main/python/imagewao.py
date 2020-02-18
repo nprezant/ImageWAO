@@ -1,6 +1,8 @@
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
+from gridview import UserRoles
+
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
 QtCore.QCoreApplication.setApplicationName('ImageWAO')
@@ -37,22 +39,23 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         self.grid.model().progress.connect(self.progressBar.setValue)
 
-        self.grid.selectedIndexesChanged.connect(self._gridViewChanged)
-        self.grid.selectedIndexesChanged.connect(self._test)
+        self.grid.selectedIndexesChanged.connect(self._updateViewerFromGrid)
+        self.grid.selectedIndexesChanged.connect(self._updateLibraryFromGrid)
 
         self._menusCreated = False
         self._makeMenus()
 
-    def _test(self, indexes):
-        print(indexes[0].data(QtCore.Qt.UserRole))
+    def _updateLibraryFromGrid(self, indexes):
+        files = [idx.data(role=UserRoles.ImagePath) for idx in indexes]
+        self.library.selectFiles(files)
 
     def _setGridImages(self, path):
         self.grid.model().tryAddFolder(path)
 
-    def _gridViewChanged(self, indexes):
+    def _updateViewerFromGrid(self, indexes):
         index = indexes[0]
         if index.isValid():
-            self.viewer.setImage(index.data(QtCore.Qt.UserRole))
+            self.viewer.setImage(index.data(role=UserRoles.EntireImage))
 
     def _setViewerImage(self, path):
         pixmap = QtGui.QPixmap(path)
