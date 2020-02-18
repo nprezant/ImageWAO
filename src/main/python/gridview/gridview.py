@@ -1,7 +1,7 @@
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
-from .gridmodel import QImageGridModel
+from .gridmodel import QImageGridModel, UserRoles
 
 class QImageGridView(QtWidgets.QTableView):
 
@@ -24,6 +24,15 @@ class QImageGridView(QtWidgets.QTableView):
         model = self.selectionModel()
         indexes = model.selectedIndexes()
         self.selectedIndexesChanged.emit(indexes)
+
+    def selectFile(self, path):
+        ''' Selects all the items associated
+        with a given file path
+        '''
+        self.selectionModel().clearSelection()
+        indexes = self.model().matchPath(path)
+        for idx in indexes:
+            self.selectionModel().select(idx, QtCore.QItemSelectionModel.Select)
 
 
 if __name__ == '__main__':

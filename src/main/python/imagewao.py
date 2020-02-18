@@ -35,6 +35,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Connections
         self.library.fileActivated.connect(self._setViewerImage)
+        self.library.fileActivated.connect(self._updateGridSelection)
         self.library.directoryChanged.connect(self._setGridImages)
 
         self.grid.model().progress.connect(self.progressBar.setValue)
@@ -53,9 +54,16 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.grid.model().tryAddFolder(path)
 
     def _updateViewerFromGrid(self, indexes):
-        index = indexes[0]
-        if index.isValid():
-            self.viewer.setImage(index.data(role=UserRoles.EntireImage))
+        try:
+            index = indexes[0]
+        except IndexError:
+            pass
+        else:
+            if index.isValid():
+                self.viewer.setImage(index.data(role=UserRoles.EntireImage))
+
+    def _updateGridSelection(self, path):
+        self.grid.selectFile(path)
 
     def _setViewerImage(self, path):
         pixmap = QtGui.QPixmap(path)

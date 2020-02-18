@@ -184,6 +184,15 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         self.endResetModel()
         self._resetProgress()
 
+    def matchPath(self, path):
+        matches = []
+        for r in range(self.rowCount()):
+            for c in range(self.columnCount()):
+                idx = self.index(r,c)
+                if idx.data(UserRoles.ImagePath) == Path(path):
+                    matches.append(idx)
+        return matches
+
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
         return len(self._images) * self._imageRows
