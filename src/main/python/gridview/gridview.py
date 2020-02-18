@@ -40,9 +40,12 @@ class QImageGridView(QtWidgets.QTableView):
 
         # Ensure the newly selected index is visible
         try:
-            self.scrollTo(indexes[0])
+            idx = indexes[0]
         except IndexError:
             print(f'No indexes were found matching the requested path: {path}')
+        else:
+            self.scrollTo(idx)
+            # selectedImageChanged.emit(idx.data(role=UserRoles.EntireImage))
 
 
 if __name__ == '__main__':
