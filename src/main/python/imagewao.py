@@ -56,7 +56,6 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.progressBar = progressBar
 
         # Connections
-        self.library.fileActivated.connect(self._setViewerImage)
         self.library.fileActivated.connect(self._updateGridSelection)
         self.library.directoryChanged.connect(self._setGridImages)
 
@@ -87,10 +86,6 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def _updateGridSelection(self, path):
         self.grid.selectFile(path)
-
-    def _setViewerImage(self, path):
-        pixmap = QtGui.QPixmap(path)
-        self.viewer.setImage(pixmap)
 
     def _addDockWidget(self, w, name:str, areas=QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea, startArea=QtCore.Qt.LeftDockWidgetArea):
         dock = QtWidgets.QDockWidget(name, self)
