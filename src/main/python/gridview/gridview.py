@@ -34,6 +34,12 @@ class QImageGridView(QtWidgets.QTableView):
         for idx in indexes:
             self.selectionModel().select(idx, QtCore.QItemSelectionModel.Select)
 
+        # Ensure the newly selected index is visible
+        try:
+            self.scrollTo(indexes[0])
+        except IndexError:
+            print(f'No indexes were found matching the requested path: {path}')
+
 
 if __name__ == '__main__':
     pass
