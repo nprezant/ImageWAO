@@ -31,12 +31,14 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.notifier.parent = self
         self.progressBar = progressBar
 
+        # Connections
         self.library.activated.connect(self._setViewerImage)
         self.library.directoryChanged.connect(self._setGridImages)
-        # self.grid.clicked.connect(self._gridViewClicked)
+
         self.grid.model().progress.connect(self.progressBar.setValue)
-        self.grid.selectionChanged2.connect(self._gridViewChanged)
-        self.grid.selectionChanged2.connect(self._test)
+
+        self.grid.selectedIndexesChanged.connect(self._gridViewChanged)
+        self.grid.selectedIndexesChanged.connect(self._test)
 
         self._menusCreated = False
         self._makeMenus()

@@ -6,7 +6,7 @@ from .gridmodel import QImageGridModel
 class QImageGridView(QtWidgets.QTableView):
 
     # Convenience signal    
-    selectionChanged2 = QtCore.Signal(list)
+    selectedIndexesChanged = QtCore.Signal(list)
 
     def __init__(self):
         super().__init__()
@@ -23,7 +23,7 @@ class QImageGridView(QtWidgets.QTableView):
     def _emitSelectionChanged(self, selected, deselected):
         model = self.selectionModel()
         indexes = model.selectedIndexes()
-        self.selectionChanged2.emit(indexes)
+        self.selectedIndexesChanged.emit(indexes)
 
 
 if __name__ == '__main__':
