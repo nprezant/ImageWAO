@@ -112,16 +112,21 @@ class Library(QtWidgets.QWidget):
         self.viewActivated(index)
 
     def selectFiles(self, files):
-        ''' Try to select all matching files in the library '''
+        ''' Try to select all matching files in the library. '''
+
+        # No files passed in
+        if len(files) == 0:
+            return
+
+        # Clear current selection
         self.view.selectionModel().clearSelection()
-        for f in files:
-            idx = self.model.index(str(f))
+
+        # Get model indexes
+        indexes = [self.model.index(str(f)) for f in files]
+
+        # Select each index
+        for idx in indexes:
             self.view.selectionModel().select(idx, QtCore.QItemSelectionModel.Select)
 
         # Scroll to the first of the selected files
-        try:
-            idx = self.model.index(str(files[0]))
-        except IndexError:
-            pass # No files were passed in: don't scroll anywhere
-        else:
-            self.view.scrollTo(idx)
+        self.view.scrollTo(indexes[0])
