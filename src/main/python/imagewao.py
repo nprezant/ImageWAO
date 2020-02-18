@@ -34,7 +34,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.progressBar = progressBar
 
         # Connections
-        self.library.activated.connect(self._setViewerImage)
+        self.library.fileActivated.connect(self._setViewerImage)
         self.library.directoryChanged.connect(self._setGridImages)
 
         self.grid.model().progress.connect(self.progressBar.setValue)
