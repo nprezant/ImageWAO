@@ -117,3 +117,11 @@ class Library(QtWidgets.QWidget):
         for f in files:
             idx = self.model.index(str(f))
             self.view.selectionModel().select(idx, QtCore.QItemSelectionModel.Select)
+
+        # Scroll to the first of the selected files
+        try:
+            idx = self.model.index(str(files[0]))
+        except IndexError:
+            pass # No files were passed in: don't scroll anywhere
+        else:
+            self.view.scrollTo(idx)
