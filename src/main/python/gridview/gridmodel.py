@@ -230,7 +230,6 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         # Create a result QImage of appropriate size
         result = QtGui.QImage(QtCore.QSize(w, h), QtGui.QImage.Format_RGB32)
-        print(f'Size of selected image: ({w}, {h})')
 
         # Construct painter for drawing image parts into the result
         painter = QtGui.QPainter(result)
