@@ -14,12 +14,15 @@ class QImageGridView(QtWidgets.QTableView):
         super().__init__()
         self.setModel(QImageGridModel())
 
+        # Hide headers
         self.horizontalHeader().hide()
         self.verticalHeader().hide()
 
+        # Resize headers to fit the contents
         self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 
+        # Handle selection changes and map to appropriate signals
         self.selectionModel().selectionChanged.connect(self._handleSelectionChange)
 
     def _handleSelectionChange(self, selected, deselected):
