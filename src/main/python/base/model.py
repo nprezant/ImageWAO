@@ -5,11 +5,7 @@ from datetime import datetime
 
 from PIL import Image
 
-from PySide2.QtGui import QKeyEvent, QKeySequence
-from PySide2.QtCore import (
-    Qt, QAbstractTableModel, QModelIndex, QItemSelectionModel, QRect
-)
-from PySide2.QtWidgets import QTableView, QApplication
+from PySide2 import QtGui, QtCore, QtWidgets
 
 class Transect:
 
@@ -34,7 +30,7 @@ class Transect:
         self.files.clear()
 
 
-class TransectTableModel(QAbstractTableModel):
+class TransectTableModel(QtCore.QAbstractTableModel):
 
     def __init__(self):
         super().__init__()
@@ -110,15 +106,15 @@ class TransectTableModel(QAbstractTableModel):
         if currentTransect.numFiles >= minCount:
             self.transects.append(currentTransect)
 
-    def rowCount(self, index=QModelIndex()):
+    def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
         return len(self.transects)
 
-    def columnCount(self, index=QModelIndex()):
+    def columnCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of columns the model holds. '''
         return len(self.sections)
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index, role=QtCore.Qt.DisplayRole):
         ''' Depending on the index and role given, return data.
             If not returning data, return None (equv. to Qt's QVariant)
         '''
@@ -128,7 +124,7 @@ class TransectTableModel(QAbstractTableModel):
         if index.row() < 0 or index.row() > len(self.transects):
             return None
 
-        if role == Qt.DisplayRole:
+        if role == QtCore.Qt.DisplayRole:
             name = self.transects[index.row()].name
             numFiles = self.transects[index.row()].numFiles
             fileRange = self.transects[index.row()].firstLastText
@@ -142,22 +138,22 @@ class TransectTableModel(QAbstractTableModel):
 
         return None
 
-    def headerData(self, section, orientation, role=Qt.DisplayRole):
+    def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
         ''' Set the headers to be displayed. '''
-        if role != Qt.DisplayRole:
+        if role != QtCore.Qt.DisplayRole:
             return None
 
-        if orientation == Qt.Horizontal:
+        if orientation == QtCore.Qt.Horizontal:
             return self.sections[section]
 
-        if orientation == Qt.Vertical:
+        if orientation == QtCore.Qt.Vertical:
             return section
 
         return None
 
-    def insertRows(self, position, rows=1, index=QModelIndex()):
+    def insertRows(self, position, rows=1, index=QtCore.QModelIndex()):
         ''' Insert a row into the model. '''
-        self.beginInsertRows(QModelIndex(), position, position + rows - 1)
+        self.beginInsertRows(QtCore.QModelIndex(), position, position + rows - 1)
 
         for row in range(rows):
             self.transects.insert(
@@ -168,20 +164,20 @@ class TransectTableModel(QAbstractTableModel):
         self.endInsertRows()
         return True
 
-    def removeRows(self, position, rows=1, index=QModelIndex()):
+    def removeRows(self, position, rows=1, index=QtCore.QModelIndex()):
         ''' Remove a row into the model. '''
-        self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
+        self.beginRemoveRows(QtCore.QModelIndex(), position, position + rows - 1)
 
         del self.transects[position:position+rows]
 
         self.endRemoveRows()
         return True
 
-    def setData(self, index, value, role=Qt.EditRole):
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
         ''' Adjust the data (set it to <value>) depending on the
             given index and role.
         '''
-        if role != Qt.EditRole:
+        if role != QtCore.Qt.EditRole:
             return False
 
         if index.isValid() and 0 <= index.row() < len(self.transects):
@@ -199,21 +195,21 @@ class TransectTableModel(QAbstractTableModel):
     def flags(self, index):
         ''' Set the item flag at the given index. '''
         if not index.isValid():
-            return Qt.ItemIsEnabled
-        return Qt.ItemFlags(
-            QAbstractTableModel.flags(self, index)
-            | Qt.ItemIsEditable
+            return QtCore.Qt.ItemIsEnabled
+        return QtCore.Qt.ItemFlags(
+            QtCore.QAbstractTableModel.flags(self, index)
+            | QtCore.Qt.ItemIsEditable
         )
 
-class TransectTableView(QTableView):
+class TransectTableView(QtWidgets.QTableView):
     
-    def keyPressEvent(self, event: QKeyEvent):
-        if event.matches(QKeySequence.Paste):
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        if event.matches(QtGui.QKeySequence.Paste):
             self._handlePaste()
 
     @property
     def clipboard(self):
-        return QApplication.instance().clipboard()
+        return QtWidgets.QApplication.instance().clipboard()
 
     def _handlePaste(self):
         clipboard_text = self.clipboard.text()
