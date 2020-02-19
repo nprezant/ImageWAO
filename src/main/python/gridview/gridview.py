@@ -22,9 +22,37 @@ class QImageGridView(QtWidgets.QTableView):
         self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
         self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
 
+        # Create context menu
+        self.menu = QtWidgets.QMenu(self)
+        self._populateContextMenu()
+
+        # Context menu policy must be CustomContextMenu for us to implement
+        # our own context menu. Connect the context menu request to our internal slot.
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._customMenuRequested)
+
         # Handle selection changes and map to appropriate signals
         self.selectionModel().selectionChanged.connect(self._handleSelectionChange)
 
+    def _populateContextMenu(self):
+        # Create context menu
+        self.menu = QtWidgets.QMenu(self)
+
+        # Create menu actions
+        previewAction = QtWidgets.QAction('Preview', self)
+
+        # Connect handlers for actions
+        previewAction.triggered.connect(self._handlePreviewRequest)
+
+        # Add actions to the menu
+        self.menu.addAction(previewAction)
+
+    @QtCore.Slot(QtCore.QPoint)
+    def _customMenuRequested(self, pos:QtCore.QPoint):
+        ''' Open the context menu '''
+        self.menu.popup(self.viewport().mapToGlobal(pos))
+
+    @QtCore.Slot(QtCore.QItemSelection, QtCore.QItemSelection)
     def _handleSelectionChange(self, selected, deselected):
         model = self.selectionModel()
         indexes = model.selectedIndexes()
@@ -41,6 +69,18 @@ class QImageGridView(QtWidgets.QTableView):
         # Emit the files that are currently selected
         files = [idx.data(role=UserRoles.ImagePath) for idx in indexes]
         self.selectedFilesChanged.emit(files)
+
+    @QtCore.Slot()
+    def _handlePreviewRequest(self):
+        ''' Requests a preview of all selected images
+        from the model, emitting that in the selectedImageChanged
+        signal
+        '''
+        indexes = self.selectionModel().selectedIndexes()
+        preview = self.model().mergeIndexes(indexes)
+        if preview is not None:
+            self.selectedImageChanged.emit(preview)
+
 
     def selectFile(self, path):
         ''' Selects all the items associated
