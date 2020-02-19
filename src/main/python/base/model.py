@@ -124,7 +124,7 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         if index.row() < 0 or index.row() > len(self.transects):
             return None
 
-        if role == QtCore.Qt.DisplayRole:
+        if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
             name = self.transects[index.row()].name
             numFiles = self.transects[index.row()].numFiles
             fileRange = self.transects[index.row()].firstLastText
@@ -196,10 +196,13 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         ''' Set the item flag at the given index. '''
         if not index.isValid():
             return QtCore.Qt.ItemIsEnabled
-        return QtCore.Qt.ItemFlags(
-            QtCore.QAbstractTableModel.flags(self, index)
-            | QtCore.Qt.ItemIsEditable
-        )
+
+        if index.column() == 0:
+            return QtCore.Qt.ItemFlags(
+                QtCore.QAbstractTableModel.flags(self, index)
+                | QtCore.Qt.ItemIsEditable)
+        else:
+            return QtCore.QAbstractTableModel.flags(self, index)
 
 class TransectTableView(QtWidgets.QTableView):
     
