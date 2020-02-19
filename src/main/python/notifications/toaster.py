@@ -129,7 +129,7 @@ class QToaster(QtWidgets.QFrame):
 
     def generate(self, message, 
             icon=QtWidgets.QStyle.SP_MessageBoxInformation, 
-            corner=QtCore.Qt.TopLeftCorner, margin=10, closable=True, 
+            corner=QtCore.Qt.BottomRightCorner, margin=10, closable=True, 
             desktop=False, parentWindow=True):
 
         parent = self.parent()

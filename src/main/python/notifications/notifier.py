@@ -31,7 +31,7 @@ class Notifier:
     def notify(self, message):
         toast = QToaster(self.parent)
         toast.closed.connect(lambda: self._removeToast(toast))
-        toast.generate(message + str(self.count), corner=QtCore.Qt.BottomRightCorner)
+        toast.generate(message + str(self.count))
         self.count += 1
         self._addToast(toast)
 
