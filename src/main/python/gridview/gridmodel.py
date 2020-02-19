@@ -7,13 +7,14 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from base import QWorker
 
 class UserRoles:
-    EntireImage = QtCore.Qt.UserRole
-    ImagePath = QtCore.Qt.UserRole + 1
+    FullResImage = QtCore.Qt.UserRole # No scaling involved
+    EntireImage = QtCore.Qt.UserRole + 1 # Entire image (not cropped into sections)
+    ImagePath = QtCore.Qt.UserRole + 2 # Path to the original image
 
 class FullImage:
 
     def __init__(self, image, path=Path(), rows=2, cols=2, scaledWidth=200):
-        self._image = image
+        self.image = image
         self.path = path
         self.rows = rows
         self.cols = cols
@@ -47,8 +48,8 @@ class FullImage:
         self.parts = []
         self.scaledParts = []
 
-        w = self._image.width()
-        h = self._image.height()
+        w = self.image.width()
+        h = self.image.height()
 
         segmentWidth = w / self.cols
         segmentHeight = h / self.rows
@@ -67,7 +68,7 @@ class FullImage:
                 rect = QtCore.QRect(x, y, segmentWidth, segmentHeight)
 
                 self.rects[-1].append(rect)
-                self.parts[-1].append(self._image.copy(rect))
+                self.parts[-1].append(self.image.copy(rect))
                 self.scaledParts[-1].append(self.parts[-1][-1].scaledToWidth(self._scaledWidth))
 
     @staticmethod
@@ -222,8 +223,11 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         if role == QtCore.Qt.SizeHintRole:
             return image.part(r, c).size()
 
-        if role == UserRoles.EntireImage:
+        if role == UserRoles.FullResImage:
             return image.part(r, c, False)
+
+        if role == UserRoles.EntireImage:
+            return image.image
 
         if role == UserRoles.ImagePath:
             return image.path

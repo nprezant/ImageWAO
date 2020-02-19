@@ -1,8 +1,6 @@
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
-from gridview import UserRoles
-
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
 QtCore.QCoreApplication.setApplicationName('ImageWAO')
@@ -61,29 +59,26 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         self.grid.model().progress.connect(self.progressBar.setValue)
 
-        self.grid.selectedIndexesChanged.connect(self._updateViewerFromGrid)
-        self.grid.selectedIndexesChanged.connect(self._updateLibraryFromGrid)
+        self.grid.selectedImageChanged.connect(self._updateViewerImage)
+        self.grid.selectedFilesChanged.connect(self._updateLibraryFileSelection)
 
         # File | Etc. Menus
         self._menusCreated = False
         self._makeMenus()
 
-    def _updateLibraryFromGrid(self, indexes):
-        files = [idx.data(role=UserRoles.ImagePath) for idx in indexes]
+    @QtCore.Slot(list)
+    def _updateLibraryFileSelection(self, files):
         self.library.selectFiles(files)
 
+    @QtCore.Slot(str)
     def _setGridImages(self, path):
         self.grid.model().tryAddFolder(path)
 
-    def _updateViewerFromGrid(self, indexes):
-        try:
-            index = indexes[0]
-        except IndexError:
-            pass
-        else:
-            if index.isValid():
-                self.viewer.setImage(index.data(role=UserRoles.EntireImage))
+    @QtCore.Slot(QtGui.QImage)
+    def _updateViewerImage(self, image):
+        self.viewer.setImage(image)
 
+    @QtCore.Slot(str)
     def _updateGridSelection(self, path):
         self.grid.selectFile(path)
 
