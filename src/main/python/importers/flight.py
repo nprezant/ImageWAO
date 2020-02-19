@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets
 
-from base import Transect, TransectTableModel, TransectTableView
+from transects import Transect, TransectTableModel, TransectTableView
 
 class FlightImportWizard(QtWidgets.QWizard):
 
