@@ -3,17 +3,11 @@ import os
 import shutil
 from pathlib import Path
 
-from PySide2.QtCore import QSettings, Signal, Slot
-from PySide2.QtWidgets import (
-    QWidget, QPushButton, QLineEdit, QLabel, QSpinBox,
-    QFormLayout, QGridLayout, QSizePolicy, QFileDialog,
-    QWizard, QWizardPage, QAction, QVBoxLayout,
-    QTableView, QTextEdit, 
-)
+from PySide2 import QtCore, QtWidgets
 
 from base import Transect, TransectTableModel, TransectTableView
 
-class FlightImportWizard(QWizard):
+class FlightImportWizard(QtWidgets.QWizard):
 
     Page_Intro = 1
     Page_Parameters = 2
@@ -58,29 +52,29 @@ class FlightImportWizard(QWizard):
         except AttributeError:
             pass
 
-class IntroPage(QWizardPage):
+class IntroPage(QtWidgets.QWizardPage):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Introduction')
 
-        topLabel = QLabel(
+        topLabel = QtWidgets.QLabel(
             'This wizard will help you import new (unsorted) '
             'aerial flight images and categorize them into their '
             'proper transects.'
         )
         topLabel.setWordWrap(True)
 
-        self.pathLabel = QLabel('Import from:')
-        self.pathEdit = QLineEdit()
-        self.browse = QPushButton('...')
+        self.pathLabel = QtWidgets.QLabel('Import from:')
+        self.pathEdit = QtWidgets.QLineEdit()
+        self.browse = QtWidgets.QPushButton('...')
         self.browse.setMaximumWidth(
             self.browse.fontMetrics().boundingRect('...').width() + 20
         )
         self.browse.clicked.connect(self._chooseImportFolder)
         self.registerField('importFolder', self.pathEdit)
 
-        layout = QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(topLabel, 0, 0, 1, 3)
         layout.addWidget(self.pathLabel, 1, 0)
         layout.addWidget(self.pathEdit, 1, 1)
@@ -92,7 +86,7 @@ class IntroPage(QWizardPage):
 
     @property
     def _defaultImportFolder(self):
-        settings = QSettings()
+        settings = QtCore.QSettings()
         path = settings.value(
             'import/flightImportDirectory',
             Path().home().anchor
@@ -102,7 +96,7 @@ class IntroPage(QWizardPage):
     def _saveDefaults(self):
 
         # save default import path
-        settings = QSettings()
+        settings = QtCore.QSettings()
         settings.setValue(
             'import/flightImportDirectory', 
             self.pathEdit.text()
@@ -111,11 +105,11 @@ class IntroPage(QWizardPage):
     def _chooseImportFolder(self):
 
         # prompt user to choose folder
-        folder = QFileDialog().getExistingDirectory(
+        folder = QtWidgets.QFileDialog().getExistingDirectory(
             self,
             'Choose Import Folder',
             self.pathEdit.text(),
-            QFileDialog().ShowDirsOnly
+            QtWidgets.QFileDialog().ShowDirsOnly
         )
 
         if not folder == '':
@@ -124,13 +118,13 @@ class IntroPage(QWizardPage):
     def nextId(self):
         return FlightImportWizard.Page_Parameters        
 
-class ParametersPage(QWizardPage):
+class ParametersPage(QtWidgets.QWizardPage):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Parameters')
 
-        topLabel = QLabel(
+        topLabel = QtWidgets.QLabel(
             '<b>You probably don\'t need to change these.</b><br/>'
             'These parameters govern the algorithm that categorizes '
             'flight photos into transects. '
@@ -139,30 +133,30 @@ class ParametersPage(QWizardPage):
         topLabel.setWordWrap(True)
 
         # photo delay
-        self.maxDelayLabel = QLabel('Max time between photos')
+        self.maxDelayLabel = QtWidgets.QLabel('Max time between photos')
         self.maxDelayLabel.setToolTip(
             'Maximum number of seconds between '
             'photos on the same transect.\n\n'
             'This will be used to determine where one transect '
             'ends and another begins.'
         )
-        self.maxDelayBox = QSpinBox()
+        self.maxDelayBox = QtWidgets.QSpinBox()
         self.maxDelayBox.setRange(1,1000)
         self.maxDelayBox.setSuffix(' seconds')
         self.registerField('maxDelay', self.maxDelayBox)
 
         # min transect photo count
-        self.minCountLabel = QLabel('Min photos per transect')
+        self.minCountLabel = QtWidgets.QLabel('Min photos per transect')
         self.minCountLabel.setToolTip(
             'Minimum number of photos expected on the same transect.\n\n'
             'This number will be used to rule out test images.'
         )
-        self.minCountBox = QSpinBox()
+        self.minCountBox = QtWidgets.QSpinBox()
         self.minCountBox.setRange(1,1000)
         self.minCountBox.setSuffix(' photos')
         self.registerField('minCount', self.minCountBox)
 
-        layout = QFormLayout()
+        layout = QtWidgets.QFormLayout()
         layout.addRow(topLabel)
         layout.addRow(self.maxDelayLabel, self.maxDelayBox)
         layout.addRow(self.minCountLabel, self.minCountBox)
@@ -172,7 +166,7 @@ class ParametersPage(QWizardPage):
         self._setDefaults()
 
     def _setDefaults(self):
-        settings = QSettings()
+        settings = QtCore.QSettings()
         maxDelay = settings.value(
             'import/maxDelay', 
             5
@@ -185,7 +179,7 @@ class ParametersPage(QWizardPage):
         self.minCountBox.setValue(int(minCount))
 
     def _saveDefaults(self):
-        settings = QSettings()
+        settings = QtCore.QSettings()
         settings.setValue(
             'import/maxDelay', 
             self.maxDelayBox.value()
@@ -198,9 +192,9 @@ class ParametersPage(QWizardPage):
     def nextId(self):
         return FlightImportWizard.Page_Review
 
-class ReviewPage(QWizardPage):
+class ReviewPage(QtWidgets.QWizardPage):
 
-    modelChanged = Signal(TransectTableView)
+    modelChanged = QtCore.Signal(TransectTableView)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -211,7 +205,7 @@ class ReviewPage(QWizardPage):
 
         self.view.setModel(self.model)
 
-        layout = QVBoxLayout()
+        layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.view)
         self.setLayout(layout)
 
@@ -230,39 +224,39 @@ class ReviewPage(QWizardPage):
     def nextId(self):
         return FlightImportWizard.Page_Metadata
 
-class MetadataPage(QWizardPage):
+class MetadataPage(QtWidgets.QWizardPage):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Metadata')
 
-        topLabel = QLabel(
+        topLabel = QtWidgets.QLabel(
             'Include metadata about the flight. '
             'This will be saved alongside the transect images.'
         )
         topLabel.setWordWrap(True)
 
         # airframe
-        self.airframeLabel = QLabel('Airframe')
-        self.airframeBox = QLineEdit()
+        self.airframeLabel = QtWidgets.QLabel('Airframe')
+        self.airframeBox = QtWidgets.QLineEdit()
         self.registerField('airframeBox', self.airframeBox)
 
         # flight date
-        self.flightDateLabel = QLabel('Flight Date')
-        self.flightDateBox = QLineEdit()
+        self.flightDateLabel = QtWidgets.QLabel('Flight Date')
+        self.flightDateBox = QtWidgets.QLineEdit()
         self.registerField('flightDateBox', self.flightDateBox)
 
         # flight time
-        self.flightTimeLabel = QLabel('Flight Time')
-        self.flightTimeBox = QLineEdit()
+        self.flightTimeLabel = QtWidgets.QLabel('Flight Time')
+        self.flightTimeBox = QtWidgets.QLineEdit()
         self.registerField('flightTimeBox', self.flightTimeBox)
 
         # additional notes
-        self.flightNotesLabel = QLabel('Additional Notes')
-        self.flightNotesBox = QTextEdit()
+        self.flightNotesLabel = QtWidgets.QLabel('Additional Notes')
+        self.flightNotesBox = QtWidgets.QTextEdit()
         self.registerField('flightNotesBox', self.flightNotesBox)
 
-        layout = QFormLayout()
+        layout = QtWidgets.QFormLayout()
         layout.addRow(topLabel)
         layout.addRow(self.airframeLabel, self.airframeBox)
         layout.addRow(self.flightDateLabel, self.flightDateBox)
@@ -273,22 +267,22 @@ class MetadataPage(QWizardPage):
     def nextId(self):
         return FlightImportWizard.Page_SetLibrary
 
-class SetLibraryPage(QWizardPage):
+class SetLibraryPage(QtWidgets.QWizardPage):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Copy Images')
 
-        topLabel = QLabel(
+        topLabel = QtWidgets.QLabel(
             'Choose where you want to import the images to.\n'
             'By default, this will be your flight library.'
         )
         topLabel.setWordWrap(True)
 
         # import to this path
-        self.pathLabel = QLabel('Import to')
-        self.pathEdit = QLineEdit()
-        self.browse = QPushButton('...')
+        self.pathLabel = QtWidgets.QLabel('Import to')
+        self.pathEdit = QtWidgets.QLineEdit()
+        self.browse = QtWidgets.QPushButton('...')
         self.browse.setMaximumWidth(
             self.browse.fontMetrics().boundingRect('...').width() + 20
         )
@@ -296,14 +290,14 @@ class SetLibraryPage(QWizardPage):
         self.registerField('libFolder', self.pathEdit)
 
         # import to this folder name
-        self.flightFolderLabel = QLabel('Flight folder')
+        self.flightFolderLabel = QtWidgets.QLabel('Flight folder')
         self.flightFolderLabel.setMinimumWidth (
             self.flightFolderLabel.fontMetrics().boundingRect('Flight folder ').width()
         )
-        self.flightFolderBox = QLineEdit('FlightXX')
+        self.flightFolderBox = QtWidgets.QLineEdit('FlightXX')
         self.registerField('flightFolder', self.flightFolderBox)
 
-        layout = QGridLayout()
+        layout = QtWidgets.QGridLayout()
         layout.addWidget(topLabel, 0, 0, 1, 3)
         layout.addWidget(self.pathLabel, 1, 0)
         layout.addWidget(self.pathEdit, 1, 1)
@@ -318,7 +312,7 @@ class SetLibraryPage(QWizardPage):
 
     @property
     def _defaultLibraryFolder(self):
-        settings = QSettings()
+        settings = QtCore.QSettings()
         path = settings.value(
             'library/homeDirectory',
             str(Path().home()).replace(os.sep, '/')
@@ -328,11 +322,11 @@ class SetLibraryPage(QWizardPage):
     def _chooseImportFolder(self):
 
         # prompt user to choose folder
-        folder = QFileDialog().getExistingDirectory(
+        folder = QtWidgets.QFileDialog().getExistingDirectory(
             self,
             'Import to ...',
             self.pathEdit.text(),
-            QFileDialog().ShowDirsOnly
+            QtWidgets.QFileDialog().ShowDirsOnly
         )
 
         if not folder == '':
@@ -341,14 +335,14 @@ class SetLibraryPage(QWizardPage):
     def nextId(self):
         return FlightImportWizard.Page_Conclusion
     
-class ConclusionPage(QWizardPage):
+class ConclusionPage(QtWidgets.QWizardPage):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('You\'re all done')
         self._model = None
 
-    @Slot(TransectTableModel)
+    @QtCore.Slot(TransectTableModel)
     def updateModel(self, model):
         self._model = model
 
