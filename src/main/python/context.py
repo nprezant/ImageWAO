@@ -30,7 +30,7 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def mspaint(self):
-        return QImageViewer(self)
+        return QImageViewer()
 
     @cached_property
     def progressBar(self):
