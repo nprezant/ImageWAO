@@ -6,7 +6,9 @@ class QToaster(QtWidgets.QFrame):
 
     def __init__(self, *args, **kwargs):
         super(QToaster, self).__init__(*args, **kwargs)
-        QtWidgets.QHBoxLayout(self)
+
+        # Assign a grid layout
+        QtWidgets.QGridLayout(self)
 
         self.setSizePolicy(QtWidgets.QSizePolicy.Maximum, 
                            QtWidgets.QSizePolicy.Maximum)
@@ -127,35 +129,40 @@ class QToaster(QtWidgets.QFrame):
         else:
             self.clearMask()
 
-    def generate(self, message, 
-            icon=QtWidgets.QStyle.SP_MessageBoxInformation, 
-            corner=QtCore.Qt.BottomRightCorner, margin=10, closable=True, 
-            desktop=False, parentWindow=True):
+    def _addCloseButton(self):
+        self.closeButton = QtWidgets.QToolButton()
+        self.layout().addWidget(self.closeButton, 0, 2, QtCore.Qt.AlignTop)
+        closeIcon = self.style().standardIcon(
+            QtWidgets.QStyle.SP_TitleBarCloseButton)
+        self.closeButton.setIcon(closeIcon)
+        self.closeButton.setAutoRaise(True)
+        self.closeButton.clicked.connect(self.close)
+        self.closeButton.clicked.connect(self.closed.emit)
+
+    def generate(
+        self,
+        message=None,
+        icon=None,
+        iconAlignment=QtCore.Qt.AlignTop,
+        corner=QtCore.Qt.BottomRightCorner, margin=10, closable=True, 
+        desktop=False, parentWindow=True):
 
         parent = self.parent()
         parentRect = parent.rect()
 
-        # use Qt standard icon pixmaps; see:
+        # For Qt standard icon pixmaps; see:
         # https://doc.qt.io/qt-5/qstyle.html#StandardPixmap-enum
-        if isinstance(icon, QtWidgets.QStyle.StandardPixmap):
+        if icon is not None:
             labelIcon = QtWidgets.QLabel()
-            self.layout().addWidget(labelIcon)
-            icon = self.style().standardIcon(icon)
-            size = self.style().pixelMetric(QtWidgets.QStyle.PM_SmallIconSize)
-            labelIcon.setPixmap(icon.pixmap(size))
+            labelIcon.setPixmap(icon)
+            self.layout().addWidget(labelIcon, 0, 0, iconAlignment)
 
-        self.label = QtWidgets.QLabel(message)
-        self.layout().addWidget(self.label)
+        if message is not None:
+            self.label = QtWidgets.QLabel(message)
+            self.layout().addWidget(self.label, 0, 1)
 
         if closable:
-            self.closeButton = QtWidgets.QToolButton()
-            self.layout().addWidget(self.closeButton)
-            closeIcon = self.style().standardIcon(
-                QtWidgets.QStyle.SP_TitleBarCloseButton)
-            self.closeButton.setIcon(closeIcon)
-            self.closeButton.setAutoRaise(True)
-            self.closeButton.clicked.connect(self.close)
-            self.closeButton.clicked.connect(self.closed.emit)
+            self._addCloseButton()
 
         # raise the widget and adjust its size to the minimum
         self.raise_()

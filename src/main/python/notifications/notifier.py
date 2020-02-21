@@ -31,7 +31,21 @@ class Notifier:
     def notify(self, message):
         toast = QToaster(self.parent)
         toast.closed.connect(lambda: self._removeToast(toast))
-        toast.generate(message + str(self.count))
+        if self.count % 2 == 0:
+            icon = toast.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
+            size = toast.style().pixelMetric(QtWidgets.QStyle.PM_SmallIconSize)
+            pix = icon.pixmap(size)
+            toast.generate('You rock!', icon=pix, iconAlignment=QtCore.Qt.AlignVCenter)
+        elif self.count % 3 == 0:
+            icon = toast.style().standardIcon(QtWidgets.QStyle.SP_TrashIcon)
+            size = toast.style().pixelMetric(QtWidgets.QStyle.PM_LargeIconSize)
+            pix = icon.pixmap(size)
+            toast.generate('Nice!\nYou\'ve completed 50 images today!\nReally taking out the trash...\nThis is another line\nAnd yet another\nand another\nboom\nroasted.', icon=pix)
+        else:
+            icon = toast.style().standardIcon(QtWidgets.QStyle.SP_TrashIcon)
+            size = toast.style().pixelMetric(QtWidgets.QStyle.PM_LargeIconSize)
+            pix = icon.pixmap(size)
+            toast.generate('Nice!\nYou\'ve completed 50 images today!\nReally taking out the trash...', icon=pix)
         self.count += 1
         self._addToast(toast)
 
