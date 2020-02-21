@@ -120,5 +120,10 @@ class QImageWAO(QtWidgets.QMainWindow):
             self.notifier.notify('Whey 2 go!'))
         self.fileMenu.addAction(action)
 
+        a = QtWidgets.QAction('Reset settings', self)
+        a.triggered.connect(
+            lambda: QtCore.QSettings().clear())
+        self.fileMenu.addAction(a)
+
     def _arrangeMenus(self):
         self.menuBar().addMenu(self.fileMenu)
