@@ -100,6 +100,8 @@ class QImageViewer(QtWidgets.QGraphicsView):
         else:
             self._pixmapHandle = self.scene.addPixmap(pixmap)
         self.setSceneRect(QtCore.QRectF(pixmap.rect()))  # Set scene size to image size.
+        if self.canZoom:
+            self.zoomStack = []  # Clear zoom stack.
         self.updateViewer()
 
     def loadImageFromFile(self, fileName=''):
