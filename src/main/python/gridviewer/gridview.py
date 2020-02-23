@@ -9,6 +9,7 @@ class QImageGridView(QtWidgets.QTableView):
 
     selectedFilesChanged = QtCore.Signal(Path) # this prevents redundant signal emits
     selectedImageChanged = QtCore.Signal(QtGui.QImage) # this will let the grid determine what the viewer shows
+    notificationMessage = QtCore.Signal(str) # notifications to the main application
 
     def __init__(self):
         super().__init__()
@@ -94,7 +95,9 @@ class QImageGridView(QtWidgets.QTableView):
         try:
             idx = indexes[0]
         except IndexError:
-            print(f'No indexes were found matching the requested path: {path}')
+            self.notificationMessage.emit(
+                'Please wait for the image grids to load.\n'
+                f'No indexes were found matching the requested path: {path}')
         else:
 
             # Ensure the index associated with this file is visible

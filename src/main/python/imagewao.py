@@ -61,6 +61,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         self.grid.selectedImageChanged.connect(self._updateViewerImage)
         self.grid.selectedFilesChanged.connect(self._updateLibraryFileSelection)
+        self.grid.notificationMessage.connect(self._sendNotification)
 
         # File | Etc. Menus
         self._menusCreated = False
@@ -81,6 +82,10 @@ class QImageWAO(QtWidgets.QMainWindow):
     @QtCore.Slot(str)
     def _updateGridSelection(self, path):
         self.grid.selectFile(path)
+
+    @QtCore.Slot(str)
+    def _sendNotification(self, msg):
+        self.notifier.notify(msg)
 
     def _addDockWidget(self, w, name:str, areas=QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea, startArea=QtCore.Qt.LeftDockWidgetArea):
         dock = QtWidgets.QDockWidget(name, self)
