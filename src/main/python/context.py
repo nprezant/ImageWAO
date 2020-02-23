@@ -10,7 +10,7 @@ from library import Library
 from importers import ImportWizards
 from notifications import Notifier
 from imageviewer import QImageViewer
-from gridview import QImageGridView
+from gridviewer import QImageGridView
 from progressbar import QAbsoluteProgressBar
 
 class AppContext(ApplicationContext):
