@@ -31,7 +31,12 @@ class Notifier:
     def notify(self, message):
         toast = QToaster(self.parent)
         toast.closed.connect(lambda: self._removeToast(toast))
-        if self.count % 2 == 0:
+        if message != '':
+            icon = icon = toast.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
+            size = toast.style().pixelMetric(QtWidgets.QStyle.PM_SmallIconSize)
+            pix = icon.pixmap(size)
+            toast.generate(message, icon=pix, iconAlignment=QtCore.Qt.AlignVCenter)
+        elif self.count % 2 == 0:
             icon = toast.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
             size = toast.style().pixelMetric(QtWidgets.QStyle.PM_SmallIconSize)
             pix = icon.pixmap(size)

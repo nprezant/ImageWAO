@@ -45,6 +45,9 @@ class QToaster(QtWidgets.QFrame):
 
         self.geometryAni = QtCore.QPropertyAnimation(self, b'geometry')
 
+        self.setMinimumWidth(100)
+        self.setMaximumWidth(500)
+
         self.corner = QtCore.Qt.TopLeftCorner
         self.margin = 10
         self.isShown = False
@@ -159,6 +162,7 @@ class QToaster(QtWidgets.QFrame):
 
         if message is not None:
             self.label = QtWidgets.QLabel(message)
+            self.label.setWordWrap(True)
             self.layout().addWidget(self.label, 0, 1)
 
         if closable:

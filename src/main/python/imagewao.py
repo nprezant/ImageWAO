@@ -122,7 +122,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         action.setShortcut('Ctrl+n')
         action.triggered.connect(
             lambda:
-            self.notifier.notify('Whey 2 go!'))
+            self.notifier.notify(''))
         self.fileMenu.addAction(action)
 
         a = QtWidgets.QAction('Reset settings', self)
