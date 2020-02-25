@@ -62,6 +62,6 @@ class AppContext(ApplicationContext):
         return Notifier()
     
     def run(self):
-        self.window.resize(650, 350)
+        self.window.resize(1050, 650)
         self.window.show()
         return self.app.exec_()
