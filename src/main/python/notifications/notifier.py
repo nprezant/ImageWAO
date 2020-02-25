@@ -35,12 +35,12 @@ class Notifier:
             icon = icon = toast.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
             size = toast.style().pixelMetric(QtWidgets.QStyle.PM_SmallIconSize)
             pix = icon.pixmap(size)
-            toast.generate(message, icon=pix, iconAlignment=QtCore.Qt.AlignVCenter)
+            toast.generate(message, icon=pix)
         elif self.count % 2 == 0:
             icon = toast.style().standardIcon(QtWidgets.QStyle.SP_MessageBoxInformation)
             size = toast.style().pixelMetric(QtWidgets.QStyle.PM_SmallIconSize)
             pix = icon.pixmap(size)
-            toast.generate('You rock!', icon=pix, iconAlignment=QtCore.Qt.AlignVCenter)
+            toast.generate('You rock!', icon=pix)
         elif self.count % 3 == 0:
             icon = toast.style().standardIcon(QtWidgets.QStyle.SP_TrashIcon)
             size = toast.style().pixelMetric(QtWidgets.QStyle.PM_LargeIconSize)

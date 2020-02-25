@@ -96,8 +96,8 @@ class QImageGridView(QtWidgets.QTableView):
             idx = indexes[0]
         except IndexError:
             self.notificationMessage.emit(
-                'Please wait for the image grids to load.\n'
-                f'No indexes were found matching the requested path: {path}')
+                'Images still loading...\n\n'
+                f'No image parts were found at the requested path:\n{path}')
         else:
 
             # Ensure the index associated with this file is visible

@@ -146,7 +146,6 @@ class QToaster(QtWidgets.QFrame):
         self,
         message=None,
         icon=None,
-        iconAlignment=QtCore.Qt.AlignTop,
         corner=QtCore.Qt.BottomRightCorner, margin=10, closable=True, 
         desktop=False, parentWindow=True):
 
@@ -158,6 +157,19 @@ class QToaster(QtWidgets.QFrame):
         if icon is not None:
             labelIcon = QtWidgets.QLabel()
             labelIcon.setPixmap(icon)
+
+            # Determine icon alignment.
+            # If there is no message, it should align top
+            # If no line breaks, it should align center.
+            # With line breaks, it should align top.
+            if message is None:
+                iconAlignment = QtCore.Qt.AlignTop
+            elif '\n' in message:
+                iconAlignment = QtCore.Qt.AlignTop
+            else:
+                iconAlignment = QtCore.Qt.AlignVCenter
+
+            # Add icon to layout
             self.layout().addWidget(labelIcon, 0, 0, iconAlignment)
 
         if message is not None:
