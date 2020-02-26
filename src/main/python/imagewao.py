@@ -67,6 +67,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         self._menusCreated = False
         self._makeMenus()
 
+        # Toolbars
+        self.addToolBar(QtCore.Qt.TopToolBarArea, self.viewer.toolbar)
+
     @QtCore.Slot(list)
     def _updateLibraryFileSelection(self, files):
         self.library.selectFiles(files)

@@ -14,4 +14,17 @@ class Config:
         self.transectDataFolder = '.transect/'
         self.transectCountFile = '.transect/counts.json'
 
+        # Drawing colors
+        self.colors = [
+            '#3296e6', # Teleric Blue
+            'Blue',
+            'DarkGreen',
+            'Teal',
+            'Red',
+            'Orange',
+            'Magenta',
+            'Black',
+            'White',
+        ]
+
 config = Config()
