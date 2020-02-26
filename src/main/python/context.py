@@ -62,6 +62,9 @@ class AppContext(ApplicationContext):
         return Notifier()
     
     def run(self):
+        with open(self.get_resource('style.qss')) as f:
+            sheet = f.read()
+        self.app.setStyleSheet(sheet)
         self.window.resize(1050, 650)
         self.window.show()
         return self.app.exec_()
