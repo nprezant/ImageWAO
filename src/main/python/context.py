@@ -9,7 +9,7 @@ from imagewao import QImageWAO
 from library import Library
 from importers import ImportWizards
 from notifications import Notifier
-from imageviewer import QImageViewer
+from imageviewer import QImageEditor
 from gridviewer import QImageGridView
 from progressbar import QAbsoluteProgressBar
 
@@ -30,7 +30,7 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def mspaint(self):
-        return QImageViewer()
+        return QImageEditor()
 
     @cached_property
     def progressBar(self):

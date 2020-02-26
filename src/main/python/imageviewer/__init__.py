@@ -1,2 +1,2 @@
 
-from .imageviewer2 import QImageViewer
+from .editor import QImageEditor

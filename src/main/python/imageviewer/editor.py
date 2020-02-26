@@ -1,4 +1,6 @@
 
-from .imageviewer import QImageViewer
+from .imageviewer2 import QImageViewer
 
+class QImageEditor(QImageViewer):
 
+    pass
