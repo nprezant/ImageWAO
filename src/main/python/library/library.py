@@ -89,7 +89,8 @@ class Library(QtWidgets.QWidget):
 
         # layout init
         self.setLayout(QtWidgets.QVBoxLayout())
-        self.layout().setContentsMargins(0,5,0,0)
+        self.layout().setContentsMargins(0,0,0,0)
+        self.layout().setSpacing(0)
 
         # add layout items
         self.layout().addWidget(self.address)

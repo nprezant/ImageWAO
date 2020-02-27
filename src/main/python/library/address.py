@@ -78,7 +78,7 @@ class AddressBar(QtWidgets.QWidget):
 
         # make actions for each path part
         for part in Path(rel).parts:
-            act = QtWidgets.QAction(part)
+            act = QtWidgets.QAction(part + ' /')
             full = full / part
             act.triggered.connect(
                 lambda _=False, p=str(full): self.emitArbitraryPath(p)
