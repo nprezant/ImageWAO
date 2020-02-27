@@ -34,7 +34,7 @@ class QImageViewer(QSmoothGraphicsView):
     # signals
     imageFlattened = QtCore.Signal(QtGui.QImage)
 
-    def __init__(self, ctx):
+    def __init__(self):
         super().__init__()
 
         self.scene = QtWidgets.QGraphicsScene(self)
@@ -42,8 +42,6 @@ class QImageViewer(QSmoothGraphicsView):
         self.setRenderHint(QtGui.QPainter.Antialiasing)
 
         self.mainPixmapItem = self.scene.addPixmap(QtGui.QPixmap())
-
-        self.ctx = ctx
 
         # policies
         self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)

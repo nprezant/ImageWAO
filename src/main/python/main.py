@@ -1,9 +1,10 @@
 
 import sys
 
-from context import AppContext
+from base import ctx
+from combiner import Combiner
 
 if __name__ == '__main__':
-    appctxt = AppContext()
-    exit_code = appctxt.run()
+    app = Combiner(ctx)
+    exit_code = app.run()
     sys.exit(exit_code)

@@ -1,7 +1,9 @@
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
-from base import DockWidget
+from base import ctx
+
+from ui import DockWidget
 
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
@@ -11,7 +13,6 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def __init__(
         self,
-        ctx,
         mspaint,
         grid,
         library,
@@ -22,9 +23,6 @@ class QImageWAO(QtWidgets.QMainWindow):
         progressBar,
     ):
         super().__init__()
-
-        # Context for getting resources
-        self.ctx = ctx
 
         # The image editor is the central widget
         self.setCentralWidget(mspaint)
@@ -40,10 +38,10 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.animalTotals = animalTotals
 
         # Dock widget creation
-        self._addDockWidget(self.grid, self.ctx.defaultDockIcon, 'Image Grids', startArea=QtCore.Qt.RightDockWidgetArea)
-        self._addDockWidget(self.library, self.ctx.defaultDockIcon, 'Flight Library', startArea=QtCore.Qt.LeftDockWidgetArea)
-        self._addDockWidget(self.animalAdder, self.ctx.defaultDockIcon, 'Animal Adder', startArea=QtCore.Qt.RightDockWidgetArea)
-        self._addDockWidget(self.animalTotals, self.ctx.defaultDockIcon, 'Animal Totals', startArea=QtCore.Qt.RightDockWidgetArea)
+        self._addDockWidget(self.grid, ctx.defaultDockIcon, 'Image Grids', startArea=QtCore.Qt.RightDockWidgetArea)
+        self._addDockWidget(self.library, ctx.defaultDockIcon, 'Flight Library', startArea=QtCore.Qt.LeftDockWidgetArea)
+        self._addDockWidget(self.animalAdder, ctx.defaultDockIcon, 'Animal Adder', startArea=QtCore.Qt.RightDockWidgetArea)
+        self._addDockWidget(self.animalTotals, ctx.defaultDockIcon, 'Animal Totals', startArea=QtCore.Qt.RightDockWidgetArea)
 
         # Hide unused dock widgets
         self._dockWidgets['Animal Adder'].hide()
@@ -97,7 +95,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.notifier.notify(msg)
 
     def _addDockWidget(self, w, icon, name:str, startArea=QtCore.Qt.LeftDockWidgetArea):
-        dock = DockWidget(name, icon, self.ctx.closeDockIcon, parent=self)
+        dock = DockWidget(name, icon, parent=self)
         dock.setWidget(w)
         self.addDockWidget(startArea, dock)
         self._dockWidgets[name] = dock

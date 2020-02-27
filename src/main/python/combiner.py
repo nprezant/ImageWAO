@@ -1,7 +1,6 @@
 
 
 from fbs_runtime.application_context import cached_property
-from fbs_runtime.application_context.PySide2 import ApplicationContext
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -13,12 +12,14 @@ from imageviewer import QImageEditor
 from gridviewer import QImageGridView
 from progressbar import QAbsoluteProgressBar
 
-class AppContext(ApplicationContext):
+class Combiner:
+
+    def __init__(self, ctx):
+        self.ctx = ctx
 
     @cached_property
     def window(self):
         return QImageWAO(
-            self,
             self.mspaint,
             self.grid,
             self.library,
@@ -44,7 +45,7 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def library(self):
-        return Library(self)
+        return Library()
 
     @cached_property
     def animalAdder(self):
@@ -62,19 +63,10 @@ class AppContext(ApplicationContext):
     def notifier(self):
         return Notifier()
 
-    # Cached images
-    @cached_property
-    def defaultDockIcon(self):
-        return QtGui.QIcon(self.get_resource('icons/ic_storage.png'))
-
-    @cached_property
-    def closeDockIcon(self):
-        return QtGui.QIcon(self.get_resource('icons/ic_close.png'))
-
     def run(self):
-        with open(self.get_resource('style.qss')) as f:
+        with open(self.ctx.get_resource('style.qss')) as f:
             sheet = f.read()
-        self.app.setStyleSheet(sheet)
+        self.ctx.app.setStyleSheet(sheet)
         self.window.resize(1050, 650)
         self.window.show()
-        return self.app.exec_()
+        return self.ctx.app.exec_()

@@ -1,11 +1,13 @@
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
+from base import ctx
+
 class DockWidget(QtWidgets.QDockWidget):
     '''
     This class implements the container for docking area widgets.
     '''
-    def __init__(self, title, icon, closeIcon, parent):
+    def __init__(self, title, icon, parent):
         '''
         Initialize the dock widget.
         :type title: str
@@ -13,7 +15,7 @@ class DockWidget(QtWidgets.QDockWidget):
         :type session: Session
         '''
         super().__init__(title, parent, QtCore.Qt.Widget)
-        self.setTitleBarWidget(DockTitleWidget(title, icon, closeIcon, self))
+        self.setTitleBarWidget(DockTitleWidget(title, icon, self))
 
     def addTitleBarButton(self, button):
         '''
@@ -28,7 +30,7 @@ class DockTitleWidget(QtWidgets.QWidget):
     '''
     This class implements the title area of docking area widgets.
     '''
-    def __init__(self, title, icon, closeIcon, parent=None):
+    def __init__(self, title, icon, parent=None):
         '''
         Initialize the widget.
         :type title: str
@@ -48,7 +50,7 @@ class DockTitleWidget(QtWidgets.QWidget):
         # self.titleLabel.setFont(Font('Roboto', 13))
         # CREATE STANDARD BUTTONS
         close = QtWidgets.QPushButton(self)
-        close.setIcon(closeIcon)
+        close.setIcon(ctx.closeDockIcon)
         # close.setText('x')
         close.setFixedSize(18, 18)
         close.clicked.connect(parent.close)

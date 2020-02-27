@@ -12,11 +12,8 @@ class Library(QtWidgets.QWidget):
     fileActivated = QtCore.Signal(str)
     directoryChanged = QtCore.Signal(str)
 
-    def __init__(self, ctx):
+    def __init__(self):
         super().__init__()
-
-        # context
-        self.ctx = ctx
 
         # root path
         settings = QtCore.QSettings()
@@ -80,7 +77,7 @@ class Library(QtWidgets.QWidget):
         self.view.activated.connect(self.viewActivated)
 
         # address bar
-        self.address = AddressBar(self.ctx)
+        self.address = AddressBar()
         self.address.home_path = self.model.rootDirectory()
         self.address.path = self.model.rootDirectory()
 

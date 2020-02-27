@@ -4,17 +4,15 @@ from pathlib import Path
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from tools import clearLayout
+from base import ctx
 
 
 class AddressBar(QtWidgets.QWidget):
 
     activated = QtCore.Signal(str)
 
-    def __init__(self, ctx):
+    def __init__(self):
         super().__init__()
-
-        # context
-        self.ctx = ctx
 
         # path defaults
         self._homePath = QtCore.QDir.current()
@@ -65,7 +63,7 @@ class AddressBar(QtWidgets.QWidget):
 
         # add home action
         act = QtWidgets.QAction(
-            QtGui.QIcon(self.ctx.get_resource('home.png')),
+            QtGui.QIcon(ctx.get_resource('home.png')),
             'Home',
         )
         act.triggered.connect(self.emitHomePath)
