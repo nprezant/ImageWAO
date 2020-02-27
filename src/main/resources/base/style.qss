@@ -102,6 +102,13 @@ QMainWindow::separator {
 height: 1px; */
 }
 
+/*******************************************/
+/*  AddressBar                             */
+/*******************************************/
+AddressBar {
+    background: #ffffff; /* this doesn't appear to work */
+}
+
 
 /*******************************************/
 /*  QToolBar                               */
