@@ -4,8 +4,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from base import config
 
 from .imageviewer2 import QImageViewer
-from .palette import QPaletteIcon
-
+from .palette import ColorMenu
 
 
 class QImageEditor(QImageViewer):
@@ -13,23 +12,31 @@ class QImageEditor(QImageViewer):
     def __init__(self):
         super().__init__()
 
+        # Editor can have several selector states.
+        # Normal (default -- whatever the QImageViewer does)
+        # Zoom (User can zoom with the bounding rubber band box)
+        # Drawing (User can draw on image with specified shape)
+
+        # Toolbar
         self.toolbar = QtWidgets.QToolBar('Editing')
-        self._createToolbar()
 
-    def _createToolbar(self):
+        # Color palette button
+        self.colorButton = QtWidgets.QToolButton(self)
+        self.colorButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
-        # Color palette buttons
-        colorButton = QtWidgets.QToolButton(self)
-        colorButton.setText('Brush Color')
-        colorButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        # Color palette popup menu
+        self._colorMenu = ColorMenu(config.colors)
+        self._colorMenu.colorChanged.connect(self._penColorChanged)   
+        self._colorMenu.reset() # Nesessary to catch the signal for the default color
 
-        self._colorMenu = QtWidgets.QMenu()
-        self._colorActions = QPaletteIcon.createColorActions(config.colors)
-        for a in self._colorActions:
-            self._colorMenu.addAction(a)
+        # Assign menu to button & button to toolbar
+        self.colorButton.setMenu(self._colorMenu)
+        self.toolbar.addWidget(self.colorButton)
 
-        colorButton.setMenu(self._colorMenu)
-        self.toolbar.addWidget(colorButton)
+    @QtCore.Slot(QtGui.QColor)
+    def _penColorChanged(self, qcolor):
+        self.colorButton.setIcon(ColorMenu.circularColorIcon(qcolor, 75, 75))
+        print(f'Color changed to {qcolor}')
         
 
     
