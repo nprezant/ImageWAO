@@ -93,6 +93,15 @@ QScrollBar::sub-line:horizontal {
   width: 0;
 }
 
+/*******************************************/
+/*  QMainWindow                            */
+/*******************************************/
+
+QMainWindow::separator {
+/* background: #BABABA;
+height: 1px; */
+}
+
 
 /*******************************************/
 /*  QToolBar                               */
