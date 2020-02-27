@@ -1,7 +1,7 @@
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from base import config
+from base import config, ctx
 
 from .imageviewer2 import QImageViewer
 from .palette import ColorMenu
@@ -23,6 +23,7 @@ class QImageEditor(QImageViewer):
         # Color palette button
         self.colorButton = QtWidgets.QToolButton(self)
         self.colorButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+        self.paletteMask = QtGui.QPixmap(ctx.get_resource('icons/ic_palette.png'))
 
         # Color palette popup menu
         self._colorMenu = ColorMenu(config.colors)
@@ -35,7 +36,7 @@ class QImageEditor(QImageViewer):
 
     @QtCore.Slot(QtGui.QColor)
     def _penColorChanged(self, qcolor):
-        self.colorButton.setIcon(ColorMenu.circularColorIcon(qcolor, 75, 75))
+        self.colorButton.setIcon(ColorMenu.maskedIcon(qcolor, self.paletteMask))
         print(f'Color changed to {qcolor}')
         
 

@@ -51,6 +51,17 @@ class ColorMenu(QtWidgets.QMenu):
         icon = QtGui.QIcon(QtGui.QPixmap.fromImage(img))
         return icon
 
+    @staticmethod
+    def maskedIcon(qcolor, maskImg:QtGui.QPixmap):
+        '''
+        Creates an icon of a given color from the given mask
+        '''
+        img = QtGui.QPixmap(maskImg.size())
+        mask = maskImg.createMaskFromColor(QtGui.QColor('black'), QtCore.Qt.MaskOutColor)
+        img.fill(qcolor)
+        img.setMask(mask)
+        return img
+
     def handleColorChanged(self, checked):
 
         # If we tried to uncheck an item, don't allow it
