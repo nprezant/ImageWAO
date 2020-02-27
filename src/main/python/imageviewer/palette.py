@@ -14,6 +14,7 @@ class ColorMenu(QtWidgets.QMenu):
         '''
         super().__init__()
         self.actions = []
+        self._activeIndex = 0
         for color in colors:
 
             qcolor = QtGui.QColor(color)
