@@ -96,6 +96,9 @@ class DockTitleWidget(QtWidgets.QWidget):
     def mouseDoubleClickEvent(self, mouseEvent):
         '''
         Executed when the mouse is double clicked on the widget.
+        By re-implementing the method, the original functionality
+        is not called, and therefore double clicking no longer
+        detaches the dock widget from the main window.
         :type mouseEvent: QMouseEvent
         '''
         pass
