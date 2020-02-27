@@ -8,9 +8,12 @@ class QPaletteIcon(QtGui.QIcon):
 
         self.color = color
 
-        pixmap = QtGui.QPixmap(100, 100)
-        pixmap.fill(QtGui.QColor(color))
-        self.addPixmap(pixmap)
+        img = QtGui.QImage(100, 100, QtGui.QImage.Format_ARGB32_Premultiplied)
+        painter = QtGui.QPainter(img)
+        painter.setBrush(QtGui.QColor(color))
+        painter.drawEllipse(5,5,90,90)
+        painter.end()
+        self.addPixmap(QtGui.QPixmap.fromImage(img))
 
     @staticmethod
     def createColorActions(colors):
