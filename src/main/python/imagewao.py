@@ -90,9 +90,10 @@ class QImageWAO(QtWidgets.QMainWindow):
     def _sendNotification(self, msg):
         self.notifier.notify(msg)
 
-    def _addDockWidget(self, w, name:str, areas=QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea, startArea=QtCore.Qt.LeftDockWidgetArea):
+    def _addDockWidget(self, w, name:str, areas=None, startArea=QtCore.Qt.LeftDockWidgetArea):
         dock = QtWidgets.QDockWidget(name, self)
-        dock.setAllowedAreas(areas)
+        if not areas is None:
+            dock.setAllowedAreas(areas)
         dock.setWidget(w)
         self.addDockWidget(startArea, dock)
         self._dockWidgets[name] = dock
