@@ -3,7 +3,7 @@
 from fbs_runtime.application_context import cached_property
 from fbs_runtime.application_context.PySide2 import ApplicationContext
 
-from PySide2 import QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 
 from imagewao import QImageWAO
 from library import Library
@@ -18,6 +18,7 @@ class AppContext(ApplicationContext):
     @cached_property
     def window(self):
         return QImageWAO(
+            self,
             self.mspaint,
             self.grid,
             self.library,
@@ -60,7 +61,16 @@ class AppContext(ApplicationContext):
     @cached_property
     def notifier(self):
         return Notifier()
-    
+
+    # Cached images
+    @cached_property
+    def defaultDockIcon(self):
+        return QtGui.QIcon(self.get_resource('icons/ic_storage.png'))
+
+    @cached_property
+    def closeDockIcon(self):
+        return QtGui.QIcon(self.get_resource('icons/ic_close.png'))
+
     def run(self):
         with open(self.get_resource('style.qss')) as f:
             sheet = f.read()
