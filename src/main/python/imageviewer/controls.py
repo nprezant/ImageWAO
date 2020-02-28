@@ -36,6 +36,7 @@ class ImageController:
 
         # Single-selection buttons -- only one can be selected at a time
         selectionActions = [
+            ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_hand.png'))),
             ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_zoom.png'))),
             ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_oval.png'))),
             ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_rect.png'))),
