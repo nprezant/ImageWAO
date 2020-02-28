@@ -139,8 +139,11 @@ class QImageEditor(QImageViewer):
             # Some shapes use rectangles
             if self.mouseAction.tooltype in (ToolType.OvalShape, ToolType.RectangleShape):
                 rect = self._dynamiclyDrawnObject.rect()
-                width = rect.width()
-                height = rect.height()
+
+                # Absolute value required because items have negative
+                # width/height when they are drawn from right to left
+                width = abs(rect.width())
+                height = abs(rect.height())
 
                 if width > minLength and height > minLength:
                     valid = True                
