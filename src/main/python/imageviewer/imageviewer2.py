@@ -172,7 +172,12 @@ class QImageViewer(QtWidgets.QGraphicsView):
         '''
         scenePos = self.mapToScene(event.pos())
         if event.button() == QtCore.Qt.LeftButton:
-            self.leftMouseButtonDoubleClicked.emit(scenePos.x(), scenePos.y())
+            if self.canZoom:
+                viewBBox = self.zoomStack[-1] if len(self.zoomStack) else self.sceneRect()
+                margin = int(viewBBox.width() / 10)
+                smallerRect = viewBBox.marginsRemoved(QtCore.QMargins(margin, margin, margin, margin))
+                self.zoomStack.append(smallerRect)
+                self.updateViewer()
         elif event.button() == QtCore.Qt.RightButton:
             if self.canZoom:
                 self.zoomStack = []  # Clear zoom stack.
