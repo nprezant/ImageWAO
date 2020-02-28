@@ -46,7 +46,6 @@ class QImageEditor(QImageViewer):
 
         # Drawing variables
         self._drawnItems = []
-        self._drawStartPosition = None
         self._dynamiclyDrawnObject = None
         
     @property
@@ -72,9 +71,6 @@ class QImageEditor(QImageViewer):
 
     def mousePressEvent(self, event):
 
-        # Reset the start of the drawing position
-        self._drawStartPosition = None
-
         # For conveneient access to the currently selected mouse action
         mouseAction = self.controller.activeMouseAction
 
@@ -95,8 +91,8 @@ class QImageEditor(QImageViewer):
                 super().mousePressEvent(event)
                 return
             else:
-                self._drawStartPosition = self.mapToScene(event.pos())
-                initialRect = QtCore.QRectF(self._drawStartPosition.x(), self._drawStartPosition.y(), 1, 1)
+                pos = self.mapToScene(event.pos())
+                initialRect = QtCore.QRectF(pos.x(), pos.y(), 1, 1)
                 
             if mouseAction.tooltype == ToolType.OvalShape:
                 self._dynamiclyDrawnObject = self.scene.addEllipse(initialRect, self._pen)
@@ -104,8 +100,8 @@ class QImageEditor(QImageViewer):
                 self._dynamiclyDrawnObject = self.scene.addRect(initialRect, self._pen)
             elif mouseAction.tooltype == ToolType.LineShape:
                 line = QtCore.QLineF(
-                    self._drawStartPosition.x(), self._drawStartPosition.y(),
-                    self._drawStartPosition.x()+1, self._drawStartPosition.y()+1)
+                    pos.x(), pos.y(),
+                    pos.x()+1, pos.y()+1)
                 self._dynamiclyDrawnObject = self.scene.addLine(line, self._pen)
 
         else:
@@ -121,11 +117,9 @@ class QImageEditor(QImageViewer):
 
             # Some shapes use rectangles
             if self.mouseAction.tooltype in (ToolType.OvalShape, ToolType.RectangleShape):
-                newRect = QtCore.QRectF(
-                    self._drawStartPosition.x(), self._drawStartPosition.y(),
-                    pos.x() - self._drawStartPosition.x(), pos.y() - self._drawStartPosition.y())
-
-                self._dynamiclyDrawnObject.setRect(newRect)
+                rect = self._dynamiclyDrawnObject.rect()
+                rect.setBottomRight(QtCore.QPointF(pos.x(), pos.y()))
+                self._dynamiclyDrawnObject.setRect(rect)
 
             # Some shapes use lines
             elif self.mouseAction.tooltype == ToolType.LineShape:
