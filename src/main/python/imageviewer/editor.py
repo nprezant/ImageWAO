@@ -15,6 +15,7 @@ class ToolType(Enum):
     OvalShape = 3
     RectangleShape = 4
     LineShape = 5
+    Eraser = 6
 
 
 class QImageEditor(QImageViewer):
@@ -38,6 +39,7 @@ class QImageEditor(QImageViewer):
             MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_oval.png')), ToolType.OvalShape),
             MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_rect.png')), ToolType.RectangleShape),
             MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_line.png')), ToolType.LineShape),
+            MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_eraser.png')), ToolType.Eraser),
         ]
         self.controller = ImageController(self, selectionActions)
 
@@ -52,6 +54,7 @@ class QImageEditor(QImageViewer):
         # Drawing variables
         self._drawnItems = []
         self._dynamicallyDrawnItem = None
+        self._erasing = False
 
         # TODO: Create a way to save/load drawn items.
         # Eventually these drawn items must be saved as pixmaps,
@@ -170,6 +173,12 @@ class QImageEditor(QImageViewer):
 
         self._drawnItems.clear()
 
+    def _removeDrawnItemsUnderPoint(self, point:QtCore.QPointF):
+        for item in self._drawnItems:
+            if item.contains(point):
+                self.scene.removeItem(item)
+                self._drawnItems.remove(item)
+
     def mousePressEvent(self, event):
 
         # Sometimes we want the default handler
@@ -202,6 +211,11 @@ class QImageEditor(QImageViewer):
                     pos.x()+1, pos.y()+1)
                 self._dynamicallyDrawnItem = self.scene.addLine(line, self._pen)
 
+        elif self.mouseAction.tooltype == ToolType.Eraser:
+            # When the mouse moves, if the mouse was pressed with this tool,
+            # we need to know that we are still erasing
+            self._erasing = True
+            self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
         else:
             super().mousePressEvent(event)
 
@@ -224,6 +238,10 @@ class QImageEditor(QImageViewer):
                 line = self._dynamicallyDrawnItem.line()
                 line.setP2(QtCore.QPointF(pos.x(), pos.y()))
                 self._dynamicallyDrawnItem.setLine(line)
+
+        # If we are erasing currently, we need to remove items
+        elif self._erasing:
+            self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
 
         else:
             super().mouseMoveEvent(event)
@@ -265,8 +283,15 @@ class QImageEditor(QImageViewer):
             # Reset object handle
             self._dynamicallyDrawnItem = None
 
+        # If we just erased something, let the world know
+        elif self.mouseAction.tooltype == ToolType.Eraser:
+            self._emitDrawnItems()
+
         else:
             super().mouseReleaseEvent(event)
+
+        # We are no longer erasing
+        self._erasing = False
         
 
 class MouseToolAction(ColorableAction):
