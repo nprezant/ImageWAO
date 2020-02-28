@@ -38,19 +38,19 @@ class ImageController(QtCore.QObject):
         self.colorButton.setMenu(self._colorMenu)
 
         # Single-selection buttons -- only one can be selected at a time
-        self.selectionActions = SingleSelectionGroup(selectionActions)
-        self.selectionActions.itemChanged.connect(self._selectionActionChanged)
+        self.mouseActions = SingleSelectionGroup(selectionActions)
+        self.mouseActions.itemChanged.connect(self._selectionActionChanged)
 
         # Add buttons to toolbar
         self.toolbar.addWidget(self.colorButton)
-        self.toolbar.addActions(self.selectionActions.items)
+        self.toolbar.addActions(self.mouseActions.items)
         
         # Trigger the color menu signal to recolor necessary toolbar icons
         self._colorMenu.emitActiveColor()
 
     @property
     def activeMouseAction(self):
-        return self.selectionActions.activeItem
+        return self.mouseActions.activeItem
 
     @QtCore.Slot(QtGui.QColor)
     def _colorChanged(self, qcolor):
