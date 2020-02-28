@@ -192,24 +192,32 @@ class QImageEditor(QImageViewer):
         # Shape tool handler
         if self.mouseAction.isShapeTool:
 
-            # Don't start drawing unless the pixmap is under the
-            # mouse in the scene
-            if not self.scenePixmap().isUnderMouse():
-                super().mousePressEvent(event)
-                return
-            else:
-                pos = self.mapToScene(event.pos())
-                initialRect = QtCore.QRectF(pos.x(), pos.y(), 1, 1)
-                
-            if self.mouseAction.tooltype == ToolType.OvalShape:
-                self._dynamicallyDrawnItem = self.scene.addEllipse(initialRect, self._pen)
-            elif self.mouseAction.tooltype == ToolType.RectangleShape:
-                self._dynamicallyDrawnItem = self.scene.addRect(initialRect, self._pen)
-            elif self.mouseAction.tooltype == ToolType.LineShape:
-                line = QtCore.QLineF(
-                    pos.x(), pos.y(),
-                    pos.x()+1, pos.y()+1)
-                self._dynamicallyDrawnItem = self.scene.addLine(line, self._pen)
+            # Draw if this is the left button
+            if event.button() == QtCore.Qt.LeftButton:
+
+                # Don't start drawing unless the pixmap is under the
+                # mouse in the scene
+                if not self.scenePixmap().isUnderMouse():
+                    super().mousePressEvent(event)
+                    return
+                else:
+                    pos = self.mapToScene(event.pos())
+                    initialRect = QtCore.QRectF(pos.x(), pos.y(), 1, 1)
+                    
+                if self.mouseAction.tooltype == ToolType.OvalShape:
+                    self._dynamicallyDrawnItem = self.scene.addEllipse(initialRect, self._pen)
+                elif self.mouseAction.tooltype == ToolType.RectangleShape:
+                    self._dynamicallyDrawnItem = self.scene.addRect(initialRect, self._pen)
+                elif self.mouseAction.tooltype == ToolType.LineShape:
+                    line = QtCore.QLineF(
+                        pos.x(), pos.y(),
+                        pos.x()+1, pos.y()+1)
+                    self._dynamicallyDrawnItem = self.scene.addLine(line, self._pen)
+
+            # Erase if this is the right button
+            elif event.button() == QtCore.Qt.RightButton:
+                self._erasing = True
+                self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
 
         elif self.mouseAction.tooltype == ToolType.Eraser:
             # When the mouse moves, if the mouse was pressed with this tool,
@@ -284,14 +292,12 @@ class QImageEditor(QImageViewer):
             self._dynamicallyDrawnItem = None
 
         # If we just erased something, let the world know
-        elif self.mouseAction.tooltype == ToolType.Eraser:
+        elif self._erasing:
+            self._erasing = False
             self._emitDrawnItems()
 
         else:
             super().mouseReleaseEvent(event)
-
-        # We are no longer erasing
-        self._erasing = False
         
 
 class MouseToolAction(ColorableAction):
