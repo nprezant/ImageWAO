@@ -84,6 +84,9 @@ class QImageViewer(QtWidgets.QGraphicsView):
             return self._pixmapHandle.pixmap().toImage()
         return None
 
+    def scenePixmap(self):
+        return self._pixmapHandle
+
     def setImage(self, image):
         ''' Set the scene's current image pixmap to the input QImage or QPixmap.
         Raises a RuntimeError if the input image has type other than QImage or QPixmap.

@@ -5,17 +5,20 @@ from PySide2 import QtCore, QtGui, QtWidgets
 
 from base import config, ctx
 
-from .colormenu import ColorMenu
+from .colormenu import ColorMenu, ColorableAction
 
 
-class ImageController:
+class ImageController(QtCore.QObject):
     '''
     This class implements the toolbar buttons
     and file menu options for an image editor
     '''
 
-    def __init__(self, parent):
+    colorChanged = QtCore.Signal(QtGui.QColor)
 
+    def __init__(self, parent, selectionActions):
+
+        super().__init__()
         self.parent = parent
 
         # Toolbar
@@ -29,19 +32,12 @@ class ImageController:
 
         # Color palette popup menu
         self._colorMenu = ColorMenu(config.colors)
-        self._colorMenu.colorChanged.connect(self._penColorChanged)   
+        self._colorMenu.colorChanged.connect(self._colorChanged)   
 
         # Assign menu to button & button to toolbar
         self.colorButton.setMenu(self._colorMenu)
 
         # Single-selection buttons -- only one can be selected at a time
-        selectionActions = [
-            ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_hand.png'))),
-            ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_zoom.png'))),
-            ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_oval.png'))),
-            ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_rect.png'))),
-            ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_line.png'))),
-        ]
         self.selectionActions = SingleSelectionGroup(selectionActions)
         self.selectionActions.itemChanged.connect(self._selectionActionChanged)
 
@@ -52,29 +48,30 @@ class ImageController:
         # Trigger the color menu signal to recolor necessary toolbar icons
         self._colorMenu.emitActiveColor()
 
+    @property
+    def activeMouseAction(self):
+        return self.selectionActions.activeItem
+
     @QtCore.Slot(QtGui.QColor)
-    def _penColorChanged(self, qcolor):
+    def _colorChanged(self, qcolor):
+
+        # Re-color the color button icon
         self.colorButton.actions()[0].recolor(qcolor)
-        print(f'Color changed to {qcolor}')
+        
+        # Bubble up color
+        self.colorChanged.emit(qcolor)
 
     @QtCore.Slot(QtWidgets.QAction)
     def _selectionActionChanged(self, action):
         print('Selection action changed')
 
-
-class ColorableAction(QtWidgets.QAction):
-    '''
-    An action whose icon can be re-colored with a mask.
-    Instance also contains information about what kind of drawing
-    it might perform
-    '''
-    def __init__(self, parent, mask: QtGui.QPixmap):
-        super().__init__(parent)
-        self.mask = mask
-        self.setIcon(mask)
-
-    def recolor(self, color: QtGui.QColor):
-        self.setIcon(ColorMenu.maskedIcon(color, self.mask))
+    def sendSignals(self):
+        '''
+        Sends the signals in this object.
+        This can be useful for initializing Gui colors once
+        slots are connected to these signals.
+        '''
+        self._colorMenu.emitActiveColor()
 
 
 class SingleSelectionGroup(QtCore.QObject):
@@ -104,7 +101,7 @@ class SingleSelectionGroup(QtCore.QObject):
 
         # Set checked on one item to start
         self._activeIndex = startIndex
-        self._items[startIndex].setChecked(True)
+        self.activeItem.setChecked(True)
 
     @property
     def items(self):
@@ -113,11 +110,15 @@ class SingleSelectionGroup(QtCore.QObject):
         '''
         return self._items
 
+    @property
+    def activeItem(self):
+        return self._items[self._activeIndex]
+
     def _handleItemTriggered(self, checked):
 
         # If we tried to uncheck an item, don't allow it
         if checked is False:
-            self._items[self._activeIndex].setChecked(True)
+            self.activeItem.setChecked(True)
             return
 
         # Uncheck the previously active index

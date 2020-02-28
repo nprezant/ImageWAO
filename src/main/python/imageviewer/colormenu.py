@@ -88,3 +88,18 @@ class ColorMenu(QtWidgets.QMenu):
                 self._activeIndex = i
                 self.emitActiveColor()
                 return
+
+
+class ColorableAction(QtWidgets.QAction):
+    '''
+    An action whose icon can be re-colored with a mask.
+    Instance also contains information about what kind of drawing
+    it might perform
+    '''
+    def __init__(self, parent, mask: QtGui.QPixmap):
+        super().__init__(parent)
+        self.mask = mask
+        self.setIcon(mask)
+
+    def recolor(self, color: QtGui.QColor):
+        self.setIcon(ColorMenu.maskedIcon(color, self.mask))
