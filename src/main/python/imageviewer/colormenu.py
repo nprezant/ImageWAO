@@ -27,15 +27,23 @@ class ColorMenu(QtWidgets.QMenu):
             self.actions.append(action)
             self.addAction(action)
 
-    def reset(self):
-        '''
-        Initialize the first value as checked and trigger.
-        This method should be called AFTER the slots are set up
-        for the colorChanged signal.
-        '''
+        # Initialize the first item as the one selected
         self._activeIndex = 0
         self.actions[0].setChecked(True)
-        self.colorChanged.emit(self.actions[0].qcolor)
+
+    @property
+    def activeColor(self):
+        return self.actions[self._activeIndex].qcolor
+
+    def emitActiveColor(self):
+        '''
+        Trigger an emit for the active index.
+        This method is used internally, but can also be called externally
+        to manually emit the colorChanged signal on the active index.
+        This can be helpful when initializing the class after setting up
+        the proper slots.
+        '''
+        self.colorChanged.emit(self.activeColor)
 
     @staticmethod
     def circularColorIcon(qcolor, w=100, h=100):
@@ -78,5 +86,5 @@ class ColorMenu(QtWidgets.QMenu):
         for i,a in enumerate(self.actions):
             if a.isChecked():
                 self._activeIndex = i
-                self.colorChanged.emit(a.qcolor)
+                self.emitActiveColor()
                 return
