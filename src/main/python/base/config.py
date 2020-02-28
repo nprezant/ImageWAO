@@ -16,7 +16,6 @@ class Config:
 
         # Drawing colors
         self.colors = [
-            '#3296e6', # Teleric Blue
             'Blue',
             'DarkGreen',
             'Teal',
