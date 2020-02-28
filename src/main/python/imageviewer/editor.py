@@ -71,19 +71,16 @@ class QImageEditor(QImageViewer):
 
     def mousePressEvent(self, event):
 
-        # For conveneient access to the currently selected mouse action
-        mouseAction = self.controller.activeMouseAction
-
         # Sometimes we want the default handler
         if (
             self.scenePixmap() is None # No image loaded
-            or mouseAction.tooltype == ToolType.HandTool
+            or self.mouseAction.tooltype == ToolType.HandTool
         ):
             super().mousePressEvent(event)
             return
 
         # Shape tool handler
-        if mouseAction.isShapeTool:
+        if self.mouseAction.isShapeTool:
 
             # Don't start drawing unless the pixmap is under the
             # mouse in the scene
@@ -94,11 +91,11 @@ class QImageEditor(QImageViewer):
                 pos = self.mapToScene(event.pos())
                 initialRect = QtCore.QRectF(pos.x(), pos.y(), 1, 1)
                 
-            if mouseAction.tooltype == ToolType.OvalShape:
+            if self.mouseAction.tooltype == ToolType.OvalShape:
                 self._dynamiclyDrawnObject = self.scene.addEllipse(initialRect, self._pen)
-            elif mouseAction.tooltype == ToolType.RectangleShape:
+            elif self.mouseAction.tooltype == ToolType.RectangleShape:
                 self._dynamiclyDrawnObject = self.scene.addRect(initialRect, self._pen)
-            elif mouseAction.tooltype == ToolType.LineShape:
+            elif self.mouseAction.tooltype == ToolType.LineShape:
                 line = QtCore.QLineF(
                     pos.x(), pos.y(),
                     pos.x()+1, pos.y()+1)
