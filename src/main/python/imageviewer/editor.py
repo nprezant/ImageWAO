@@ -79,6 +79,14 @@ class QImageEditor(QImageViewer):
         '''
         return self.controller.activeMouseAction
 
+    def setImage(self, image):
+        '''
+        Re-implement to ensure that drawn items are 
+        cleared when a new image is set
+        '''
+        self._clearDrawnItems()
+        super().setImage(image)
+
     @QtCore.Slot(QtGui.QColor)
     def _updatePenColor(self, qcolor):
         '''
@@ -108,7 +116,7 @@ class QImageEditor(QImageViewer):
             elif isinstance(item, QtWidgets.QGraphicsLineItem):
                 name = 'Line'
                 line = item.line()
-                args = [line.x1(), line.x2(), line.y1(), line.y2()]
+                args = [line.x1(), line.y1(), line.x2(), line.y2()]
 
             else:
                 print(f'Unrecognized item: {item}')
@@ -125,7 +133,7 @@ class QImageEditor(QImageViewer):
         serialized = json.dumps(encoded)
         self.drawnItemsChanged.emit(serialized)
 
-    def _readSerializedDrawnItems(self, serialized):
+    def readSerializedDrawnItems(self, serialized):
         '''
         Reads serialized data about drawn items into
         itself the current scene.
@@ -156,7 +164,11 @@ class QImageEditor(QImageViewer):
 
             self._drawnItems.append(item)
 
+    def _clearDrawnItems(self):
+        for item in self._drawnItems:
+            self.scene.removeItem(item)
 
+        self._drawnItems.clear()
 
     def mousePressEvent(self, event):
 

@@ -66,6 +66,10 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.grid.selectedImageChanged.connect(self._updateViewerImage)
         self.grid.selectedFilesChanged.connect(self._updateLibraryFileSelection)
         self.grid.notificationMessage.connect(self._sendNotification)
+        self.grid.drawnItemsChanged.connect(self.viewer.readSerializedDrawnItems)
+
+        # Image viewer signal connections
+        self.viewer.drawnItemsChanged.connect(self.grid.saveDrawnItems)
 
         # File | Etc. Menus
         self._menusCreated = False

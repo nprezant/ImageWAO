@@ -10,6 +10,7 @@ class UserRoles:
     FullResImage = QtCore.Qt.UserRole # No scaling involved
     EntireImage = QtCore.Qt.UserRole + 1 # Entire image (not cropped into sections)
     ImagePath = QtCore.Qt.UserRole + 2 # Path to the original image
+    DrawnItems = QtCore.Qt.UserRole + 3 # Items drawn on this image
 
 class FullImage:
 
@@ -23,6 +24,7 @@ class FullImage:
         self.rects = []
         self.parts = []
         self.scaledParts = []
+        self._drawnItems = []
 
         self.compute()
 
@@ -37,6 +39,20 @@ class FullImage:
         else:
             return self.parts[r][c]
 
+    def drawnItems(self, r, c):
+        ''' Gets the serialized string
+        of the drawn items at the given 
+        row, column
+        '''
+        return self._drawnItems[r][c]
+
+    def setDrawnItems(self, r, c, items):
+        ''' Sets the serialized string of the 
+        drawn items at the given row, column to
+        the given value.
+        '''
+        self._drawnItems[r][c] = items
+
     def compute(self):
         ''' Computes the rects of the image,
         divided into a grid self.rows by self.cols.
@@ -47,6 +63,7 @@ class FullImage:
         self.rects = []
         self.parts = []
         self.scaledParts = []
+        self._drawnItems = []
 
         w = self.image.width()
         h = self.image.height()
@@ -59,6 +76,7 @@ class FullImage:
             self.rects.append([])
             self.parts.append([])
             self.scaledParts.append([])
+            self._drawnItems.append([])
 
             for col in range(self.cols):
 
@@ -70,6 +88,7 @@ class FullImage:
                 self.rects[-1].append(rect)
                 self.parts[-1].append(self.image.copy(rect))
                 self.scaledParts[-1].append(self.parts[-1][-1].scaledToWidth(self._scaledWidth))
+                self._drawnItems[-1].append(None)
 
     @staticmethod
     def CreateFromListQWorker(progress, files, *args):
@@ -254,6 +273,14 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         return result
 
+    def setDrawnItems(self, index, items):
+        ''' Sets the drawn items at this index '''
+        image = self._images[int(index.row() / self._imageRows)]
+        
+        r = index.row() % self._imageRows
+        c = index.column()
+
+        image.setDrawnItems(r, c, items)
 
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
@@ -292,6 +319,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         if role == UserRoles.ImagePath:
             return image.path
+
+        if role == UserRoles.DrawnItems:
+            return image.drawnItems(r, c)
 
         return None
 

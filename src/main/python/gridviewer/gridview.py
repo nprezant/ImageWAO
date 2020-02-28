@@ -11,6 +11,7 @@ class QImageGridView(QtWidgets.QTableView):
     selectedImageChanged = QtCore.Signal(QtGui.QImage) # this will let the grid determine what the viewer shows
     notificationMessage = QtCore.Signal(str) # notifications to the main application
     loadProgress = QtCore.Signal(int) # loading progress notification
+    drawnItemsChanged = QtCore.Signal(str) # serialized string of items drawn on image
 
     def __init__(self):
         super().__init__()
@@ -70,7 +71,14 @@ class QImageGridView(QtWidgets.QTableView):
         # Emit the first of the selected indexes
         index = indexes[0]
         if index.isValid():
+
+            # Emit image
             self.selectedImageChanged.emit(index.data(role=UserRoles.FullResImage))
+
+            # Only emit items if we find some
+            items = index.data(role=UserRoles.DrawnItems)
+            if items is not None:
+                self.drawnItemsChanged.emit(items)
 
         # Emit the files that are currently selected
         files = [idx.data(role=UserRoles.ImagePath) for idx in indexes]
@@ -110,6 +118,25 @@ class QImageGridView(QtWidgets.QTableView):
 
             # Select the entire image associated with the first index
             self.selectedImageChanged.emit(idx.data(role=UserRoles.EntireImage))
+
+    @QtCore.Slot(str)
+    def saveDrawnItems(self, items):
+        '''
+        Save the drawn items passed in to the currently active
+        model index.
+        '''
+        model = self.selectionModel()
+        indexes = model.selectedIndexes()
+
+        # Nothing to do if there are no indexes selected
+        if len(indexes) == 0:
+            return
+
+        # Save the drawn items to the first of the selected indexes
+        # TODO: Handle if multiple indexes are selected
+        index = indexes[0]
+
+        self.model().setDrawnItems(index, items)
 
 
 if __name__ == '__main__':
