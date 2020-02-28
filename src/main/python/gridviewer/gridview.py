@@ -10,6 +10,7 @@ class QImageGridView(QtWidgets.QTableView):
     selectedFilesChanged = QtCore.Signal(Path) # this prevents redundant signal emits
     selectedImageChanged = QtCore.Signal(QtGui.QImage) # this will let the grid determine what the viewer shows
     notificationMessage = QtCore.Signal(str) # notifications to the main application
+    loadProgress = QtCore.Signal(int) # loading progress notification
 
     def __init__(self):
         super().__init__()
@@ -34,6 +35,10 @@ class QImageGridView(QtWidgets.QTableView):
 
         # Handle selection changes and map to appropriate signals
         self.selectionModel().selectionChanged.connect(self._handleSelectionChange)
+
+        # Bubble progress updates from the model
+        # (The model often has to perform expensive loading operations)
+        self.model().progress.connect(self.loadProgress.emit)
 
     def _populateContextMenu(self):
         # Create context menu

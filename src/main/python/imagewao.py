@@ -57,12 +57,12 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Progress Bar
         self.progressBar = progressBar
 
-        # Connections
+        # Flight library signal connections
         self.library.fileActivated.connect(self._updateGridSelection)
         self.library.directoryChanged.connect(self._setGridImages)
 
-        self.grid.model().progress.connect(self.progressBar.setValue)
-
+        # Image grid signal connections
+        self.grid.loadProgress.connect(self.progressBar.setValue)
         self.grid.selectedImageChanged.connect(self._updateViewerImage)
         self.grid.selectedFilesChanged.connect(self._updateLibraryFileSelection)
         self.grid.notificationMessage.connect(self._sendNotification)
