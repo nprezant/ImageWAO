@@ -1,4 +1,5 @@
 
+import json
 from enum import Enum
 
 from PySide2 import QtCore, QtGui, QtWidgets
@@ -17,6 +18,10 @@ class ToolType(Enum):
 
 
 class QImageEditor(QImageViewer):
+
+    # Emits signal with a list of encoded items
+    # When a new item is drawn or removed
+    drawnItemsChanged = QtCore.Signal(list)
 
     def __init__(self):
         super().__init__()
@@ -46,7 +51,19 @@ class QImageEditor(QImageViewer):
 
         # Drawing variables
         self._drawnItems = []
-        self._dynamiclyDrawnObject = None
+        self._dynamicallyDrawnItem = None
+
+        # TODO: Create a way to save/load drawn items.
+        # Eventually these drawn items must be saved as pixmaps,
+        # But before that it would be nice to have a simple save/load operation
+        # just for the drawn items. Then, those can be saved to a seperate file,
+        # and just those items can be loaded in when we look at someone's transects.
+        #
+        # Additionally, we'll be able to show a QListView of these items, and perhaps
+        # include some nice select & delete operations to go along with it.
+        # 
+        # On top of that, when we are comparing one person's transects to another
+        # person's, we can choose whose *counts* (including markup) to look at. 
         
     @property
     def toolbar(self):
@@ -68,6 +85,78 @@ class QImageEditor(QImageViewer):
         Set internal pen color, used for new drawings
         '''
         self._pen.setColor(qcolor)
+
+    def _emitDrawnItems(self):
+
+        # Need to make a list of encoded items
+        encoded = []
+
+        for item in self._drawnItems:
+
+            # Encoded data differs depending on item type
+            # Need to save as much data as necessary to re-create item
+            if isinstance(item, QtWidgets.QGraphicsRectItem):
+                name = 'Rect'
+                rect = item.rect()
+                args = [rect.x(), rect.y(), rect.width(), rect.height()]
+
+            elif isinstance(item, QtWidgets.QGraphicsEllipseItem):
+                name = 'Ellipse'
+                rect = item.rect()
+                args = [rect.x(), rect.y(), rect.width(), rect.height()]
+
+            elif isinstance(item, QtWidgets.QGraphicsLineItem):
+                name = 'Line'
+                line = item.line()
+                args = [line.x1(), line.x2(), line.y1(), line.y2()]
+
+            else:
+                print(f'Unrecognized item: {item}')
+                continue
+
+            # All graphics items have associated pens
+            if isinstance(item, QtWidgets.QGraphicsItem):
+                pen = item.pen()
+                penColor = pen.color().name() # In #RRGGBB format
+                penWidth = pen.width()
+
+            encoded.append([name, args, penColor, penWidth])
+
+        serialized = json.dumps(encoded)
+        self.drawnItemsChanged.emit(serialized)
+
+    def _readSerializedDrawnItems(self, serialized):
+        '''
+        Reads serialized data about drawn items into
+        itself the current scene.
+        '''
+        data = json.loads(serialized)
+        for dataItem in data:
+
+            # TODO: Error checking -- enough data in list?
+            # correct data in list?
+            name = dataItem[0]
+            args = dataItem[1]
+            penColor = dataItem[2]
+            penWidth = dataItem[3]
+
+            # Setup pen
+            pen = QtGui.QPen(penColor) # Does this color need to be a QColor?
+            pen.setWidth(penWidth)
+
+            if name == 'Rect':
+                rect = QtCore.QRectF(*args)
+                item = self.scene.addRect(rect, pen)
+            elif name == 'Ellipse':
+                rect = QtCore.QRectF(*args)
+                item = self.scene.addEllipse(rect, pen)
+            elif name == 'Line':
+                line = QtCore.QLineF(*args)
+                item = self.scene.addLine(line, pen)
+
+            self._drawnItems.append(item)
+
+
 
     def mousePressEvent(self, event):
 
@@ -92,14 +181,14 @@ class QImageEditor(QImageViewer):
                 initialRect = QtCore.QRectF(pos.x(), pos.y(), 1, 1)
                 
             if self.mouseAction.tooltype == ToolType.OvalShape:
-                self._dynamiclyDrawnObject = self.scene.addEllipse(initialRect, self._pen)
+                self._dynamicallyDrawnItem = self.scene.addEllipse(initialRect, self._pen)
             elif self.mouseAction.tooltype == ToolType.RectangleShape:
-                self._dynamiclyDrawnObject = self.scene.addRect(initialRect, self._pen)
+                self._dynamicallyDrawnItem = self.scene.addRect(initialRect, self._pen)
             elif self.mouseAction.tooltype == ToolType.LineShape:
                 line = QtCore.QLineF(
                     pos.x(), pos.y(),
                     pos.x()+1, pos.y()+1)
-                self._dynamiclyDrawnObject = self.scene.addLine(line, self._pen)
+                self._dynamicallyDrawnItem = self.scene.addLine(line, self._pen)
 
         else:
             super().mousePressEvent(event)
@@ -107,22 +196,22 @@ class QImageEditor(QImageViewer):
     def mouseMoveEvent(self, event):
 
         # Update dynamically drawn object if it exists
-        if self._dynamiclyDrawnObject is not None:
+        if self._dynamicallyDrawnItem is not None:
 
             # Current mouse position
             pos = self.mapToScene(event.pos())
 
             # Some shapes use rectangles
             if self.mouseAction.tooltype in (ToolType.OvalShape, ToolType.RectangleShape):
-                rect = self._dynamiclyDrawnObject.rect()
+                rect = self._dynamicallyDrawnItem.rect()
                 rect.setBottomRight(QtCore.QPointF(pos.x(), pos.y()))
-                self._dynamiclyDrawnObject.setRect(rect)
+                self._dynamicallyDrawnItem.setRect(rect)
 
             # Some shapes use lines
             elif self.mouseAction.tooltype == ToolType.LineShape:
-                line = self._dynamiclyDrawnObject.line()
+                line = self._dynamicallyDrawnItem.line()
                 line.setP2(QtCore.QPointF(pos.x(), pos.y()))
-                self._dynamiclyDrawnObject.setLine(line)
+                self._dynamicallyDrawnItem.setLine(line)
 
         else:
             super().mouseMoveEvent(event)
@@ -130,7 +219,7 @@ class QImageEditor(QImageViewer):
     def mouseReleaseEvent(self, event):
 
         # Save the most recent drawn object if it exists
-        if self._dynamiclyDrawnObject is not None:
+        if self._dynamicallyDrawnItem is not None:
 
             # Only save is shape is a valid size
             valid = False
@@ -138,7 +227,7 @@ class QImageEditor(QImageViewer):
 
             # Some shapes use rectangles
             if self.mouseAction.tooltype in (ToolType.OvalShape, ToolType.RectangleShape):
-                rect = self._dynamiclyDrawnObject.rect()
+                rect = self._dynamicallyDrawnItem.rect()
 
                 # Absolute value required because items have negative
                 # width/height when they are drawn from right to left
@@ -151,17 +240,18 @@ class QImageEditor(QImageViewer):
             # Some shapes use lines
             elif self.mouseAction.tooltype == ToolType.LineShape:
 
-                if self._dynamiclyDrawnObject.line().length() > minLength:
+                if self._dynamicallyDrawnItem.line().length() > minLength:
                     valid = True
 
             # Only save if the shape is a valid size
             if valid:
-                self._drawnItems.append(self._dynamiclyDrawnObject)
+                self._drawnItems.append(self._dynamicallyDrawnItem)
+                self._emitDrawnItems()
             else:
-                self.scene.removeItem(self._dynamiclyDrawnObject)
+                self.scene.removeItem(self._dynamicallyDrawnItem)
 
             # Reset object handle
-            self._dynamiclyDrawnObject = None
+            self._dynamicallyDrawnItem = None
 
         else:
             super().mouseReleaseEvent(event)
