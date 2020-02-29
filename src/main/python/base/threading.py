@@ -39,7 +39,7 @@ class QWorker(QtCore.QRunnable):
     :param kwargs: Keywords to pass to the callback function
     '''
 
-    def __init__(self, fn, args:list, kwargs:dict={}, progress=False):
+    def __init__(self, fn, args:list, kwargs={}, progress=False):
         super().__init__()
 
         self.fn = fn
