@@ -373,7 +373,7 @@ class QImageEditor(QImageViewer):
         * Zoom in with the left button,
         * Zoom out with the right button
         '''
-        if self.mouseAction.tooltype == ToolType.HandTool:
+        if self.mouseAction.tooltype in (ToolType.HandTool, ToolType.ZoomTool):
             if event.button() == QtCore.Qt.LeftButton:
                 self.zoomIn(0.10)
                 
