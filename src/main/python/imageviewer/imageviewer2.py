@@ -1,29 +1,8 @@
-''' QtImageViewer.py: PyQt image viewer widget for a QPixmap in a QGraphicsView scene with mouse zooming and panning.
-'''
-
-import os.path
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class QImageViewer(QtWidgets.QGraphicsView):
-    ''' Image viewer widget for a QPixmap in a QGraphicsView scene with mouse zooming and panning.
-    Displays a QImage or QPixmap (QImage is internally converted to a QPixmap).
-
-    Mouse interaction:
-        Left mouse button drag: Pan image.
-        Right mouse button drag: Zoom box.
-        Right mouse button doubleclick: Zoom to show entire image.
-    '''
-
-    # Mouse button signals emit image scene (x, y) coordinates.
-    # !!! For image (row, column) matrix indexing, row = y and column = x.
-    leftMouseButtonPressed = QtCore.Signal(float, float)
-    rightMouseButtonPressed = QtCore.Signal(float, float)
-    leftMouseButtonReleased = QtCore.Signal(float, float)
-    rightMouseButtonReleased = QtCore.Signal(float, float)
-    leftMouseButtonDoubleClicked = QtCore.Signal(float, float)
-    rightMouseButtonDoubleClicked = QtCore.Signal(float, float)
 
     def __init__(self):
         super().__init__()
@@ -55,6 +34,22 @@ class QImageViewer(QtWidgets.QGraphicsView):
         # Flags for enabling/disabling mouse interaction.
         self.canZoom = True
         self.canPan = True
+
+    @property
+    def viewBoundingBox(self):
+        '''
+        Bounding box of the current view.
+        '''
+        A = self.mapToScene(QtCore.QPoint(0, 0)) 
+        B = self.mapToScene(QtCore.QPoint(
+            self.viewport().width(), 
+            self.viewport().height()))
+        viewBBox = QtCore.QRectF(A, B)
+
+        # This box might include parts of the scene outside
+        # the rect -- this is invalid. Need to intersect with
+        # the scene rect.
+        return viewBBox.intersected(self.sceneRect())
 
     def hasImage(self):
         ''' Returns whether or not the scene contains an image pixmap.
@@ -107,17 +102,6 @@ class QImageViewer(QtWidgets.QGraphicsView):
             self.zoomStack = []  # Clear zoom stack.
         self.updateViewer()
 
-    def loadImageFromFile(self, fileName=''):
-        ''' Load an image from file.
-        Without any arguments, loadImageFromFile() will popup a file dialog to choose the image file.
-        With a fileName argument, loadImageFromFile(fileName) will attempt to load the specified image file directly.
-        '''
-        if len(fileName) == 0:
-            fileName, dummy = QtWidgets.QFileDialog.getOpenFileName(self, 'Open image file.')
-        if len(fileName) and os.path.isfile(fileName):
-            image = QtGui.QImage(fileName)
-            self.setImage(image)
-
     def updateViewer(self):
         ''' Show current zoom (if showing entire image, apply current aspect ratio mode).
         '''
@@ -134,53 +118,52 @@ class QImageViewer(QtWidgets.QGraphicsView):
         '''
         self.updateViewer()
 
-    def mousePressEvent(self, event):
-        ''' Start mouse pan or zoom mode.
+    def clearZoom(self):
         '''
-        scenePos = self.mapToScene(event.pos())
-        if event.button() == QtCore.Qt.LeftButton:
-            if self.canPan:
-                self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
-            self.leftMouseButtonPressed.emit(scenePos.x(), scenePos.y())
-        elif event.button() == QtCore.Qt.RightButton:
-            if self.canZoom:
-                self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
-            self.rightMouseButtonPressed.emit(scenePos.x(), scenePos.y())
-        super().mousePressEvent(event)
+        Clears and resets the zoom stack
+        '''
+        self.zoomStack = []
+        self.updateViewer()
 
-    def mouseReleaseEvent(self, event):
-        ''' Stop mouse pan or zoom mode (apply zoom if valid).
+    def zoomIn(self, percent):
         '''
-        super().mouseReleaseEvent(event)
-        scenePos = self.mapToScene(event.pos())
-        if event.button() == QtCore.Qt.LeftButton:
-            self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
-            self.leftMouseButtonReleased.emit(scenePos.x(), scenePos.y())
-        elif event.button() == QtCore.Qt.RightButton:
-            if self.canZoom:
-                viewBBox = self.zoomStack[-1] if len(self.zoomStack) else self.sceneRect()
-                selectionBBox = self.scene.selectionArea().boundingRect().intersected(viewBBox)
-                self.scene.setSelectionArea(QtGui.QPainterPath())  # Clear current selection area.
-                if selectionBBox.isValid() and (selectionBBox != viewBBox):
-                    self.zoomStack.append(selectionBBox)
-                    self.updateViewer()
-            self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
-            self.rightMouseButtonReleased.emit(scenePos.x(), scenePos.y())
+        Zooms the view in by a given percent.
+        Percentage on scale of 0 to 1.
+        '''
+        viewBBox = self.viewBoundingBox
+        margin = int(viewBBox.width() * percent)
+        smallerRect = viewBBox.marginsRemoved(QtCore.QMargins(margin, margin, margin, margin))
+        self.zoomTo(smallerRect)
 
-    def mouseDoubleClickEvent(self, event):
-        ''' Show entire image.
+    def zoomTo(self, rect):
         '''
-        scenePos = self.mapToScene(event.pos())
-        if event.button() == QtCore.Qt.LeftButton:
-            if self.canZoom:
-                viewBBox = self.zoomStack[-1] if len(self.zoomStack) else self.sceneRect()
-                margin = int(viewBBox.width() / 10)
-                smallerRect = viewBBox.marginsRemoved(QtCore.QMargins(margin, margin, margin, margin))
-                self.zoomStack.append(smallerRect)
-                self.updateViewer()
-        elif event.button() == QtCore.Qt.RightButton:
-            if self.canZoom:
-                self.zoomStack = []  # Clear zoom stack.
-                self.updateViewer()
-            self.rightMouseButtonDoubleClicked.emit(scenePos.x(), scenePos.y())
-        super().mouseDoubleClickEvent(event)
+        Zoom the view to the given rectangle.
+        This is most commonly used with rubberband
+        selection rectangles
+        '''
+        
+        print(f'zooming to: {rect}')
+        viewBBox = self.viewBoundingBox
+        
+        # The box that we want to zoom to is the one that
+        # intersects with the view's bounding box.
+        # (E.g. if the requested box is outside the scene,
+        # clip the box to the scene's limits)
+        selectionBBox = rect.intersected(viewBBox)
+
+        # Clear current selection area.
+        self.scene.setSelectionArea(QtGui.QPainterPath())
+
+        # Execute zoom
+        if selectionBBox.isValid() and (selectionBBox != viewBBox):
+            self.zoomStack.append(selectionBBox)
+            self.updateViewer()
+
+    def zoomOut(self):
+        '''
+        Zooms the view by a single zoom level.
+        '''
+        if len(self.zoomStack):
+            self.zoomStack.pop()
+            self.updateViewer()
+

@@ -197,16 +197,28 @@ class QImageEditor(QImageViewer):
 
     def mousePressEvent(self, event):
 
-        # Sometimes we want the default handler
-        if (
-            self.scenePixmap() is None # No image loaded
-            or self.mouseAction.tooltype == ToolType.HandTool
-        ):
-            super().mousePressEvent(event)
-            return
+        # Sometimes we want the default handler,
+        # Like when no image is loaded.
+        if self.scenePixmap() is None:
+            pass
+
+        # Standard hand tool allows dragging with left
+        # mouse button and zooming to a selection rubber
+        # band box with the right mouse button.
+        elif self.mouseAction.tooltype == ToolType.HandTool:
+            if event.button() == QtCore.Qt.LeftButton:
+                self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+            elif event.button() == QtCore.Qt.RightButton:
+                self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
+
+        # Zoom tool allows user to zoom in and out with 
+        # a selection rubber band box. The release event takes
+        # care of whether it is a zoom in or zoom out.
+        elif self.mouseAction.tooltype == ToolType.ZoomTool:
+            self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
 
         # Shape tool handler
-        if self.mouseAction.isShapeTool:
+        elif self.mouseAction.isShapeTool:
 
             # Draw if this is the left button
             if event.button() == QtCore.Qt.LeftButton:
@@ -241,8 +253,8 @@ class QImageEditor(QImageViewer):
             # we need to know that we are still erasing
             self._erasing = True
             self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
-        else:
-            super().mousePressEvent(event)
+        
+        super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
 
@@ -267,11 +279,12 @@ class QImageEditor(QImageViewer):
         # If we are erasing currently, we need to remove items
         elif self._erasing:
             self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
-
-        else:
-            super().mouseMoveEvent(event)
+        
+        super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
+
+        super().mouseReleaseEvent(event)
 
         # Save the most recent drawn object if it exists
         if self._dynamicallyDrawnItem is not None:
@@ -314,8 +327,60 @@ class QImageEditor(QImageViewer):
             self._updateCursor()
             self._emitDrawnItems()
 
-        else:
-            super().mouseReleaseEvent(event)
+        # If we were doing a rubberband drag,
+        # figure out how to handle it.
+        elif self.dragMode() == QtWidgets.QGraphicsView.RubberBandDrag:
+
+            # This is the bounding box selected by the mouse
+            selectionBBox = self.scene.selectionArea().boundingRect()
+
+            # We might be zooming from the right button of the 
+            # main hand tool
+            if self.mouseAction.tooltype == ToolType.HandTool:
+                if event.button() == QtCore.Qt.RightButton:
+
+                    # Zoom to the selected rectangle                    
+                    self.zoomTo(selectionBBox)
+
+            # We might be zooming because the zoom tool is active.
+            # If this is the case, we zoom *in* to the selection box
+            # if the left mouse button is used, but zoom *out* from
+            # the selection box if the right mouse button is used.
+            elif self.mouseAction.tooltype == ToolType.ZoomTool:
+                if event.button() == QtCore.Qt.LeftButton:
+
+                    # Zoom to the selected rectangle
+                    self.zoomTo(selectionBBox)
+
+                elif event.button() == QtCore.Qt.RightButton:
+
+                    # Zoom out from the selected rectangle
+                    self.zoomOut()
+
+            # Regardless of the reason we were in rubberband
+            # drag mode, we don't want to be in that mode anymore
+            self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
+
+        elif self.dragMode() == QtWidgets.QGraphicsView.ScrollHandDrag:
+
+            # Regardless of the reason we were in scroll hand
+            # drag mode, we don't want to be in that mode anymore
+            self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
+
+    def mouseDoubleClickEvent(self, event):
+        '''
+        For the standard, hand tool:
+        * Zoom in with the left button,
+        * Zoom out with the right button
+        '''
+        if self.mouseAction.tooltype == ToolType.HandTool:
+            if event.button() == QtCore.Qt.LeftButton:
+                self.zoomIn(0.10)
+                
+            elif event.button() == QtCore.Qt.RightButton:
+                self.clearZoom()
+
+        super().mouseDoubleClickEvent(event)
         
 
 class MouseToolAction(ColorableAction):
