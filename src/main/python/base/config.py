@@ -36,5 +36,6 @@ class Config:
             60,
             70,
         ]
+        self.defaultWidth = 40
 
 config = Config()

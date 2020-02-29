@@ -47,7 +47,7 @@ class ImageController(QtCore.QObject):
         self.widthButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         # Width button popup menu
-        self._widthMenu = WidthMenu(config.drawingWidths)
+        self._widthMenu = WidthMenu(config.drawingWidths, config.defaultWidth)
         self._widthMenu.widthChanged.connect(self.widthChanged.emit)
 
         # Assign width menu to width button
@@ -85,6 +85,7 @@ class ImageController(QtCore.QObject):
         slots are connected to these signals.
         '''
         self._colorMenu.emitActiveColor()
+        self._widthMenu.emitActiveWidth()
 
 
 class SingleSelectionGroup(QtCore.QObject):

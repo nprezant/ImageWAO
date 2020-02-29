@@ -1,8 +1,9 @@
 
-import json
 from enum import Enum
 
 from PySide2 import QtCore, QtGui, QtWidgets
+
+from serializers import JSONDrawnItems
 
 from .imageviewer2 import QImageViewer
 from .controls import ImageController, ColorableAction, ctx
@@ -125,74 +126,20 @@ class QImageEditor(QImageViewer):
             self.setCursor(QtCore.Qt.ArrowCursor)
 
     def _emitDrawnItems(self):
-
-        # Need to make a list of encoded items
-        encoded = []
-
-        for item in self._drawnItems:
-
-            # Encoded data differs depending on item type
-            # Need to save as much data as necessary to re-create item
-            if isinstance(item, QtWidgets.QGraphicsRectItem):
-                name = 'Rect'
-                rect = item.rect()
-                args = [rect.x(), rect.y(), rect.width(), rect.height()]
-
-            elif isinstance(item, QtWidgets.QGraphicsEllipseItem):
-                name = 'Ellipse'
-                rect = item.rect()
-                args = [rect.x(), rect.y(), rect.width(), rect.height()]
-
-            elif isinstance(item, QtWidgets.QGraphicsLineItem):
-                name = 'Line'
-                line = item.line()
-                args = [line.x1(), line.y1(), line.x2(), line.y2()]
-
-            else:
-                print(f'Unrecognized item: {item}')
-                continue
-
-            # All graphics items have associated pens
-            if isinstance(item, QtWidgets.QGraphicsItem):
-                pen = item.pen()
-                penColor = pen.color().name() # In #RRGGBB format
-                penWidth = pen.width()
-
-            encoded.append([name, args, penColor, penWidth])
-
-        serialized = json.dumps(encoded)
-        self.drawnItemsChanged.emit(serialized)
+        '''
+        Serialize drawn items into JSON format and
+        emit via the drawnItemsChanged signal
+        '''
+        serializer = JSONDrawnItems.loadItems(self._drawnItems)
+        self.drawnItemsChanged.emit(serializer.dumps())
 
     def readSerializedDrawnItems(self, serialized):
         '''
         Reads serialized data about drawn items into
         itself the current scene.
         '''
-        data = json.loads(serialized)
-        for dataItem in data:
-
-            # TODO: Error checking -- enough data in list?
-            # correct data in list?
-            name = dataItem[0]
-            args = dataItem[1]
-            penColor = dataItem[2]
-            penWidth = dataItem[3]
-
-            # Setup pen
-            pen = QtGui.QPen(penColor) # Does this color need to be a QColor?
-            pen.setWidth(penWidth)
-
-            if name == 'Rect':
-                rect = QtCore.QRectF(*args)
-                item = self.scene.addRect(rect, pen)
-            elif name == 'Ellipse':
-                rect = QtCore.QRectF(*args)
-                item = self.scene.addEllipse(rect, pen)
-            elif name == 'Line':
-                line = QtCore.QLineF(*args)
-                item = self.scene.addLine(line, pen)
-
-            self._drawnItems.append(item)
+        serializer = JSONDrawnItems.loads(serialized)
+        self._drawnItems = serializer.addToScene(self.scene)
 
     def flatten(self):
         '''

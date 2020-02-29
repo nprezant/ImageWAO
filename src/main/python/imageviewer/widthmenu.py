@@ -7,7 +7,7 @@ class WidthMenu(QtWidgets.QMenu):
     # from this signal
     widthChanged = QtCore.Signal(int)
 
-    def __init__(self, values):
+    def __init__(self, values, defaultValue):
         '''
         Create and assign menu actions with icons corresponding
         to the input iterable of width integer values
@@ -24,9 +24,15 @@ class WidthMenu(QtWidgets.QMenu):
             self.actions.append(action)
             self.addAction(action)
 
-        # Initialize the first item as the one selected
-        self._activeIndex = 0
-        self.actions[0].setChecked(True)
+        # Initialize the default active index, or
+        # simply the first index if the default is not found.
+        try:
+            self._activeIndex = values.index(defaultValue)
+        except ValueError:
+            self._activeIndex = 0
+
+        # Check the currently active item
+        self.actions[self._activeIndex].setChecked(True)
 
     @property
     def activeWidth(self):
