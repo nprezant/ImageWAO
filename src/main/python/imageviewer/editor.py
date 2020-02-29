@@ -86,8 +86,11 @@ class QImageEditor(QImageViewer):
     def setImage(self, image):
         '''
         Re-implement to ensure that drawn items are 
-        cleared when a new image is set
+        cleared when a new image is set, and to save
+        the old image if necessary
         '''
+        if not len(self._drawnItems) == 0:
+            self.flatten()
         self._clearDrawnItems()
         super().setImage(image)
 
@@ -182,6 +185,42 @@ class QImageEditor(QImageViewer):
                 item = self.scene.addLine(line, pen)
 
             self._drawnItems.append(item)
+
+    def flatten(self):
+        '''
+        Flatten the image to a single image with all drawn items included.
+        '''
+
+        # Resultant QImage of appropriate size
+        result = QtGui.QImage(self.pixmap().size(), QtGui.QImage.Format_RGB32)
+
+        # Painter for drawing image and items
+        painter = QtGui.QPainter(result)
+
+        # Paint image onto result
+        painter.drawPixmap(0, 0, self.pixmap())
+
+        # Paint drawing items
+        for item in self._drawnItems:
+
+            # Use item specific pen
+            painter.setPen(item.pen())
+
+            # Different draw calls depending on the item type
+            if isinstance(item, QtWidgets.QGraphicsRectItem):
+                painter.drawRect(item.rect())
+
+            elif isinstance(item, QtWidgets.QGraphicsEllipseItem):
+                painter.drawEllipse(item.rect())
+
+            elif isinstance(item, QtWidgets.QGraphicsLineItem):
+                painter.drawLine(item.line())
+
+        # End painting
+        painter.end()
+
+        print('saving')
+        # result.save('C:/Flights/flattened.png')
 
     def _clearDrawnItems(self):
         for item in self._drawnItems:
