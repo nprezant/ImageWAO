@@ -39,14 +39,18 @@ class QWorker(QtCore.QRunnable):
     :param kwargs: Keywords to pass to the callback function
     '''
 
-    def __init__(self, fn, progress=True, *args, **kwargs):
+    def __init__(self, fn, args:list, kwargs:dict={}, progress=False):
         super().__init__()
 
         self.fn = fn
         self.args = args
         self.kwargs = kwargs
-        self.progress = progress
         self.signals = WorkerSignals()
+        
+        # If progress is true, we need to include the progress
+        # Signal in the keyword arguments
+        if progress is True:
+            self.kwargs.update(progress=self.signals.progress)
 
     @QtCore.Slot()
     def run(self):
@@ -55,10 +59,7 @@ class QWorker(QtCore.QRunnable):
         '''
 
         try:
-            if self.progress:
-                result = self.fn(self.signals.progress, *self.args, **self.kwargs)
-            else:
-                result = self.fn(*self.args, **self.kwargs)
+            result = self.fn(*self.args, **self.kwargs)
         except:
             traceback.print_exc()
             exctype, value = sys.exc_info()[:2]

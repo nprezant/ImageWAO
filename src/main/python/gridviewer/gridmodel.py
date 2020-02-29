@@ -91,16 +91,19 @@ class FullImage:
                 self._drawnItems[-1].append(None)
 
     @staticmethod
-    def CreateFromListQWorker(progress, files, *args):
+    def CreateFromListQWorker(files, *args, progress=None):
 
         images = []
         count = len(files)
 
         for i, fp in enumerate(files):
-            progress.emit(int((i / count)*100))
+            if not progress is None:
+                progress.emit(int((i / count)*100))
             images.append(FullImage(QtGui.QImage(str(fp)), Path(fp), *args))
         
-        progress.emit(100)
+        if not progress is None:
+            progress.emit(100)
+
         return images
 
 
@@ -184,9 +187,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         self._runner = QWorker(
             FullImage.CreateFromListQWorker,
-            True, # Pass the progress signal into the create fn
-            imgList, self._imageRows, 
-            self._imageCols, self._displayWidth
+            args=[
+                imgList, self._imageRows,
+                self._imageCols, self._displayWidth], # Arguments for the CreateFromListQWorker function
+            progress=True,
         )
 
         self._runner.signals.progress.connect(self.progress.emit) # bubble up progress
