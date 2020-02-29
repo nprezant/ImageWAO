@@ -6,8 +6,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 
 from .imageviewer2 import QImageViewer
 from .controls import ImageController, ColorableAction, ctx
-
-eraserCursor = QtGui.QCursor(QtGui.QPixmap(ctx.get_resource('icons/ic_eraser.png')))
+from .cursors import Cursors
 
 class ToolType(Enum):
     Default = 0
@@ -108,7 +107,9 @@ class QImageEditor(QImageViewer):
         if self.mouseAction.isShapeTool:
             self.setCursor(QtCore.Qt.CrossCursor)
         elif self.mouseAction.tooltype == ToolType.Eraser:
-            self.setCursor(eraserCursor)
+            self.setCursor(Cursors.eraser)
+        elif self.mouseAction.tooltype == ToolType.ZoomTool:
+            self.setCursor(Cursors.zoom)
         else:
             self.setCursor(QtCore.Qt.ArrowCursor)
 
@@ -233,7 +234,7 @@ class QImageEditor(QImageViewer):
             elif event.button() == QtCore.Qt.RightButton:
                 self._erasing = True
                 self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
-                self.setCursor(eraserCursor)
+                self.setCursor(Cursors.eraser)
 
         elif self.mouseAction.tooltype == ToolType.Eraser:
             # When the mouse moves, if the mouse was pressed with this tool,

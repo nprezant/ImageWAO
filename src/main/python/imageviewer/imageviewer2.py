@@ -184,26 +184,3 @@ class QImageViewer(QtWidgets.QGraphicsView):
                 self.updateViewer()
             self.rightMouseButtonDoubleClicked.emit(scenePos.x(), scenePos.y())
         super().mouseDoubleClickEvent(event)
-
-
-if __name__ == '__main__':
-    import sys
-
-    def handleLeftClick(x, y):
-        row = int(y)
-        column = int(x)
-        print('Clicked on image pixel (row='+str(row)+', column='+str(column)+')')
-
-    # Create the application.
-    app = QtWidgets.QApplication(sys.argv)
-
-    # Create image viewer and load an image file to display.
-    viewer = QImageViewer()
-    viewer.loadImageFromFile()  # Pops up file dialog.
-
-    # Handle left mouse clicks with custom slot.
-    viewer.leftMouseButtonPressed.connect(handleLeftClick)
-
-    # Show viewer and run application.
-    viewer.show()
-    sys.exit(app.exec_())
