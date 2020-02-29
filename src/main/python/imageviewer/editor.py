@@ -50,7 +50,7 @@ class QImageEditor(QImageViewer):
 
         # Connections
         self.controller.colorChanged.connect(self._updatePenColor)
-        self.controller.mouseActionChanged.connect(self._mouseActionChanged)
+        self.controller.mouseActionChanged.connect(self._updateCursor)
         self.controller.sendSignals()
 
         # Drawing variables
@@ -100,14 +100,14 @@ class QImageEditor(QImageViewer):
         self._pen.setColor(qcolor)
 
     @QtCore.Slot(QtWidgets.QAction)
-    def _mouseActionChanged(self, action):
+    def _updateCursor(self, action=None):
         '''
-        When the mouse action changes, we need to update
-        the cursor icon.
+        Update the mouse cursor based on the currently
+        active mouse action
         '''
-        if action.isShapeTool:
+        if self.mouseAction.isShapeTool:
             self.setCursor(QtCore.Qt.CrossCursor)
-        elif action.tooltype == ToolType.Eraser:
+        elif self.mouseAction.tooltype == ToolType.Eraser:
             self.setCursor(eraserCursor)
         else:
             self.setCursor(QtCore.Qt.ArrowCursor)
@@ -233,6 +233,7 @@ class QImageEditor(QImageViewer):
             elif event.button() == QtCore.Qt.RightButton:
                 self._erasing = True
                 self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
+                self.setCursor(eraserCursor)
 
         elif self.mouseAction.tooltype == ToolType.Eraser:
             # When the mouse moves, if the mouse was pressed with this tool,
@@ -309,6 +310,7 @@ class QImageEditor(QImageViewer):
         # If we just erased something, let the world know
         elif self._erasing:
             self._erasing = False
+            self._updateCursor()
             self._emitDrawnItems()
 
         else:
