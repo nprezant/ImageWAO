@@ -52,19 +52,22 @@ class QImageViewer(QtWidgets.QGraphicsView):
         return viewBBox.intersected(self.sceneRect())
 
     def hasImage(self):
-        ''' Returns whether or not the scene contains an image pixmap.
+        '''
+        Returns whether or not the scene contains an image pixmap.
         '''
         return self._pixmapHandle is not None
 
     def clearImage(self):
-        ''' Removes the current image pixmap from the scene if it exists.
+        '''
+        Removes the current image pixmap from the scene if it exists.
         '''
         if self.hasImage():
             self.scene.removeItem(self._pixmapHandle)
             self._pixmapHandle = None
 
     def pixmap(self):
-        ''' Returns the scene's current image pixmap as a QPixmap, or else None if no image exists.
+        '''
+        Returns the scene's current image pixmap as a QPixmap, or else None if no image exists.
         :rtype: QPixmap | None
         '''
         if self.hasImage():
@@ -72,7 +75,8 @@ class QImageViewer(QtWidgets.QGraphicsView):
         return None
 
     def image(self):
-        ''' Returns the scene's current image pixmap as a QImage, or else None if no image exists.
+        '''
+        Returns the scene's current image pixmap as a QImage, or else None if no image exists.
         :rtype: QImage | None
         '''
         if self.hasImage():
@@ -83,7 +87,8 @@ class QImageViewer(QtWidgets.QGraphicsView):
         return self._pixmapHandle
 
     def setImage(self, image):
-        ''' Set the scene's current image pixmap to the input QImage or QPixmap.
+        '''
+        Set the scene's current image pixmap to the input QImage or QPixmap.
         Raises a RuntimeError if the input image has type other than QImage or QPixmap.
         :type image: QImage | QPixmap
         '''
@@ -103,7 +108,8 @@ class QImageViewer(QtWidgets.QGraphicsView):
         self.updateViewer()
 
     def updateViewer(self):
-        ''' Show current zoom (if showing entire image, apply current aspect ratio mode).
+        '''
+        Show current zoom (if showing entire image, apply current aspect ratio mode).
         '''
         if not self.hasImage():
             return
@@ -114,7 +120,8 @@ class QImageViewer(QtWidgets.QGraphicsView):
             self.fitInView(self.sceneRect(), self.aspectRatioMode)  # Show entire image (use current aspect ratio mode).
 
     def resizeEvent(self, event):
-        ''' Maintain current zoom on resize.
+        '''
+        Maintain current zoom on resize.
         '''
         self.updateViewer()
 

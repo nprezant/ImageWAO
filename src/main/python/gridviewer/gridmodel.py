@@ -29,7 +29,8 @@ class FullImage:
         self.compute()
 
     def part(self, r, c, scaled=True):
-        ''' Returns a portions of this image.
+        '''
+        Returns a portions of this image.
         The portion is is computed as the item of the image at
         row r and column c, given that the image is divided
         into the class variable rows and cols.
@@ -40,21 +41,24 @@ class FullImage:
             return self.parts[r][c]
 
     def drawnItems(self, r, c):
-        ''' Gets the serialized string
+        '''
+        Gets the serialized string
         of the drawn items at the given 
         row, column
         '''
         return self._drawnItems[r][c]
 
     def setDrawnItems(self, r, c, items):
-        ''' Sets the serialized string of the 
+        '''
+        Sets the serialized string of the 
         drawn items at the given row, column to
         the given value.
         '''
         self._drawnItems[r][c] = items
 
     def compute(self):
-        ''' Computes the rects of the image,
+        '''
+        Computes the rects of the image,
         divided into a grid self.rows by self.cols.
         Uses those rects to generate tables of the parts and scaled
         parts of this pixmap.
@@ -219,7 +223,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
     @staticmethod
     def mergeIndexes(indexes):
-        ''' Finds the selected images and, if there are any, 
+        '''
+        Finds the selected images and, if there are any, 
         returns a QImage of them stitched together. Returns
         None if nothing is selected.
         Assumes consistent sizes.
@@ -295,8 +300,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         return self._imageCols
 
     def data(self, index, role=QtCore.Qt.DecorationRole):
-        ''' Depending on the index and role given, return data.
-            If not returning data, return None (equv. to Qt's QVariant)
+        '''
+        Depending on the index and role given, return data.
+        If not returning data, return None (equv. to Qt's QVariant)
         '''
         if not index.isValid():
             return None
@@ -330,7 +336,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
-        ''' No headers are displayed.
+        '''
+        No headers are displayed.
         '''
         if (role == QtCore.Qt.SizeHintRole):
             return QtCore.QSize(1, 1)
@@ -338,7 +345,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         return None
 
     def insertRows(self, position, rows=1, index=QtCore.QModelIndex()):
-        ''' Insert a row into the model. '''
+        '''
+        Insert a row into the model.
+        '''
         self.beginInsertRows(QtCore.QModelIndex(), position, position + rows - 1)
 
         for row in range(rows):

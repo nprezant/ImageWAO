@@ -56,7 +56,9 @@ class QImageGridView(QtWidgets.QTableView):
 
     @QtCore.Slot(QtCore.QPoint)
     def _customMenuRequested(self, pos:QtCore.QPoint):
-        ''' Open the context menu '''
+        '''
+        Open the context menu
+        '''
         self.menu.popup(self.viewport().mapToGlobal(pos))
 
     @QtCore.Slot(QtCore.QItemSelection, QtCore.QItemSelection)
@@ -86,7 +88,8 @@ class QImageGridView(QtWidgets.QTableView):
 
     @QtCore.Slot()
     def _handlePreviewRequest(self):
-        ''' Requests a preview of all selected images
+        '''
+        Requests a preview of all selected images
         from the model, emitting that in the selectedImageChanged
         signal
         '''

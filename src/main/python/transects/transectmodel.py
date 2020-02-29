@@ -174,8 +174,9 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         return True
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
-        ''' Adjust the data (set it to <value>) depending on the
-            given index and role.
+        '''
+        Adjust the data (set it to <value>) depending on the
+        given index and role.
         '''
         if role != QtCore.Qt.EditRole:
             return False

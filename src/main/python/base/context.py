@@ -5,7 +5,8 @@ from fbs_runtime.application_context.PySide2 import ApplicationContext
 from PySide2 import QtGui
 
 class AppContext(ApplicationContext):
-    '''Low level class for holding the application context.
+    '''
+    Low level class for holding the application context.
     This class must be used to get application resources,
     using the `get_resource` method.
     It can be convenient to store commonly used images as
