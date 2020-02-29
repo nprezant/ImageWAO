@@ -49,6 +49,7 @@ class QImageEditor(QImageViewer):
 
         # Connections
         self.controller.colorChanged.connect(self._updatePenColor)
+        self.controller.widthChanged.connect(self._updatePenWidth)
         self.controller.mouseActionChanged.connect(self._updateCursor)
         self.controller.sendSignals()
 
@@ -100,6 +101,13 @@ class QImageEditor(QImageViewer):
         Set internal pen color, used for new drawings
         '''
         self._pen.setColor(qcolor)
+
+    @QtCore.Slot(int)
+    def _updatePenWidth(self, width):
+        '''
+        Set internal pen width, used for new drawings
+        '''
+        self._pen.setWidth(width)
 
     @QtCore.Slot(QtWidgets.QAction)
     def _updateCursor(self, action=None):

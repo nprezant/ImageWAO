@@ -6,6 +6,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from base import config, ctx
 
 from .colormenu import ColorMenu, ColorableAction
+from .widthmenu import WidthMenu
 
 
 class ImageController(QtCore.QObject):
@@ -14,6 +15,7 @@ class ImageController(QtCore.QObject):
     and file menu options for an image editor
     '''
 
+    widthChanged = QtCore.Signal(int)
     colorChanged = QtCore.Signal(QtGui.QColor)
     mouseActionChanged = QtCore.Signal(QtWidgets.QAction)
 
@@ -38,12 +40,26 @@ class ImageController(QtCore.QObject):
         # Assign menu to button & button to toolbar
         self.colorButton.setMenu(self._colorMenu)
 
+        # Width button
+        self.widthButton = QtWidgets.QToolButton(self.parent)
+        self.widthButton.setDefaultAction(
+            ColorableAction(self.parent, ctx.defaultDockIcon))
+        self.widthButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+
+        # Width button popup menu
+        self._widthMenu = WidthMenu(config.drawingWidths)
+        self._widthMenu.widthChanged.connect(self.widthChanged.emit)
+
+        # Assign width menu to width button
+        self.widthButton.setMenu(self._widthMenu)
+
         # Single-selection buttons -- only one can be selected at a time
         self.mouseActions = SingleSelectionGroup(selectionActions)
         self.mouseActions.itemChanged.connect(self.mouseActionChanged.emit)
 
         # Add buttons to toolbar
         self.toolbar.addWidget(self.colorButton)
+        self.toolbar.addWidget(self.widthButton)
         self.toolbar.addActions(self.mouseActions.items)
         
         # Trigger the color menu signal to recolor necessary toolbar icons
