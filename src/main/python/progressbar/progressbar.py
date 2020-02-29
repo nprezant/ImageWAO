@@ -41,7 +41,8 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
         self.hide()
 
     def setValue(self, val):
-        ''' Reimplement from QProgressBar.
+        '''
+        Reimplement from QProgressBar.
         When the value is set to 0, the progress bar will hide itself.
         When the value is set to any other number, the progress bar will show.
         '''
