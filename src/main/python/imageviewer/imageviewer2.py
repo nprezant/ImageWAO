@@ -142,7 +142,6 @@ class QImageViewer(QtWidgets.QGraphicsView):
         selection rectangles
         '''
         
-        print(f'zooming to: {rect}')
         viewBBox = self.viewBoundingBox
         
         # The box that we want to zoom to is the one that
