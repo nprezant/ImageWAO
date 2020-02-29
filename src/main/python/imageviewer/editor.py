@@ -7,6 +7,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from .imageviewer2 import QImageViewer
 from .controls import ImageController, ColorableAction, ctx
 
+eraserCursor = QtGui.QCursor(QtGui.QPixmap(ctx.get_resource('icons/ic_eraser.png')))
 
 class ToolType(Enum):
     Default = 0
@@ -49,6 +50,7 @@ class QImageEditor(QImageViewer):
 
         # Connections
         self.controller.colorChanged.connect(self._updatePenColor)
+        self.controller.mouseActionChanged.connect(self._mouseActionChanged)
         self.controller.sendSignals()
 
         # Drawing variables
@@ -96,6 +98,19 @@ class QImageEditor(QImageViewer):
         Set internal pen color, used for new drawings
         '''
         self._pen.setColor(qcolor)
+
+    @QtCore.Slot(QtWidgets.QAction)
+    def _mouseActionChanged(self, action):
+        '''
+        When the mouse action changes, we need to update
+        the cursor icon.
+        '''
+        if action.isShapeTool:
+            self.setCursor(QtCore.Qt.CrossCursor)
+        elif action.tooltype == ToolType.Eraser:
+            self.setCursor(eraserCursor)
+        else:
+            self.setCursor(QtCore.Qt.ArrowCursor)
 
     def _emitDrawnItems(self):
 

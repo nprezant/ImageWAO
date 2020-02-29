@@ -15,6 +15,7 @@ class ImageController(QtCore.QObject):
     '''
 
     colorChanged = QtCore.Signal(QtGui.QColor)
+    mouseActionChanged = QtCore.Signal(QtWidgets.QAction)
 
     def __init__(self, parent, selectionActions):
 
@@ -39,7 +40,7 @@ class ImageController(QtCore.QObject):
 
         # Single-selection buttons -- only one can be selected at a time
         self.mouseActions = SingleSelectionGroup(selectionActions)
-        self.mouseActions.itemChanged.connect(self._selectionActionChanged)
+        self.mouseActions.itemChanged.connect(self.mouseActionChanged.emit)
 
         # Add buttons to toolbar
         self.toolbar.addWidget(self.colorButton)
@@ -60,10 +61,6 @@ class ImageController(QtCore.QObject):
         
         # Bubble up color
         self.colorChanged.emit(qcolor)
-
-    @QtCore.Slot(QtWidgets.QAction)
-    def _selectionActionChanged(self, action):
-        print('Selection action changed')
 
     def sendSignals(self):
         '''
