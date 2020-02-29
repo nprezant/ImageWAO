@@ -39,7 +39,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Dock widget creation
         self._addDockWidget(self.grid, ctx.defaultDockIcon, 'Image Grids', startArea=QtCore.Qt.RightDockWidgetArea)
-        self._addDockWidget(self.library, ctx.defaultDockIcon, 'Flight Library', startArea=QtCore.Qt.LeftDockWidgetArea)
+        self._addDockWidget(self.library, ctx.explorerIcon, 'Flight Explorer', startArea=QtCore.Qt.LeftDockWidgetArea)
         self._addDockWidget(self.animalAdder, ctx.defaultDockIcon, 'Animal Adder', startArea=QtCore.Qt.RightDockWidgetArea)
         self._addDockWidget(self.animalTotals, ctx.defaultDockIcon, 'Animal Totals', startArea=QtCore.Qt.RightDockWidgetArea)
 

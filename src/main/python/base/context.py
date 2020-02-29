@@ -20,4 +20,8 @@ class AppContext(ApplicationContext):
     def closeDockIcon(self):
         return QtGui.QIcon(self.get_resource('icons/ic_close.png'))
 
+    @cached_property
+    def explorerIcon(self):
+        return QtGui.QIcon(self.get_resource('icons/ic_explorer.png'))
+
 context = AppContext()
