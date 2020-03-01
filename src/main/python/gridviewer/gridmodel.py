@@ -275,6 +275,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         * Saving the marked up image to a file
         '''
 
+        if len(self._changedIndexes) == 0:
+            return
+            
         # Some save data gets written out in a text file
         saveData = TransectSaveData()
 
