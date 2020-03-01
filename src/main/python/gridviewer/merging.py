@@ -3,7 +3,7 @@ from PySide2 import QtCore, QtWidgets, QtGui
 
 from serializers import JSONDrawnItems
 
-from .gridmodel import UserRoles
+from .enums import UserRoles
 
 
 class PositionedIndexes:

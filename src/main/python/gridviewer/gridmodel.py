@@ -5,13 +5,12 @@ from multiprocessing import Queue
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from serializers import JSONDrawnItems
+from transects import TransectSaveData
 from base import QWorker, config
 
-class UserRoles:
-    FullResImage = QtCore.Qt.UserRole # No scaling involved
-    EntireImage = QtCore.Qt.UserRole + 1 # Entire image (not cropped into sections)
-    ImagePath = QtCore.Qt.UserRole + 2 # Path to the original image
-    DrawnItems = QtCore.Qt.UserRole + 3 # Items drawn on this image
+from .merging import MergedIndexes
+from .enums import UserRoles
+
 
 class FullImage:
 
@@ -209,7 +208,6 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         else:
             self.resetImagesFromList(imgFiles)
 
-    
     def resetImagesFromList(self, imgList):
 
         self._runner = QWorker(
@@ -252,31 +250,48 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         * Saving the marked up image to a file
         '''
 
+        # Some save data gets written out in a text file
+        saveData = TransectSaveData()
+
         # Only save files that have changed
         for index in self._changedIndexes:
 
-            # Retreive the full resolution image.
-            # Copy so we don't paint the original file in memory.
-            img = self.data(index, role=UserRoles.FullResImage).copy()
-
-            # Retreive the items to draw on the image
-            sItems = self.data(index, role=UserRoles.DrawnItems)
-
-            # Draw the items onto the image
-            if sItems is not None:
-                JSONDrawnItems.loads(sItems).paintToDevice(img)
-
-            # Retreive the path of the original image
+            # Retreive the path of the original image, and find
+            # the indexes of the images that also correspond
+            # to that path.
             originalPath: Path = self.data(index, role=UserRoles.ImagePath)
+            indexes = self.matchPath(originalPath)
 
-            # Form the new path (./.marked/Alpha_001.JPG)
+            # Now that we have all the indexes associated with this
+            # path, we no longer need them in "changedIndexes"
+            for idx in indexes:
+                try:
+                    self._changedIndexes.remove(idx)
+                except ValueError:
+                    pass
+
+            # Merge the indexes togther, create a preview image
+            self._mergedIndexes = MergedIndexes(indexes)
+            preview = self._mergedIndexes.resultantImage()
+
+            # Merge drawn items and draw them onto the image
+            drawings = self._mergedIndexes.drawnItems()
+            if drawings is not None:
+                JSONDrawnItems.loads(drawings).paintToDevice(preview)
+
+            # Form the new path (./.marked/Alpha_001.JPG),
+            # Ensure it exists, and save.
             markedPath = originalPath.parent / Path(config.markedImageFolder) / originalPath.name 
-
-            # Ensure folder exists
             markedPath.parent.mkdir(exist_ok=True)
+            preview.save(str(markedPath))
 
-            # Save!
-            img.save(str(markedPath))
+            # Add drawing items to the save data
+            # for this image
+            saveData.addDrawings(originalPath.stem, drawings)
+
+        # Save the transect data
+        with open(originalPath.parent / Path(config.markedDataFile), 'w') as f:
+            saveData.dump(f)
 
         # Clear the changed index list
         self._changedIndexes = []
