@@ -293,6 +293,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         # Mark this index as "changed"
         self._changedIndexes.append(index)
 
+        # Note that the data for this index changed
+        # so the view can update accordingly
+        self.dataChanged.emit(index, index, [QtCore.Qt.DecorationRole])
+
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
         return len(self._images) * self._imageRows
