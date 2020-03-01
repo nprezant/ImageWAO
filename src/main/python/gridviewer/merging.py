@@ -328,8 +328,14 @@ class MergedIndexes:
             else:
                 assignments[idx] = [rep]
 
-        # For item in the, dump to a string
+        # Each index must have a value assigned to it
+        # by the end of this -- we can start out
+        # by assigning each one to a blank list.
         stringAssignments = {}
+        for idx, _, _, in self.positions.positionData():
+            stringAssignments[idx] = '[]'
+
+        # For item in the, dump to a string
         for idx, reps in assignments.items():
             stringAssignments[idx] = JSONDrawnItems(reps).dumps()
 
