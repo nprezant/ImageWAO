@@ -328,6 +328,10 @@ class MergedIndexes:
 
         for idx, r, c in self.positions.positionData():
 
+            # If this is a null position, there is no data
+            if idx is None:
+                continue
+
             # Retreive the drawn item string
             sItems = idx.data(role=UserRoles.DrawnItems)
             
