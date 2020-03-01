@@ -69,7 +69,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.grid.drawnItemsChanged.connect(self.viewer.readSerializedDrawnItems)
 
         # Image viewer signal connections
-        self.viewer.drawnItemsChanged.connect(self.grid.saveDrawnItems)
+        self.viewer.drawnItemsChanged.connect(self.grid.setDrawnItems)
 
         # File | Etc. Menus
         self._menusCreated = False
@@ -124,6 +124,12 @@ class QImageWAO(QtWidgets.QMainWindow):
             self._menusCreated = True
         
     def _populateMenus(self):
+
+        a = QtWidgets.QAction('Save', self)
+        a.setShortcut('Ctrl+S')
+        a.triggered.connect(self.grid.save)
+        self.fileMenu.addAction(a)
+
         a = QtWidgets.QAction('Import Flight Images', self)
         a.triggered.connect(self.importWizards.openNewFlight)
         self.fileMenu.addAction(a)

@@ -11,8 +11,7 @@ class Config:
 
         # Files and folders in each transect directory
         self.markedImageFolder = '.marked/'
-        self.transectDataFolder = '.transect/'
-        self.transectCountFile = '.transect/counts.json'
+        self.markedDataFile = '.marked/data.transect'
 
         # Drawing colors
         self.colors = [

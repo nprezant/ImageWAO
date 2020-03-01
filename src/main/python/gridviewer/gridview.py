@@ -150,9 +150,9 @@ class QImageGridView(QtWidgets.QTableView):
             self._handlePreviewRequest()
 
     @QtCore.Slot(str)
-    def saveDrawnItems(self, items):
+    def setDrawnItems(self, items):
         '''
-        Save the drawn items passed in to the currently active
+        Set the drawn items passed in to the currently active
         model index.
         '''
         model = self.selectionModel()
@@ -182,6 +182,13 @@ class QImageGridView(QtWidgets.QTableView):
             for idx, itemString in assignments.items():
                 if idx is not None:
                     self.model().setDrawnItems(idx, itemString)
+
+    @QtCore.Slot()
+    def save(self):
+        '''
+        Save the model.
+        '''
+        self.model().save()
 
 
 if __name__ == '__main__':

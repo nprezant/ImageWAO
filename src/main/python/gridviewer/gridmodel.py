@@ -5,7 +5,7 @@ from multiprocessing import Queue
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from serializers import JSONDrawnItems
-from base import QWorker
+from base import QWorker, config
 
 class UserRoles:
     FullResImage = QtCore.Qt.UserRole # No scaling involved
@@ -178,6 +178,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         self._runner = None
         self._threadpool = QtCore.QThreadPool()
 
+        # Keep track of which indexes changed
+        # so we know what to save
+        self._changedIndexes = []
+
     def tryAddFolder(self, path):
 
         searchFolder = Path(path)
@@ -238,7 +242,44 @@ class QImageGridModel(QtCore.QAbstractTableModel):
                 idx = self.index(r,c)
                 if idx.data(UserRoles.ImagePath) == Path(path):
                     matches.append(idx)
-        return matches        
+        return matches
+
+    @QtCore.Slot()
+    def save(self):
+        '''
+        Save changes made to the images. This involves:
+        * Writing drawing data to a file
+        * Saving the marked up image to a file
+        '''
+
+        # Only save files that have changed
+        for index in self._changedIndexes:
+
+            # Retreive the full resolution image.
+            # Copy so we don't paint the original file in memory.
+            img = self.data(index, role=UserRoles.FullResImage).copy()
+
+            # Retreive the items to draw on the image
+            sItems = self.data(index, role=UserRoles.DrawnItems)
+
+            # Draw the items onto the image
+            if sItems is not None:
+                JSONDrawnItems.loads(sItems).paintToDevice(img)
+
+            # Retreive the path of the original image
+            originalPath: Path = self.data(index, role=UserRoles.ImagePath)
+
+            # Form the new path (./.marked/Alpha_001.JPG)
+            markedPath = originalPath.parent / Path(config.markedImageFolder) / originalPath.name 
+
+            # Ensure folder exists
+            markedPath.parent.mkdir(exist_ok=True)
+
+            # Save!
+            img.save(str(markedPath))
+
+        # Clear the changed index list
+        self._changedIndexes = []
 
     def setDrawnItems(self, index, items):
         ''' Sets the drawn items at this index '''
@@ -248,6 +289,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         c = index.column()
 
         image.setDrawnItems(r, c, items)
+
+        # Mark this index as "changed"
+        self._changedIndexes.append(index)
 
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
