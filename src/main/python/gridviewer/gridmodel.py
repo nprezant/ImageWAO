@@ -284,9 +284,15 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         if len(self._changedIndexes) == 0:
             return
 
-        # Some save data gets written out in a text file
+        # Setup save directory files and folders
+        markedFolder = self._folder() / Path(config.markedImageFolder)
+        markedFolder.mkdir(exist_ok=True)
+
         transectPath = self._folder() / Path(config.markedDataFile)
+        transectPath.parent.mkdir(exist_ok=True)
         transectPath.touch()
+
+        # Initialize save data from old data path
         saveData = TransectSaveData.load(transectPath)
 
         # Only save files that have changed
@@ -311,15 +317,14 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             preview = mergedIndexes.resultantImage()
 
             # Form the new path (./.marked/Alpha_001.JPG)
-            markedPath = originalPath.parent / Path(config.markedImageFolder) / originalPath.name
+            markedPath = markedFolder / originalPath.name
 
             # Merge drawn items and draw them onto the image
             drawings = mergedIndexes.drawnItems()
             if drawings is not None:
                 JSONDrawnItems.loads(drawings).paintToDevice(preview)
 
-                # Ensure the directory exists and save.
-                markedPath.parent.mkdir(exist_ok=True)
+                # Save.
                 preview.save(str(markedPath))
 
                 # Add drawing items to the save data
