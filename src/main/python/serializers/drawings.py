@@ -53,6 +53,21 @@ class GrahphicItemRepresentation:
         '''
         return self.pen.width()
 
+    @property
+    def center(self):
+        '''
+        Center QPointF of the geometry
+        '''
+        return self.geom.center()
+
+    def offset(self, x, y):
+        '''
+        Offset the geometry of this point by a given 
+        x and y value.
+        '''
+        self.geom.translate(QtCore.QPointF(x, y))
+
+
 class JSONDrawnItems:
     '''
     Contains methods useful for encoding and
@@ -79,6 +94,10 @@ class JSONDrawnItems:
         # of these scene objects. Contains nough information
         # to recreate from primitive objects
         self._reps = reps
+
+        # To iterate over these representations, we need an
+        # iterater tracking variable
+        self._index = 0
 
     @staticmethod
     def loadItems(items):
@@ -184,4 +203,15 @@ class JSONDrawnItems:
                 items.append(item)
 
         return items
+
+    def __iter__(self):
+        self._index = 0
+        return self
+
+    def __next__(self):
+        if self._index == len(self._reps):
+            raise StopIteration
+        data = self._reps[self._index]
+        self._index += 1
+        return data
 

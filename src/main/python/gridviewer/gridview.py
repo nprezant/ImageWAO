@@ -154,11 +154,25 @@ class QImageGridView(QtWidgets.QTableView):
         if len(indexes) == 0:
             return
 
-        # Save the drawn items to the first of the selected indexes
-        # TODO: Handle if multiple indexes are selected
-        index = indexes[0]
+        # If only we haven't merged any indexes together,
+        # save the drawn items to the first selected index
+        if self._mergedIndexes is None:
+            index = indexes[0]
+            self.model().setDrawnItems(index, items)
+        
+        # If multiple indexes are merged, we need to
+        # sort out which items belong where
+        else:
 
-        self.model().setDrawnItems(index, items)
+            # Assign items to specific indexes.
+            # Account for coordinate transformations
+            assignments = self._mergedIndexes.assignDrawnItems(items)
+
+            if assignments is None:
+                return
+
+            for idx, itemString in assignments.items():
+                self.model().setDrawnItems(idx, itemString)
 
 
 if __name__ == '__main__':

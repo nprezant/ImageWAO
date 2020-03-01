@@ -1,6 +1,8 @@
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
+from serializers import JSONDrawnItems
+
 from .gridmodel import UserRoles
 
 
@@ -17,6 +19,12 @@ class PositionedIndexes:
         Creates a 2D list of of 
         the indexes
         '''
+
+        # Instance variables
+        self.relativeIndexes = []
+        self.tops = []
+        self.lefts = []
+
         # These are the absolute row and column position
         # numbers of the indexes as seen in the model
         absolutePositions = [(idx, idx.row(), idx.column()) for idx in indexes]
@@ -36,7 +44,6 @@ class PositionedIndexes:
         uniqueAbsoluteColumns.sort()
 
         # Generate a blank (None-filled) list of relative positions
-        self.relativeIndexes = []
         for _ in range(len(uniqueAbsoluteRows)):
             row = []
             for _ in range(len(uniqueAbsoluteColumns)):
@@ -67,6 +74,10 @@ class PositionedIndexes:
         Return data: rowTops = [0, ..., ...,]
         Return data: columnTops = [0, ..., ...,]
         '''
+
+        # If we already computed this, no need to do it again
+        if self.tops and self.lefts:
+            return self.tops, self.lefts
 
         rowTops = [0]
         columnLefts = [0]
@@ -118,6 +129,8 @@ class PositionedIndexes:
             maxWidth = max(columnWidths)
             columnLefts.append(columnLefts[-1] + maxWidth)
 
+        self.tops = rowTops
+        self.lefts = columnLefts
         return rowTops, columnLefts
 
     def toImage(self, role):
@@ -152,6 +165,72 @@ class PositionedIndexes:
 
         return result
 
+    def indexAt(self, pos:QtCore.QPoint):
+        '''
+        The index under a given point
+        '''
+
+        # Safety check: these must be lists containing at least a [0]
+        assert self.tops
+        assert self.lefts
+
+        # If the point is in negative space, we don't
+        # have any indexes that would use negative space
+        if pos.x() < 0 or pos.y() < 0:
+            return None
+
+        # If we don't find the row or the column,
+        # we cannot return an index
+        rowFound = False
+        colFound = False
+
+        # Find the row that this point belongs to
+        row = 0
+        for y in self.tops[1:]:
+            if pos.y() < y:
+                rowFound = True
+                continue
+            row += 1
+
+        # Find the column that this point belongs to
+        col = 0
+        for x in self.lefts[1:]:
+            if pos.x() < x:
+                colFound = True
+                continue
+            col += 1
+
+        if rowFound and colFound: 
+            return self.relativeIndexes[row][col]
+        else:
+            return None
+
+    def positionOfIndex(self, index):
+        '''
+        Position of an index within the
+        relativeIndexes 2D list.
+        '''
+        for r, idxRow in enumerate(self.relativeIndexes):
+            for c, idx in enumerate(idxRow):
+                if index is idx:
+                    return r,c
+        
+        return None
+
+    def topOfIndex(self, idx):
+        '''
+        Top integer value of this index
+        '''
+        r,_ = self.positionOfIndex(idx)
+        return self.tops[r]
+
+    def leftOfIndex(self, idx):
+        '''
+        Left integer value of this index
+        '''
+        _,c = self.positionOfIndex(idx)
+        return self.lefts[c]
+
 
 class MergedIndexes:
     '''
@@ -185,9 +264,44 @@ class MergedIndexes:
         The combined image generated from the set
         of indexes.
         '''
-
         return self.positions.toImage(UserRoles.FullResImage)
 
+    def assignDrawnItems(self, itemstring):
+        '''
+        Assign the items passed in to their proper
+        corresponding index.
+        '''
 
-    def indexAt(self, pos:QtCore.QPoint):
-        pass
+        # Read items into a workable object
+        items = JSONDrawnItems.loads(itemstring)
+
+        # Dict:
+        # {index1: [rep1, rep2, rep3], 
+        # index2, [rep4, rep5, rep6]}
+        assignments = {}
+
+        # Determine which index each graphics object
+        # belongs to.
+        for rep in items:
+
+            idx = self.positions.indexAt(rep.center)
+            idxTop = self.positions.topOfIndex(idx)
+            idxLeft = self.positions.leftOfIndex(idx)
+            
+            # Offset this geometric representation
+            # to be in the same coordinates as the index
+            # that it is on top of.
+            rep.offset(-idxLeft, -idxTop)
+
+            # Add this pairing to the assignment list
+            if idx in assignments.keys():
+                assignments[idx].append(rep)
+            else:
+                assignments[idx] = [rep]
+
+        # For item in the, dump to a string
+        stringAssignments = {}
+        for idx, reps in assignments.items():
+            stringAssignments[idx] = JSONDrawnItems(reps).dumps()
+
+        return stringAssignments
