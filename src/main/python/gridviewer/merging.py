@@ -231,6 +231,16 @@ class PositionedIndexes:
         _,c = self.positionOfIndex(idx)
         return self.lefts[c]
 
+    def positionData(self):
+        '''
+        Generator for positional data
+        of the relativeIndexes 2D list.
+        returns (index, rowNumber, colNumber)
+        '''
+        for r, idxRow in enumerate(self.relativeIndexes):
+            for c, idx in enumerate(idxRow):
+                yield idx, r, c
+
 
 class MergedIndexes:
     '''
@@ -281,7 +291,7 @@ class MergedIndexes:
         assignments = {}
 
         # Determine which index each graphics object
-        # belongs to.
+        # belongs to. (Iterate through representations)
         for rep in items:
 
             idx = self.positions.indexAt(rep.center)
@@ -305,3 +315,42 @@ class MergedIndexes:
             stringAssignments[idx] = JSONDrawnItems(reps).dumps()
 
         return stringAssignments
+
+    def drawnItems(self):
+        '''
+        Merge the drawn items for this combined image
+        into one nice string of serialized items.
+        '''
+        
+        # Tracks the graphical representations
+        # of drawn items.
+        reps = []
+
+        for idx, r, c in self.positions.positionData():
+
+            # Retreive the drawn item string
+            sItems = idx.data(role=UserRoles.DrawnItems)
+            
+            # If there are no drawn items, go to the next 
+            # position.
+            if sItems is None:
+                continue
+
+            # Find the top and left coordinates of this index
+            top = self.positions.tops[r]
+            left = self.positions.lefts[c]
+
+            # Offset each item to it's proper location within
+            # the merged image.
+            items = JSONDrawnItems.loads(sItems)
+            for rep in items:
+                rep.offset(left, top)
+                reps.append(rep)
+
+        # Return the whole set of drawn items as a serialized
+        # string
+        return JSONDrawnItems(reps).dumps()
+
+            
+
+

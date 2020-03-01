@@ -113,9 +113,16 @@ class QImageGridView(QtWidgets.QTableView):
         if len(indexes) == 0:
             return
 
+        # Merge the indexes togther, create a preview image
         self._mergedIndexes = MergedIndexes(indexes)
         preview = self._mergedIndexes.resultantImage()
+
+        # Merge drawn items
+        mergedItems = self._mergedIndexes.drawnItems()
+
+        # Emit data
         self.selectedImageChanged.emit(preview)
+        self.drawnItemsChanged.emit(mergedItems)
 
 
     def selectFile(self, path):
