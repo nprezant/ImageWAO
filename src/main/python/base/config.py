@@ -13,6 +13,9 @@ class Config:
         self.markedImageFolder = '.marked/'
         self.markedDataFile = '.marked/data.transect'
 
+        # Supported image types
+        self.supportedImageExtensions = ('.JPG', '.jpg', '.JPEG', '.jpeg')
+
         # Drawing colors
         self.colors = [
             'Blue',

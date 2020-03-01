@@ -198,7 +198,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             if not fp.is_file():
                 continue
 
-            if not fp.suffix in ('.jpg', '.JPG', '.jpeg', '.JPEG'):
+            if not fp.suffix in config.supportedImageExtensions:
                 continue
 
             imgFiles.append(fp)

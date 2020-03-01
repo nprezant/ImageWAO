@@ -7,6 +7,8 @@ from PIL import Image
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
+from base import config
+
 class Transect:
 
     def __init__(self, name='Transect', files=[]):
@@ -66,7 +68,7 @@ class TransectTableModel(QtCore.QAbstractTableModel):
             if not fp.is_file():
                 continue
 
-            if not fp.suffix in ('.jpg', '.JPG', '.jpeg', '.JPEG'):
+            if not fp.suffix in config.supportedImageExtensions:
                 continue
 
             # retrieve date and time image was taken
