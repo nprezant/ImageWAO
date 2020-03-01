@@ -126,7 +126,8 @@ class QImageGridView(QtWidgets.QTableView):
 
 
     def selectFile(self, path):
-        ''' Selects all the items associated
+        '''
+        Selects all the items associated
         with a given file path
         '''
         self.selectionModel().clearSelection()
@@ -146,7 +147,7 @@ class QImageGridView(QtWidgets.QTableView):
             self.scrollTo(idx)
 
             # Select the entire image associated with the first index
-            self.selectedImageChanged.emit(idx.data(role=UserRoles.EntireImage))
+            self._handlePreviewRequest()
 
     @QtCore.Slot(str)
     def saveDrawnItems(self, items):
