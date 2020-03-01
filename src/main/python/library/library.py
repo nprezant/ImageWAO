@@ -15,17 +15,21 @@ class Library(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
+        self.model = QtWidgets.QFileSystemModel()
+        self.view = QtWidgets.QListView()
+        self.address = AddressBar()
+
         # root path
         settings = QtCore.QSettings()
-        rootPath = settings.value(
+        self.rootPath = settings.value(
             'library/homeDirectory',
             None
         )
 
-        if rootPath is None:
+        if self.rootPath is None:
             self.pathNotDefined()
         else:
-            self.rebase(rootPath)
+            self.rebase()
 
     def pathNotDefined(self):
         
@@ -37,9 +41,6 @@ class Library(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(button)
         self.setLayout(layout)
-
-        # note the root path
-        self.rootPath = None
 
     def chooseRootFolder(self):
 
@@ -57,27 +58,25 @@ class Library(QtWidgets.QWidget):
             clearLayout(self.layout())
 
             # rebase view on new folder
-            self.rebase(folder)
+            self.rootPath = folder
+            self.rebase()
 
             # save this root path
             QtCore.QSettings().setValue('library/homeDirectory', folder)
 
-    def rebase(self, rootPath):
+    def rebase(self):
 
         # file model
-        self.model = QtWidgets.QFileSystemModel()
-        self.model.setRootPath(rootPath)
+        self.model.setRootPath(self.rootPath)
 
         # file view
-        self.view = QtWidgets.QListView()
         self.view.setModel(self.model)
-        self.view.setRootIndex(self.model.index(rootPath))
+        self.view.setRootIndex(self.model.index(self.rootPath))
 
         # connection to update view window from view window interaction
         self.view.activated.connect(self.viewActivated)
 
         # address bar
-        self.address = AddressBar()
         self.address.home_path = self.model.rootDirectory()
         self.address.path = self.model.rootDirectory()
 
@@ -92,9 +91,6 @@ class Library(QtWidgets.QWidget):
         # add layout items
         self.layout().addWidget(self.address)
         self.layout().addWidget(self.view, stretch=1)
-
-        # note the root path
-        self.rootPath = rootPath
 
     def viewActivated(self, index):
         if self.model.fileInfo(index).isDir():
