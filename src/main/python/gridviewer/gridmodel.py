@@ -4,6 +4,7 @@ from multiprocessing import Queue
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
+from serializers import JSONDrawnItems
 from base import QWorker
 
 class UserRoles:
@@ -39,6 +40,24 @@ class FullImage:
             return self.scaledParts[r][c]
         else:
             return self.parts[r][c]
+
+    def drawnPart(self, r, c):
+        '''
+        Gets the scaled portion of this image,
+        with the items drawn on it.
+        '''
+        img = self.part(r,c).copy()
+
+        # Add drawing items if present
+        sItems = self.drawnItems(r,c)
+        if sItems is not None:
+
+            # Since we are drawing on a scaled part of the image,
+            # we need to use the scale factor
+            sf = self._scaledWidth / self.part(r,c,scaled=False).width()
+            JSONDrawnItems.loads(sItems).paintToDevice(img, sf)
+        
+        return img
 
     def drawnItems(self, r, c):
         '''
@@ -255,7 +274,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         c = index.column()
 
         if role == QtCore.Qt.DecorationRole:
-            return image.part(r, c)
+            return image.drawnPart(r, c)
 
         if role == QtCore.Qt.SizeHintRole:
             return image.part(r, c).size()

@@ -67,6 +67,28 @@ class GrahphicItemRepresentation:
         '''
         self.geom.translate(QtCore.QPointF(x, y))
 
+    def scale(self, sf):
+        '''
+        Scales the geometry of this point by a
+        scale factor.
+        '''
+        if self.name in ('Rect', 'Ellipse'):
+            x = self.geom.x() * sf
+            y = self.geom.y() * sf
+            width = self.geom.width() * sf
+            height = self.geom.height() * sf
+            self.geom.setRect(x, y, width, height)
+
+        elif self.name in 'Line':
+            x1 = self.geom.x1() * sf
+            y1 = self.geom.y1() * sf
+            x2 = self.geom.x2() * sf
+            y2 = self.geom.y2() * sf
+            self.geom.setP1(QtCore.QPointF(x1, y1))
+            self.geom.setP2(QtCore.QPointF(x2, y2))
+
+        self.pen.setWidth(self.pen.width() * sf)
+
 
 class JSONDrawnItems:
     '''
@@ -93,7 +115,7 @@ class JSONDrawnItems:
         # Internally store the graphical representation
         # of these scene objects. Contains nough information
         # to recreate from primitive objects
-        self._reps = reps
+        self._reps:GrahphicItemRepresentation = reps
 
         # To iterate over these representations, we need an
         # iterater tracking variable
@@ -203,6 +225,28 @@ class JSONDrawnItems:
                 items.append(item)
 
         return items
+
+    def paintToDevice(self, device, sf=1):
+        '''
+        Paint the internal geometries to a
+        paint device (QImage, QPixmap, etc.)
+
+        Optionally include a scaling factor if
+        you are painting to a different size than what
+        the drawing was originally drawn on.
+        '''
+        painter = QtGui.QPainter(device)
+        for rep in self._reps:
+            painter.setPen(rep.pen)
+            rep.scale(sf)
+            painter.setPen(rep.pen)
+            if rep.name == 'Rect':
+                painter.drawRect(rep.geom)
+            elif rep.name == 'Ellipse':
+                painter.drawEllipse(rep.geom)
+            elif rep.name == 'Line':
+                painter.drawLine(rep.geom)
+        painter.end()
 
     def __iter__(self):
         self._index = 0
