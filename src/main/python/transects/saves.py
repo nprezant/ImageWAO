@@ -15,16 +15,21 @@ class TransectSaveData(UserDict):
     @staticmethod
     def load(fp):
         '''
-        Loads a serialized file
+        Loads a serialized file. If the data cannot be decoded,
+        The save data is initialized with a blank dict.
         '''
-        with open(fp, 'r') as f:
-            data = json.load(f)
+        try:
+            with open(fp, 'r') as f:
+                data = json.load(f)
+        except json.decoder.JSONDecodeError:
+            data = {}
 
         return TransectSaveData(data)
 
     def dump(self, fp):
         '''
         Serialize save data and save to specified path.
+        Writes this data on top of already existing data.
         '''
         with open(fp, 'w') as f:
             json.dump(self.data, f)
@@ -50,6 +55,13 @@ class TransectSaveData(UserDict):
 
         # Add these drawings the image dict
         self.data[imageName]['drawings'] = drawings
+
+    def removeDrawings(self, imageName):
+        '''
+        Remove the drawings associated with an image.
+        '''
+        if imageName in self.data.keys():
+            self.data[imageName].pop('drawings')
 
     def drawings(self):
         '''

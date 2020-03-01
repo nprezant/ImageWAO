@@ -237,7 +237,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         '''
 
         # Generate the save path
-        originalFolder = self.data(self.createIndex(0,0), UserRoles.ImagePath).parent
+        originalFolder = self._folder()
         savePath = originalFolder / Path(config.markedDataFile)
 
         # If the path doesn't exist, don't try to load anything
@@ -267,6 +267,12 @@ class QImageGridModel(QtCore.QAbstractTableModel):
                     matches.append(idx)
         return matches
 
+    def _folder(self, r=0, c=0):
+        '''
+        Retreives the folder of the image at index (r,c).
+        '''
+        return self.data(self.createIndex(r,c), UserRoles.ImagePath).parent
+
     @QtCore.Slot()
     def save(self):
         '''
@@ -277,9 +283,11 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         if len(self._changedIndexes) == 0:
             return
-            
+
         # Some save data gets written out in a text file
-        saveData = TransectSaveData()
+        transectPath = self._folder() / Path(config.markedDataFile)
+        transectPath.touch()
+        saveData = TransectSaveData.load(transectPath)
 
         # Only save files that have changed
         for index in self._changedIndexes:
@@ -302,23 +310,34 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             mergedIndexes = MergedIndexes(indexes)
             preview = mergedIndexes.resultantImage()
 
+            # Form the new path (./.marked/Alpha_001.JPG)
+            markedPath = originalPath.parent / Path(config.markedImageFolder) / originalPath.name
+
             # Merge drawn items and draw them onto the image
             drawings = mergedIndexes.drawnItems()
             if drawings is not None:
                 JSONDrawnItems.loads(drawings).paintToDevice(preview)
 
-            # Form the new path (./.marked/Alpha_001.JPG),
-            # Ensure it exists, and save.
-            markedPath = originalPath.parent / Path(config.markedImageFolder) / originalPath.name 
-            markedPath.parent.mkdir(exist_ok=True)
-            preview.save(str(markedPath))
+                # Ensure the directory exists and save.
+                markedPath.parent.mkdir(exist_ok=True)
+                preview.save(str(markedPath))
 
-            # Add drawing items to the save data
-            # for this image
-            saveData.addDrawings(originalPath.name, drawings)
+                # Add drawing items to the save data
+                # for this image
+                saveData.addDrawings(originalPath.name, drawings)
+
+            # If there are no drawings, we should delete the image
+            # from the marked folder. (If applicable.)
+            else:
+                try:
+                    markedPath.unlink()
+                except FileNotFoundError:
+                    pass
+                finally:
+                    saveData.removeDrawings(originalPath.name)
 
         # Save the transect data
-        saveData.dump(originalPath.parent / Path(config.markedDataFile))
+        saveData.dump(transectPath)
 
         # Clear the changed index list
         self._changedIndexes = []

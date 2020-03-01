@@ -168,6 +168,9 @@ class JSONDrawnItems:
         as their geometric representation (QRectF, QLine, QEllipse)
         '''
 
+        if s is None:
+            return JSONDrawnItems([])
+            
         representations = []
         data = json.loads(s)
 
@@ -199,6 +202,9 @@ class JSONDrawnItems:
         '''
         Return the encoded drawing items as a JSON formatted string
         '''
+        if len(self._reps) == 0:
+            return None
+
         encoded = []
         for rep in self._reps:
             encoded.append([rep.name, rep.args, rep.penColor, rep.penWidth])

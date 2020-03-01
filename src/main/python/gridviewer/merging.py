@@ -282,11 +282,8 @@ class MergedIndexes:
         of items currently drawn on the merged indexes.
         '''
 
-        # Assign each drawn item to it's index. If this returns None,
-        # then none of the assignments were valid.
+        # Assign each drawn item to it's index.
         assignments = self.assignDrawnItems(items)
-        if assignments is None:
-            return
 
         # For each index and drawing pairing, we need to set it on the
         # model. However, if the index is None, that means the drawing
@@ -333,7 +330,7 @@ class MergedIndexes:
         # by assigning each one to a blank list.
         stringAssignments = {}
         for idx, _, _, in self.positions.positionData():
-            stringAssignments[idx] = '[]'
+            stringAssignments[idx] = None
 
         # For item in the, dump to a string
         for idx, reps in assignments.items():
