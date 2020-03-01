@@ -3,9 +3,28 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from .address import AddressBar
 from tools import clearLayout
+from base import config
 
+from .address import AddressBar
+
+class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
+
+    filterOut = None
+
+    def filterAcceptsRow(self, sourceRow, sourceParent):
+        # Fetch datetime value.
+        index = self.sourceModel().index(sourceRow, 0, sourceParent)
+        data = self.sourceModel().data(index)
+        
+        # Filter OUT matching files
+        if self.filterOut is None:
+            return super().filterAcceptsRow(sourceRow, sourceParent)
+        elif self.filterOut.lower() in data.lower():
+            return False
+        else:
+            return True
+        
 
 class Library(QtWidgets.QWidget):
 
@@ -15,9 +34,23 @@ class Library(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
-        self.model = QtWidgets.QFileSystemModel()
-        self.view = QtWidgets.QListView()
+        self.sourceModel = QtWidgets.QFileSystemModel()
+        self.proxyModel = SortFilterProxyModel()
+        self.proxyView = QtWidgets.QListView()
+
+        self.proxyView.setModel(self.proxyModel)
+        self.proxyModel.setSourceModel(self.sourceModel)
+        self.proxyModel.filterOut = Path(config.markedImageFolder).name
+
         self.address = AddressBar()
+
+        # Only show images in the view
+        # self.model.setNameFilters(('marked', *config.supportedImageExtensions))
+        # self.sourceModel.setNameFilters('Flight')
+        # self.sourceModel.setFilter(
+        #     QtCore.QDir.Dirs
+        #     | QtCore.QDir.NoDotAndDotDot
+        #     | QtCore.QDir.Files)
 
         # root path
         settings = QtCore.QSettings()
@@ -67,18 +100,17 @@ class Library(QtWidgets.QWidget):
     def rebase(self):
 
         # file model
-        self.model.setRootPath(self.rootPath)
+        self.sourceModel.setRootPath(self.rootPath)
 
         # file view
-        self.view.setModel(self.model)
-        self.view.setRootIndex(self.model.index(self.rootPath))
+        self.proxyView.setRootIndex(self._rootProxyIndex())
 
         # connection to update view window from view window interaction
-        self.view.activated.connect(self.viewActivated)
+        self.proxyView.activated.connect(self.viewActivated)
 
         # address bar
-        self.address.home_path = self.model.rootDirectory()
-        self.address.path = self.model.rootDirectory()
+        self.address.home_path = self.sourceModel.rootDirectory()
+        self.address.path = self.sourceModel.rootDirectory()
 
         # connection to update view window based on address bar
         self.address.activated.connect(self.addressActivated)
@@ -90,21 +122,28 @@ class Library(QtWidgets.QWidget):
 
         # add layout items
         self.layout().addWidget(self.address)
-        self.layout().addWidget(self.view, stretch=1)
+        self.layout().addWidget(self.proxyView, stretch=1)
 
+    def _rootProxyIndex(self):
+        return self.proxyModel.mapFromSource(self.sourceModel.index(self.rootPath))
+
+    @QtCore.Slot()
     def viewActivated(self, index):
-        if self.model.fileInfo(index).isDir():
-            self.view.setRootIndex(index)
-            self.address.path = QtCore.QDir(self.model.filePath(index))
-            self.directoryChanged.emit(self.model.filePath(index))
+        sourceIndex = self.proxyModel.mapToSource(index)
+        if self.sourceModel.fileInfo(sourceIndex).isDir():
+            self.proxyView.setRootIndex(index)
+            self.address.path = QtCore.QDir(self.sourceModel.filePath(sourceIndex))
+            self.directoryChanged.emit(self.sourceModel.filePath(sourceIndex))
         else:
             # Bubble up the path signal
-            self.fileActivated.emit(self.model.filePath(index))
+            self.fileActivated.emit(self.sourceModel.filePath(sourceIndex))
 
+    @QtCore.Slot()
     def addressActivated(self, path):
-        index = self.model.index(path)
+        index = self.sourceModel.index(path)
         self.viewActivated(index)
 
+    @QtCore.Slot()
     def selectFiles(self, files):
         ''' Try to select all matching files in the library. '''
 
@@ -113,14 +152,15 @@ class Library(QtWidgets.QWidget):
             return
 
         # Clear current selection
-        self.view.selectionModel().clearSelection()
+        self.proxyView.selectionModel().clearSelection()
 
-        # Get model indexes
-        indexes = [self.model.index(str(f)) for f in files]
+        # Get model indexes, convert to proxy
+        indexes = [self.sourceModel.index(str(f)) for f in files]
+        proxyIndexes = [self.proxyModel.mapFromSource(idx) for idx in indexes]
 
         # Select each index
-        for idx in indexes:
-            self.view.selectionModel().select(idx, QtCore.QItemSelectionModel.Select)
+        for idx in proxyIndexes:
+            self.proxyView.selectionModel().select(idx, QtCore.QItemSelectionModel.Select)
 
         # Scroll to the first of the selected files
-        self.view.scrollTo(indexes[0])
+        self.proxyView.scrollTo(proxyIndexes[0])
