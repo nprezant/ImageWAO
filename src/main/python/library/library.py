@@ -7,6 +7,7 @@ from tools import clearLayout
 from base import config
 
 from .address import AddressBar
+from .popup import LibraryMenu
 
 class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
 
@@ -43,6 +44,12 @@ class Library(QtWidgets.QWidget):
         self.proxyModel.filterOut = Path(config.markedImageFolder).name
 
         self.address = AddressBar()
+
+        # Context menu policy must be CustomContextMenu for us to implement
+        # our own context menu. Connect the context menu request to our internal slot.
+        self.menu = LibraryMenu(self)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._customMenuRequested)
 
         # root path
         settings = QtCore.QSettings()
@@ -156,3 +163,23 @@ class Library(QtWidgets.QWidget):
 
         # Scroll to the first of the selected files
         self.proxyView.scrollTo(proxyIndexes[0])
+
+    @QtCore.Slot(QtCore.QPoint)
+    def _customMenuRequested(self, pos:QtCore.QPoint):
+        '''
+        Open the context menu with the currently selected item.
+        '''
+
+        # Find the selected files, and let the menu
+        # know what they are
+        selectionModel = self.proxyView.selectionModel()
+        proxyIndexes = selectionModel.selectedIndexes()
+
+        paths = []
+        for idx in proxyIndexes:
+            sourceIndex = self.proxyModel.mapToSource(idx)  
+            paths.append(self.sourceModel.filePath(sourceIndex))
+
+        if paths:
+            self.menu.setTargetPaths(paths)
+            self.menu.popup(self.mapToGlobal(pos))
