@@ -132,7 +132,7 @@ class Library(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def addressActivated(self, path):
-        index = self.sourceModel.index(path)
+        index = self.proxyModel.mapFromSource(self.sourceModel.index(path))
         self.viewActivated(index)
 
     @QtCore.Slot()
