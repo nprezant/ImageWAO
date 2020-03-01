@@ -219,68 +219,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
                 idx = self.index(r,c)
                 if idx.data(UserRoles.ImagePath) == Path(path):
                     matches.append(idx)
-        return matches
-
-    @staticmethod
-    def mergeIndexes(indexes):
-        '''
-        Finds the selected images and, if there are any, 
-        returns a QImage of them stitched together. Returns
-        None if nothing is selected.
-        Assumes consistent sizes.
-        '''
-
-        # Nothing to do if nothing is selected
-        if len(indexes) == 0:
-            return None
-
-        # Get the full resolution image parts (QImage, row, col)
-        imageData = [
-            (idx.data(role=UserRoles.FullResImage), idx.row(), idx.column()) for idx in indexes
-        ]
-        
-        # Determine merged image size.
-        # Keep track of unique rows and columns.
-        # Keep track of total merged width and total merged height
-        rows = []
-        cols = []
-        w = 0
-        h = 0
-        for img, r, c in imageData:
-
-            if not r in rows:
-                rows.append(r)
-                h += img.height()
-
-            if not c in cols:
-                cols.append(c)
-                w += img.width()
-
-        # Create a result QImage of appropriate size
-        result = QtGui.QImage(QtCore.QSize(w, h), QtGui.QImage.Format_RGB32)
-
-        # Construct painter for drawing image parts into the result
-        painter = QtGui.QPainter(result)
-
-        # Sort the rows and columns to be in numerical order (1, 3, 4)
-        rows.sort()
-        cols.sort()
-
-        # Paint the images into the result
-        for img, r, c in imageData:
-
-            # How far down in the list of rows/cols are we, relative to the rows/cols selected?
-            rowNum = rows.index(r)
-            colNum = cols.index(c)
-
-            # The x,y position of this image is the (image width) * (the row or column)
-            x = colNum * img.width()
-            y = rowNum * img.height()
-
-            # Draw
-            painter.drawImage(x, y, img)
-
-        return result
+        return matches        
 
     def setDrawnItems(self, index, items):
         ''' Sets the drawn items at this index '''
