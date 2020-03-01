@@ -291,9 +291,9 @@ class MergedIndexes:
         # For each index and drawing pairing, we need to set it on the
         # model. However, if the index is None, that means the drawing
         # was over a null space on the merged image.
-        for idx, itemString in assignments.items():
+        for idx, drawingString in assignments.items():
             if idx is not None:
-                model.setDrawnItems(idx, itemString)
+                model.setDrawings(idx, drawingString)
 
     def assignDrawnItems(self, itemstring):
         '''

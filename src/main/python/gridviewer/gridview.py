@@ -150,7 +150,7 @@ class QImageGridView(QtWidgets.QTableView):
             self._handlePreviewRequest()
 
     @QtCore.Slot(str)
-    def setDrawnItems(self, items):
+    def setDrawings(self, drawings):
         '''
         Set the drawn items passed in to the currently active
         model index.
@@ -166,7 +166,7 @@ class QImageGridView(QtWidgets.QTableView):
         # save the drawn items to the first selected index
         if self._mergedIndexes is None:
             index = indexes[0]
-            self.model().setDrawnItems(index, items)
+            self.model().setDrawings(index, drawings)
         
         # If multiple indexes are merged, we need to
         # sort out which items belong where
@@ -174,7 +174,7 @@ class QImageGridView(QtWidgets.QTableView):
 
             # Assign items to specific indexes.
             # Account for coordinate transformations
-            self._mergedIndexes.setModelDrawings(self.model(), items)
+            self._mergedIndexes.setModelDrawings(self.model(), drawings)
 
     @QtCore.Slot()
     def save(self):

@@ -66,13 +66,13 @@ class FullImage:
         '''
         return self._drawnItems[r][c]
 
-    def setDrawnItems(self, r, c, items):
+    def setDrawings(self, r, c, drawings):
         '''
         Sets the serialized string of the 
         drawn items at the given row, column to
         the given value.
         '''
-        self._drawnItems[r][c] = items
+        self._drawnItems[r][c] = drawings
 
     def compute(self):
         '''
@@ -320,14 +320,14 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         # Clear the changed index list
         self._changedIndexes = []
 
-    def setDrawnItems(self, index, items):
+    def setDrawings(self, index, drawings):
         ''' Sets the drawn items at this index '''
         image = self._images[int(index.row() / self._imageRows)]
         
         r = index.row() % self._imageRows
         c = index.column()
 
-        image.setDrawnItems(r, c, items)
+        image.setDrawings(r, c, drawings)
 
         # Mark this index as "changed"
         self._changedIndexes.append(index)
