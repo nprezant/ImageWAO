@@ -122,7 +122,9 @@ class QImageGridView(QtWidgets.QTableView):
 
         # Emit data
         self.selectedImageChanged.emit(preview)
-        self.drawnItemsChanged.emit(mergedItems)
+
+        if mergedItems is not None:
+            self.drawnItemsChanged.emit(mergedItems)
 
 
     def selectFile(self, path):
