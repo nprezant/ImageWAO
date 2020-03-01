@@ -113,7 +113,7 @@ class FullImage:
                 self._drawnItems[-1].append(None)
 
     @staticmethod
-    def CreateFromListQWorker(files, *args, progress=None):
+    def CreateFromFiles(files, *args, progress=None):
 
         images = []
         count = len(files)
@@ -206,17 +206,13 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         if len(imgFiles) == 0:
             return
         else:
-            self.resetImagesFromList(imgFiles)
+            self.resetImagesFromFiles(imgFiles)
 
-    def resetImagesFromList(self, imgList):
+    def resetImagesFromFiles(self, imgList):
 
-        self._runner = QWorker(
-            FullImage.CreateFromListQWorker,
-            args=[
-                imgList, self._imageRows,
-                self._imageCols, self._displayWidth], # Arguments for the CreateFromListQWorker function
-            progress=True,
-        )
+        # Initialize runner with arguments for FullImage static constructor
+        args=[imgList, self._imageRows, self._imageCols, self._displayWidth]
+        self._runner = QWorker(FullImage.CreateFromFiles, args, progress=True)
 
         self._runner.signals.progress.connect(self.progress.emit) # bubble up progress
         self._runner.signals.result.connect(self.resetImagesFromFullImages)
