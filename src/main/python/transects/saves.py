@@ -1,15 +1,33 @@
 
 import json
+from collections import UserDict
 
-class TransectSaveData:
+class TransectSaveData(UserDict):
     '''
     Manages transect save data in a primitive
     data state, such that it can be easily 
     serialized.
     '''
 
-    def __init__(self):
-        self.data = {}
+    def __init__(self, data={}):
+        super().__init__(data)
+
+    @staticmethod
+    def load(fp):
+        '''
+        Loads a serialized file
+        '''
+        with open(fp, 'r') as f:
+            data = json.load(f)
+
+        return TransectSaveData(data)
+
+    def dump(self, fp):
+        '''
+        Serialize save data and save to specified path.
+        '''
+        with open(fp, 'w') as f:
+            json.dump(self.data, f)
 
     def addImage(self, imageName):
         '''
@@ -33,10 +51,12 @@ class TransectSaveData:
         # Add these drawings the image dict
         self.data[imageName]['drawings'] = drawings
 
-    def dump(self, fp):
+    def drawings(self):
         '''
-        Serialize save data and save to specified path.
+        Generator yielding a tuple of images
+        with corresponding drawings.
+        (imageName:str, drawings:str)
         '''
-        json.dump(self.data, fp)
-
-    
+        for imageName, imageData in self.data.items():
+            if 'drawings' in imageData.keys():
+                yield imageName, imageData['drawings']

@@ -171,8 +171,8 @@ class PositionedIndexes:
         '''
 
         # Safety check: these must be lists containing at least a [0]
-        assert self.tops
-        assert self.lefts
+        if not self.tops or self.lefts:
+            self.resultantTopLefts(UserRoles.FullResImage)
 
         # If the point is in negative space, we don't
         # have any indexes that would use negative space
@@ -275,6 +275,25 @@ class MergedIndexes:
         of indexes.
         '''
         return self.positions.toImage(UserRoles.FullResImage)
+
+    def setModelDrawings(self, model, items):
+        '''
+        Set the drawings on the model, given the list
+        of items currently drawn on the merged indexes.
+        '''
+
+        # Assign each drawn item to it's index. If this returns None,
+        # then none of the assignments were valid.
+        assignments = self.assignDrawnItems(items)
+        if assignments is None:
+            return
+
+        # For each index and drawing pairing, we need to set it on the
+        # model. However, if the index is None, that means the drawing
+        # was over a null space on the merged image.
+        for idx, itemString in assignments.items():
+            if idx is not None:
+                model.setDrawnItems(idx, itemString)
 
     def assignDrawnItems(self, itemstring):
         '''

@@ -227,7 +227,36 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         self._images = []
         self._images = fullImages
         self.endResetModel()
+        self._readSaveData()
         self._resetProgress()
+
+    def _readSaveData(self):
+        '''
+        Reads in save data, if it can be found.
+        Save file specified in Config().
+        '''
+
+        # Generate the save path
+        originalFolder = self.data(self.createIndex(0,0), UserRoles.ImagePath).parent
+        savePath = originalFolder / Path(config.markedDataFile)
+
+        # If the path doesn't exist, don't try to load anything
+        if not savePath.is_file():
+            return
+        
+        # Load save data
+        saveData = TransectSaveData.load(savePath)
+        for imageName, drawings in saveData.drawings():
+            
+            # Merge indexes that compose this file, and
+            # set the drawings to the merged set.
+            indexes = self.matchPath(originalFolder / imageName)
+
+            if not indexes:
+                print(f'Warning: bad save file -- {imageName} not found.')
+            else:
+                mergedIndexes = MergedIndexes(indexes)
+                mergedIndexes.setModelDrawings(self, drawings)
 
     def matchPath(self, path):
         matches = []
@@ -267,11 +296,11 @@ class QImageGridModel(QtCore.QAbstractTableModel):
                     pass
 
             # Merge the indexes togther, create a preview image
-            self._mergedIndexes = MergedIndexes(indexes)
-            preview = self._mergedIndexes.resultantImage()
+            mergedIndexes = MergedIndexes(indexes)
+            preview = mergedIndexes.resultantImage()
 
             # Merge drawn items and draw them onto the image
-            drawings = self._mergedIndexes.drawnItems()
+            drawings = mergedIndexes.drawnItems()
             if drawings is not None:
                 JSONDrawnItems.loads(drawings).paintToDevice(preview)
 
@@ -283,11 +312,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
             # Add drawing items to the save data
             # for this image
-            saveData.addDrawings(originalPath.stem, drawings)
+            saveData.addDrawings(originalPath.name, drawings)
 
         # Save the transect data
-        with open(originalPath.parent / Path(config.markedDataFile), 'w') as f:
-            saveData.dump(f)
+        saveData.dump(originalPath.parent / Path(config.markedDataFile))
 
         # Clear the changed index list
         self._changedIndexes = []

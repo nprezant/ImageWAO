@@ -174,14 +174,7 @@ class QImageGridView(QtWidgets.QTableView):
 
             # Assign items to specific indexes.
             # Account for coordinate transformations
-            assignments = self._mergedIndexes.assignDrawnItems(items)
-
-            if assignments is None:
-                return
-
-            for idx, itemString in assignments.items():
-                if idx is not None:
-                    self.model().setDrawnItems(idx, itemString)
+            self._mergedIndexes.setModelDrawings(self.model(), items)
 
     @QtCore.Slot()
     def save(self):
