@@ -172,7 +172,8 @@ class QImageGridView(QtWidgets.QTableView):
                 return
 
             for idx, itemString in assignments.items():
-                self.model().setDrawnItems(idx, itemString)
+                if idx is not None:
+                    self.model().setDrawnItems(idx, itemString)
 
 
 if __name__ == '__main__':
