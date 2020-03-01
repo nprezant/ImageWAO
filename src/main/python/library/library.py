@@ -44,14 +44,6 @@ class Library(QtWidgets.QWidget):
 
         self.address = AddressBar()
 
-        # Only show images in the view
-        # self.model.setNameFilters(('marked', *config.supportedImageExtensions))
-        # self.sourceModel.setNameFilters('Flight')
-        # self.sourceModel.setFilter(
-        #     QtCore.QDir.Dirs
-        #     | QtCore.QDir.NoDotAndDotDot
-        #     | QtCore.QDir.Files)
-
         # root path
         settings = QtCore.QSettings()
         self.rootPath = settings.value(
