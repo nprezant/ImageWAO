@@ -24,6 +24,9 @@ class QImageWAO(QtWidgets.QMainWindow):
     ):
         super().__init__()
 
+        # Whether or not the application has changes
+        self._dirty = False
+
         # The image editor is the central widget
         self.setCentralWidget(mspaint)
         self.viewer = mspaint
@@ -70,6 +73,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Image viewer signal connections
         self.viewer.drawnItemsChanged.connect(self.grid.setDrawings)
+        self.viewer.drawnItemsChanged.connect(self._markAsDirty)
 
         # File | Etc. Menus
         self._menusCreated = False
@@ -127,7 +131,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         a = QtWidgets.QAction('Save', self)
         a.setShortcut('Ctrl+S')
-        a.triggered.connect(self.grid.save)
+        a.triggered.connect(self.save)
         self.fileMenu.addAction(a)
 
         a = QtWidgets.QAction('Import Flight Images', self)
@@ -148,3 +152,53 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def _arrangeMenus(self):
         self.menuBar().addMenu(self.fileMenu)
+
+    def save(self):
+        '''
+        All save operations.
+        '''
+        self.grid.save()
+
+    def _markAsDirty(self, *args):
+        '''
+        Any signals that signify save-able changes were made
+        should also connect to this slot, which will mark the 
+        application as "dirty" such that the user will
+        be prompted to save before exiting the application.
+        '''
+        self._dirty = True
+
+    def closeEvent(self, event:QtGui.QCloseEvent):
+        '''
+        Check to ensure that changes are saved if 
+        the user wants to save them.
+        '''
+
+        # If there are no changes,
+        # simply quit.
+        if not self._dirty:
+            event.accept()
+
+        # Create message box
+        box = QtWidgets.QMessageBox()
+        box.setText('The transect has been modified.')
+        box.setInformativeText('Do you want to save your changes?')
+        box.setStandardButtons(
+            QtWidgets.QMessageBox.Save
+            | QtWidgets.QMessageBox.Discard
+            | QtWidgets.QMessageBox.Cancel)
+        box.setDefaultButton(QtWidgets.QMessageBox.Save)
+        
+        # Based on user response, either save, don't save,
+        # or quit.
+        ret = box.exec_()
+        if ret == QtWidgets.QMessageBox.Save:
+            self.save()
+            event.accept()
+        elif ret == QtWidgets.QMessageBox.Discard:
+            event.accept()
+        elif ret == QtWidgets.QMessageBox.Cancel:
+            event.ignore()
+        else:
+            # Should never be reached
+            event.ignore()
