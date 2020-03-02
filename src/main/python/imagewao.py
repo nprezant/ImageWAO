@@ -111,7 +111,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         a = QtWidgets.QAction('Save', self)
         a.setShortcut('Ctrl+S')
-        a.triggered.connect(self.save)
+        a.triggered.connect(self._saveIfDirty)
         self.fileMenu.addAction(a)
 
         a = QtWidgets.QAction('Import Flight Images', self)
@@ -132,6 +132,10 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def _arrangeMenus(self):
         self.menuBar().addMenu(self.fileMenu)
+
+    def _saveIfDirty(self):
+        if self._dirty:
+            self.save()
 
     def save(self):
         '''

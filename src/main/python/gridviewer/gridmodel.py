@@ -7,6 +7,7 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from serializers import JSONDrawnItems
 from transects import TransectSaveData
 from base import QWorker, config
+from tools import saveManyImages
 
 from .merging import MergedIndexes
 from .enums import UserRoles
@@ -164,6 +165,7 @@ class FullImage:
 class QImageGridModel(QtCore.QAbstractTableModel):
 
     progress = QtCore.Signal(int)
+    message = QtCore.Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -174,7 +176,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         self._images: FullImage = []
 
-        self._runner = None
+        self._loadWorker = None
         self._threadpool = QtCore.QThreadPool()
 
         # Keep track of which indexes changed
@@ -212,11 +214,21 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         # Initialize runner with arguments for FullImage static constructor
         args=[imgList, self._imageRows, self._imageCols, self._displayWidth]
-        self._runner = QWorker(FullImage.CreateFromFiles, args, progress=True)
+        self._loadWorker = QWorker(FullImage.CreateFromFiles, args)
+        self._loadWorker.includeProgress()
+        self._loadWorker.signals.progress.connect(self.progress.emit) # bubble up progress
+        self._loadWorker.signals.result.connect(self.resetImagesFromFullImages)
+        self._loadWorker.signals.finished.connect(self._resetLoadWorker)
+        self._threadpool.start(self._loadWorker)
 
-        self._runner.signals.progress.connect(self.progress.emit) # bubble up progress
-        self._runner.signals.result.connect(self.resetImagesFromFullImages)
-        self._threadpool.start(self._runner)
+    def _resetLoadWorker(self):
+        '''
+        The `_loadWorker` variable tracks the QWorker that is currently
+        processing. Call this method when the QWorker finishes it's task
+        to free it up for the next large load process.
+        '''
+        print('resetting load worker')
+        self._loadWorker = None
 
     def _resetProgress(self):
         # Reset progress bar after a brief time
@@ -295,6 +307,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         # Initialize save data from old data path
         saveData = TransectSaveData.load(transectPath)
 
+        # List of images to be saved and the `save` arguments
+        # [(image, ['C:/Photos/myFavoriteImage.jpg']), ]
+        markedImages = []
+
         # Only save files that have changed
         for index in self._changedIndexes:
 
@@ -324,11 +340,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             if drawings is not None:
                 JSONDrawnItems.loads(drawings).paintToDevice(preview)
 
-                # Save.
-                preview.save(str(markedPath))
+                # Add this to the list of images to save
+                markedImages.append((preview, [str(markedPath)]))
 
-                # Add drawing items to the save data
-                # for this image
+                # Add drawing items to the save data for this image
                 saveData.addDrawings(originalPath.name, drawings)
 
             # If there are no drawings, we should delete the image
@@ -339,6 +354,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
                 except FileNotFoundError:
                     pass
                 finally:
+                    # Ensure that there are no drawings saved alongside
+                    # this image (in particular, if the drawings already
+                    # existed, we need to delete them)
                     saveData.removeDrawings(originalPath.name)
 
         # Save the transect data
@@ -346,6 +364,23 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         # Clear the changed index list
         self._changedIndexes = []
+
+        # On another thread, do the heavily-lifing of
+        # saving the images.
+        self.message.emit(
+            f'Saving {len(markedImages)} images.\n\n'
+            'Please do not exit the application :)'
+        )
+        self._saveWorker = QWorker(saveManyImages, [markedImages])
+        self._saveWorker.signals.finished.connect(self._resetSaveWorker)
+        self._saveWorker.signals.finished.connect(self._saveWorkerFinished)
+        self._threadpool.start(self._saveWorker)
+
+    def _saveWorkerFinished(self):
+        self.message.emit('Save complete')
+
+    def _resetSaveWorker(self):
+        self._saveWorker = None
 
     def setDrawings(self, index, drawings):
         ''' Sets the drawn items at this index '''

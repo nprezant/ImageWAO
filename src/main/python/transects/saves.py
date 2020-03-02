@@ -61,7 +61,12 @@ class TransectSaveData(UserDict):
         Remove the drawings associated with an image.
         '''
         if imageName in self.data.keys():
-            self.data[imageName].pop('drawings')
+            try:
+                self.data[imageName].pop('drawings')
+
+            # There might not have been this data saved yet
+            except KeyError:
+                pass
 
     def drawings(self):
         '''

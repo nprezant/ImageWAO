@@ -39,18 +39,23 @@ class QWorker(QtCore.QRunnable):
     :param kwargs: Keywords to pass to the callback function
     '''
 
-    def __init__(self, fn, args:list, kwargs={}, progress=False):
+    def __init__(self, fn, args:list):
+        '''
+        If you want progress updates, call the `includeProgess` method.
+        '''
         super().__init__()
 
         self.fn = fn
         self.args = args
-        self.kwargs = kwargs
+        self.kwargs = dict()
         self.signals = WorkerSignals()
-        
-        # If progress is true, we need to include the progress
-        # Signal in the keyword arguments
-        if progress is True:
-            self.kwargs.update(progress=self.signals.progress)
+
+    def includeProgress(self):
+        '''
+        The progress signal will be passed to the `fn`
+        as a keyword argument.
+        '''
+        self.kwargs.update(progress=self.signals.progress)
 
     @QtCore.Slot()
     def run(self):
@@ -59,14 +64,18 @@ class QWorker(QtCore.QRunnable):
         '''
 
         try:
+            print('running')
             result = self.fn(*self.args, **self.kwargs)
         except:
+            print('error')
             traceback.print_exc()
             exctype, value = sys.exc_info()[:2]
             self.signals.error.emit((exctype, value, traceback.format_exc()))
         else:
+            print('result ready')
             self.signals.result.emit(result)
         finally:
+            print('finished')
             self.signals.finished.emit()
 
 
