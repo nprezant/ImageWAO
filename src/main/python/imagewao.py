@@ -3,7 +3,7 @@ from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx
 
-from ui import DockWidget
+from ui import DockWidget, TitleBarText
 
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
@@ -26,6 +26,10 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Whether or not the application has changes
         self._dirty = False
+
+        # Title bar text is managed
+        self.titleBarText = TitleBarText(ctx.app.applicationName())
+        self.titleBarText.changed.connect(self.setWindowTitle)
 
         # The image editor is the central widget
         self.setCentralWidget(mspaint)
@@ -63,6 +67,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Flight library signal connections
         self.library.fileActivated.connect(self._updateGridSelection)
         self.library.directoryChanged.connect(self._setGridImages)
+        self.library.directoryChanged.connect(self.titleBarText.setFolderName)
 
         # Image grid signal connections
         self.grid.loadProgress.connect(self.progressBar.setValue)
@@ -155,9 +160,11 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def save(self):
         '''
-        All save operations.
+        All save operations. Once saving is completed,
+        The application will be marked clean.
         '''
         self.grid.save()
+        self._markAsClean()
 
     def _markAsDirty(self, *args):
         '''
@@ -167,6 +174,15 @@ class QImageWAO(QtWidgets.QMainWindow):
         be prompted to save before exiting the application.
         '''
         self._dirty = True
+        self.titleBarText.setDirty(True)
+
+    def _markAsClean(self):
+        '''
+        This operation resets the _dirty flag and also updates the
+        title bar to the clean state.
+        '''
+        self._dirty = False
+        self.titleBarText.setDirty(False)
 
     def closeEvent(self, event:QtGui.QCloseEvent):
         '''
