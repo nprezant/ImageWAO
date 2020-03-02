@@ -227,7 +227,6 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         processing. Call this method when the QWorker finishes it's task
         to free it up for the next large load process.
         '''
-        print('resetting load worker')
         self._loadWorker = None
 
     def _resetProgress(self):
@@ -269,6 +268,11 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             else:
                 mergedIndexes = MergedIndexes(indexes)
                 mergedIndexes.setModelDrawings(self, drawings)
+
+                # Since we just read in new data and will have changed
+                # the indexes as a part of that, we should note that
+                # these indexes actually don't have to be saved again.
+                self._changedIndexes = []
 
     def matchPath(self, path):
         matches = []
@@ -314,6 +318,12 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         # Only save files that have changed
         for index in self._changedIndexes:
 
+            # If this index is None, i.e., was already taken care of
+            # by a previous index (part of same overall image), continue 
+            # to next index.
+            if index is None:
+                continue
+
             # Retreive the path of the original image, and find
             # the indexes of the images that also correspond
             # to that path.
@@ -324,9 +334,12 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             # path, we no longer need them in "changedIndexes"
             for idx in indexes:
                 try:
-                    self._changedIndexes.remove(idx)
+                    num = self._changedIndexes.index(idx)
                 except ValueError:
                     pass
+                else:
+                    self._changedIndexes[num] = None
+
 
             # Merge the indexes togther, create a preview image
             mergedIndexes = MergedIndexes(indexes)
@@ -370,10 +383,11 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         # On another thread, do the heavily-lifing of
         # saving the images.
-        self.message.emit(
-            f'Saving {len(markedImages)} images.\n\n'
-            'Please do not exit the application :)'
-        )
+        if len(markedImages) != 1:
+            msg = f'Saving {len(markedImages) + 1} images.\n\n'
+        else:
+            msg = f'Saving {Path(*markedImages[0][1]).name}\n\n'
+        self.message.emit(msg + 'Please do not exit the application :)')
         self._saveWorker = QWorker(saveManyImages, [markedImages])
         self._saveWorker.signals.finished.connect(self._resetSaveWorker)
         self._saveWorker.signals.finished.connect(self._saveWorkerFinished)
