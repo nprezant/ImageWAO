@@ -175,9 +175,10 @@ class QImageWAO(QtWidgets.QMainWindow):
         '''
 
         # If there are no changes,
-        # simply quit.
+        # simply accept the event.
         if not self._dirty:
             event.accept()
+            return
 
         # Create message box
         box = QtWidgets.QMessageBox()
