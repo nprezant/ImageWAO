@@ -64,18 +64,14 @@ class QWorker(QtCore.QRunnable):
         '''
 
         try:
-            print('running')
             result = self.fn(*self.args, **self.kwargs)
         except:
-            print('error')
             traceback.print_exc()
             exctype, value = sys.exc_info()[:2]
             self.signals.error.emit((exctype, value, traceback.format_exc()))
         else:
-            print('result ready')
             self.signals.result.emit(result)
         finally:
-            print('finished')
             self.signals.finished.emit()
 
 
