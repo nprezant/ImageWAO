@@ -205,7 +205,7 @@ class QToaster(QtWidgets.QFrame):
 
         self.setGeometry(geo)
 
-    def show_(self, timeout=15000, toGeom=None, fromGeom=None):
+    def show_(self, timeout=5000, toGeom=None, fromGeom=None):
         if not self.timer.isActive():
             self.timer.setInterval(timeout)
             self.timer.start()
