@@ -68,6 +68,22 @@ class TransectSaveData(UserDict):
             except KeyError:
                 pass
 
+    def imageHasDrawings(self, imageName:str, otherDrawings:str):
+        '''
+        Compares the drawings associated with `imageName`,
+        and returns `True` if those drawings match `otherDrawings`.
+        '''
+        if imageName in self.data.keys():
+            try:
+                drawings = self.data[imageName]['drawings']
+
+            # There might not be any drawings currently here
+            except KeyError:
+                drawings = '[]'
+
+            finally:
+                return drawings == otherDrawings
+
     def drawings(self):
         '''
         Generator yielding a tuple of images

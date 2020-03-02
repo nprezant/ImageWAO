@@ -338,13 +338,16 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             # Merge drawn items and draw them onto the image
             drawings = mergedIndexes.drawnItems()
             if drawings is not None:
-                JSONDrawnItems.loads(drawings).paintToDevice(preview)
 
-                # Add this to the list of images to save
-                markedImages.append((preview, [str(markedPath)]))
+                # We should only save these drawings if they aren't
+                # already saved.
+                if not saveData.imageHasDrawings(originalPath.name, drawings):
 
-                # Add drawing items to the save data for this image
-                saveData.addDrawings(originalPath.name, drawings)
+                    # Add this image to the list of images
+                    # to save and add the drawn item string to the save data
+                    JSONDrawnItems.loads(drawings).paintToDevice(preview)
+                    markedImages.append((preview, [str(markedPath)]))
+                    saveData.addDrawings(originalPath.name, drawings)
 
             # If there are no drawings, we should delete the image
             # from the marked folder. (If applicable.)
