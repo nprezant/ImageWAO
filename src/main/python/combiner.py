@@ -26,7 +26,6 @@ class Combiner:
             self.animalAdder,
             self.animalTotals,
             self.importWizards,
-            self.notifier,
             self.progressBar,
         )
 
@@ -57,10 +56,6 @@ class Combiner:
     @cached_property
     def importWizards(self):
         return ImportWizards()
-
-    @cached_property
-    def notifier(self):
-        return Notifier()
 
     def run(self):
         with open(self.ctx.get_resource('style.qss')) as f:

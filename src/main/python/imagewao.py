@@ -2,8 +2,8 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx
-
 from ui import DockWidget, TitleBarText
+from notifications import Notifier
 
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
@@ -19,7 +19,6 @@ class QImageWAO(QtWidgets.QMainWindow):
         animalAdder,
         animalTotals,
         importWizards,
-        notifier,
         progressBar,
     ):
         super().__init__()
@@ -58,8 +57,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.importWizards = importWizards
 
         # Notifications
-        self.notifier = notifier
-        self.notifier.parent = self
+        self.notifier = Notifier(self)
 
         # Progress Bar
         self.progressBar = progressBar
