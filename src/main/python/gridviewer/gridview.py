@@ -69,6 +69,16 @@ class QImageGridView(QtWidgets.QTableView):
         '''
         self.menu.popup(self.viewport().mapToGlobal(pos))
 
+    @QtCore.Slot(str)
+    def addFolder(self, folder):
+        '''
+        Adds the folder at this directory to the model,
+        removing any other model that may have been previously loaded.
+        folder: any Path() -able object, resolving to a directory.
+        '''
+        self.model().tryAddFolder(folder)
+
+
     @QtCore.Slot(QtCore.QItemSelection, QtCore.QItemSelection)
     def _handleSelectionChange(self, selected, deselected):
         model = self.selectionModel()
@@ -126,7 +136,7 @@ class QImageGridView(QtWidgets.QTableView):
         if mergedItems is not None:
             self.drawnItemsChanged.emit(mergedItems)
 
-
+    @QtCore.Slot(str)
     def selectFile(self, path):
         '''
         Selects all the items associated

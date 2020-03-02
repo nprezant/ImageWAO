@@ -86,6 +86,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
     def scenePixmap(self):
         return self._pixmapHandle
 
+    @QtCore.Slot(QtGui.QImage)
     def setImage(self, image):
         '''
         Set the scene's current image pixmap to the input QImage or QPixmap.

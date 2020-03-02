@@ -142,7 +142,7 @@ class Library(QtWidgets.QWidget):
         index = self.proxyModel.mapFromSource(self.sourceModel.index(path))
         self.viewActivated(index)
 
-    @QtCore.Slot()
+    @QtCore.Slot(list)
     def selectFiles(self, files):
         ''' Try to select all matching files in the library. '''
 

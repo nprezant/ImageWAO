@@ -28,6 +28,7 @@ class Notifier:
         self._queuedNotifications = []
         self.count = 0
 
+    @QtCore.Slot(str)
     def notify(self, message):
         toast = QToaster(self.parent)
         toast.closed.connect(lambda: self._removeToast(toast))

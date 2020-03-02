@@ -40,8 +40,7 @@ class Combiner:
 
     @cached_property
     def grid(self):
-        self.view = QImageGridView()
-        return self.view
+        return QImageGridView()
 
     @cached_property
     def library(self):

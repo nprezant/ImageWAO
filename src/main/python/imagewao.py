@@ -65,15 +65,15 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.progressBar = progressBar
 
         # Flight library signal connections
-        self.library.fileActivated.connect(self._updateGridSelection)
-        self.library.directoryChanged.connect(self._setGridImages)
+        self.library.fileActivated.connect(self.grid.selectFile)
+        self.library.directoryChanged.connect(self.grid.addFolder)
         self.library.directoryChanged.connect(self.titleBarText.setFolderName)
 
         # Image grid signal connections
         self.grid.loadProgress.connect(self.progressBar.setValue)
-        self.grid.selectedImageChanged.connect(self._updateViewerImage)
-        self.grid.selectedFilesChanged.connect(self._updateLibraryFileSelection)
-        self.grid.notificationMessage.connect(self._sendNotification)
+        self.grid.selectedImageChanged.connect(self.viewer.setImage)
+        self.grid.selectedFilesChanged.connect(self.library.selectFiles)
+        self.grid.notificationMessage.connect(self.notifier.notify)
         self.grid.drawnItemsChanged.connect(self.viewer.readSerializedDrawnItems)
 
         # Image viewer signal connections
@@ -87,34 +87,11 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Toolbars
         self.addToolBar(QtCore.Qt.TopToolBarArea, self.viewer.toolbar)
 
-    @QtCore.Slot(list)
-    def _updateLibraryFileSelection(self, files):
-        self.library.selectFiles(files)
-
-    @QtCore.Slot(str)
-    def _setGridImages(self, path):
-        self.grid.model().tryAddFolder(path)
-
-    @QtCore.Slot(QtGui.QImage)
-    def _updateViewerImage(self, image):
-        self.viewer.setImage(image)
-
-    @QtCore.Slot(str)
-    def _updateGridSelection(self, path):
-        self.grid.selectFile(path)
-
-    @QtCore.Slot(str)
-    def _sendNotification(self, msg):
-        self.notifier.notify(msg)
-
     def _addDockWidget(self, w, icon, name:str, startArea=QtCore.Qt.LeftDockWidgetArea):
         dock = DockWidget(name, icon, parent=self)
         dock.setWidget(w)
         self.addDockWidget(startArea, dock)
         self._dockWidgets[name] = dock
-
-    def _createActions(self):
-        pass
 
     def _makeMenus(self):
         self._createMenus()
@@ -143,12 +120,12 @@ class QImageWAO(QtWidgets.QMainWindow):
         a.triggered.connect(self.importWizards.openNewFlight)
         self.fileMenu.addAction(a)
 
-        action = QtWidgets.QAction('Notify test', self)
-        action.setShortcut('Ctrl+n')
-        action.triggered.connect(
+        a = QtWidgets.QAction('Notify test', self)
+        a.setShortcut('Ctrl+n')
+        a.triggered.connect(
             lambda:
             self.notifier.notify(''))
-        self.fileMenu.addAction(action)
+        self.fileMenu.addAction(a)
 
         a = QtWidgets.QAction('Reset settings', self)
         a.triggered.connect(
