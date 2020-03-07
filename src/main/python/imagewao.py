@@ -2,7 +2,7 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx
-from ui import DockWidget, TitleBarText
+from ui import DockWidget, TitleBarText, StatusBar
 from notifications import Notifier
 
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
@@ -58,6 +58,9 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Notifications
         self.notifier = Notifier(self)
+        
+        # Status bar
+        self.setStatusBar(StatusBar(self))
 
         # Progress Bar
         self.progressBar = progressBar
