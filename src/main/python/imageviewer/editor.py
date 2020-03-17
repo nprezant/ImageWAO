@@ -4,6 +4,7 @@ from enum import Enum
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from serializers import JSONDrawnItems
+from ui import CountForm
 
 from .imageviewer2 import QImageViewer
 from .controls import ImageController, ColorableAction, ctx
@@ -58,6 +59,9 @@ class QImageEditor(QImageViewer):
         self._drawnItems = []
         self._dynamicallyDrawnItem = None
         self._erasing = False
+
+        # Animal counting editor
+        self._countForm = CountForm(self)
 
         # TODO: Create a way to save/load drawn items.
         # Eventually these drawn items must be saved as pixmaps,
@@ -258,12 +262,17 @@ class QImageEditor(QImageViewer):
                 width = abs(rect.width())
                 height = abs(rect.height())
 
+                # Shapes with very small bounding rects should not be saved
+                # Also, if this is valid, we want to show the count editor box
                 if width > minLength and height > minLength:
-                    valid = True                
+                    valid = True
+
+                    self._countForm.popup(event.pos())
 
             # Some shapes use lines
             elif self.mouseAction.tooltype == ToolType.LineShape:
 
+                # Very small lines should not be saved
                 if self._dynamicallyDrawnItem.line().length() > minLength:
                     valid = True
 
