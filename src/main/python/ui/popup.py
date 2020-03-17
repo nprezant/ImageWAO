@@ -125,7 +125,8 @@ class PopupFrame(QtWidgets.QFrame):
                 QtCore.QPoint(pos.x() + margin, pos.y() - margin))
 
         # Below to the left
-        elif leftFit and bottomFit:
+        elif (leftFit and bottomFit
+              or leftFit and not topFit):
             geo.moveTopRight(
                 QtCore.QPoint(pos.x() - margin, pos.y() + margin))
 
