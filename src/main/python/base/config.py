@@ -40,4 +40,29 @@ class Config:
         ]
         self.defaultWidth = 40
 
+        # Searchable animals
+        self.searchableAnimals = [
+            'Baboon',
+            'Donkey',
+            'Eland',
+            'Elephant',
+            'Gemsbok',
+            'Giraffe',
+            'Hartebeest',
+            'Horse',
+            'Human',
+            'Impala',
+            'Jackal',
+            'Kudu',
+            'Kudu',
+            'Ostrich',
+            'Oryx',
+            'Rhino',
+            'Springbok',
+            'Steenbok',
+            'Warthog',
+            'Waterbuck',
+            'Zebra',
+        ]
+
 config = Config()
