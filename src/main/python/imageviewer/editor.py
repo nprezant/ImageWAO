@@ -89,13 +89,15 @@ class QImageEditor(QImageViewer):
         '''
         return self.controller.activeMouseAction
 
+    @QtCore.Slot()
     def setImage(self, image):
         '''
         Re-implement to ensure that drawn items are 
         cleared when a new image is set, and to save
         the old image if necessary
         '''
-        self._clearDrawnItems()
+        self._clearDrawnItems() # Ensure drawn items are cleared
+        self._countForm.hidePopup() # Ensure popup is hidden
         super().setImage(image)
 
     @QtCore.Slot(QtGui.QColor)
