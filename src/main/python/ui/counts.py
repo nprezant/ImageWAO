@@ -38,8 +38,8 @@ class CountForm(PopupFrame):
         duplicateLabel = QtWidgets.QLabel('Already Counted?', self)
         duplicateLabel.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         duplicateLabel.setToolTip(
-            'If this animal (or these animals) have already been counted somewhere else, '
-            'making this count a duplicate, check this box.')
+            'If this animal (or these animals) have already been counted\n'
+            'somewhere else, making this count a duplicate, check this box.')
         duplicateBox = QtWidgets.QCheckBox(self)
 
         notesLabel = QtWidgets.QLabel('Notes', self)
