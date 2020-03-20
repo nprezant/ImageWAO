@@ -177,6 +177,13 @@ class QImageWAO(QtWidgets.QMainWindow):
         if obj == self.library:
             if event.type() == Library.Events.DirectoryChange:
                 self._exitDirectoryEvent(event)
+
+                # If we are going to change the directory, we'll need to clear
+                # the images from the grid and from the viewer.
+                if event.isAccepted():
+                    self.grid.clear()
+                    self.viewer.clear()
+
         return super().eventFilter(obj, event)
 
     def _exitDirectoryEvent(self, event: QtCore.QEvent):

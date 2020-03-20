@@ -89,6 +89,13 @@ class QImageEditor(QImageViewer):
         '''
         return self.controller.activeMouseAction
 
+    def clear(self):
+        '''
+        Clears the image and the current drawings.
+        '''
+        self._clearDrawnItems()
+        super().clearImage()
+
     @QtCore.Slot()
     def setImage(self, image):
         '''

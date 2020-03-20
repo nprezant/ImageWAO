@@ -65,6 +65,9 @@ class QImageGridView(QtWidgets.QTableView):
         # Add actions to the menu
         self.menu.addAction(previewAction)
 
+    def clear(self):
+        self.model().resetImagesFromFullImages([])
+
     @QtCore.Slot(QtCore.QPoint)
     def _customMenuRequested(self, pos:QtCore.QPoint):
         '''
@@ -80,7 +83,6 @@ class QImageGridView(QtWidgets.QTableView):
         folder: any Path() -able object, resolving to a directory.
         '''
         self.model().tryAddFolder(folder)
-
 
     @QtCore.Slot(QtCore.QItemSelection, QtCore.QItemSelection)
     def _handleSelectionChange(self, selected, deselected):

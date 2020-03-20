@@ -243,6 +243,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         Save file specified in Config().
         '''
 
+        # Nothing to read if there are no images
+        if len(self._images) == 0:
+            return
+            
         # Generate the save path
         originalFolder = self._folder()
         savePath = originalFolder / Path(config.markedDataFile)
