@@ -44,6 +44,7 @@ class CountForm(PopupFrame):
 
         notesLabel = QtWidgets.QLabel('Notes', self)
         notesText = QtWidgets.QPlainTextEdit(self)
+        notesText.setTabChangesFocus(True)
         setPlainTextEditHeight(notesText, 3)
         notesText.viewport().setAutoFillBackground(False)
 
