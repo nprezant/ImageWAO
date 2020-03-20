@@ -56,7 +56,7 @@ class LoadingOverlay(OverlayWidget):
         self.label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         self.label.setStyleSheet(
             '''
-            color: rgb(200, 200, 255);
+            color: rgb(80, 90, 90);
             font-size: 48px;
             font-family: arial, helvetica;
             '''
