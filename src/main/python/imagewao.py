@@ -2,8 +2,7 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx
-from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay
-from notifications import Notifier
+from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay, Notifier, Library
 
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
@@ -15,7 +14,6 @@ class QImageWAO(QtWidgets.QMainWindow):
         self,
         mspaint,
         grid,
-        library,
         animalAdder,
         animalTotals,
         importWizards,
@@ -38,7 +36,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Dock widget references
         self.grid = grid
-        self.library = library
+        self.library = Library()
         self.animalAdder = animalAdder
         self.animalTotals = animalTotals
 

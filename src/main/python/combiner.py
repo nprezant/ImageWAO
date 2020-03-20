@@ -5,9 +5,7 @@ from fbs_runtime.application_context import cached_property
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from imagewao import QImageWAO
-from library import Library
 from importers import ImportWizards
-from notifications import Notifier
 from imageviewer import QImageEditor
 from gridviewer import QImageGridView
 
@@ -21,7 +19,6 @@ class Combiner:
         return QImageWAO(
             self.mspaint,
             self.grid,
-            self.library,
             self.animalAdder,
             self.animalTotals,
             self.importWizards,
@@ -34,10 +31,6 @@ class Combiner:
     @cached_property
     def grid(self):
         return QImageGridView()
-
-    @cached_property
-    def library(self):
-        return Library()
 
     @cached_property
     def animalAdder(self):
