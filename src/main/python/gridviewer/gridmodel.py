@@ -164,7 +164,8 @@ class FullImage:
     
 class QImageGridModel(QtCore.QAbstractTableModel):
 
-    progress = QtCore.Signal(int)
+    loadProgress = QtCore.Signal(int)
+    loadFinished = QtCore.Signal()
     message = QtCore.Signal(str)
 
     def __init__(self):
@@ -216,9 +217,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         args=[imgList, self._imageRows, self._imageCols, self._displayWidth]
         self._loadWorker = QWorker(FullImage.CreateFromFiles, args)
         self._loadWorker.includeProgress()
-        self._loadWorker.signals.progress.connect(self.progress.emit) # bubble up progress
+        self._loadWorker.signals.progress.connect(self.loadProgress.emit) # bubble up progress
         self._loadWorker.signals.result.connect(self.resetImagesFromFullImages)
-        self._loadWorker.signals.finished.connect(self._resetLoadWorker)
+        self._loadWorker.signals.finished.connect(self.loadFinished.emit)
         self._threadpool.start(self._loadWorker)
 
     def _resetLoadWorker(self):
@@ -229,17 +230,12 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         '''
         self._loadWorker = None
 
-    def _resetProgress(self):
-        # Reset progress bar after a brief time
-        QtCore.QTimer.singleShot(1000, lambda: self.progress.emit(0))
-
     def resetImagesFromFullImages(self, fullImages):
         self.beginResetModel()
         self._images = []
         self._images = fullImages
         self.endResetModel()
         self._readSaveData()
-        self._resetProgress()
 
     def _readSaveData(self):
         '''

@@ -10,7 +10,6 @@ from importers import ImportWizards
 from notifications import Notifier
 from imageviewer import QImageEditor
 from gridviewer import QImageGridView
-from progressbar import QAbsoluteProgressBar
 
 class Combiner:
 
@@ -26,16 +25,11 @@ class Combiner:
             self.animalAdder,
             self.animalTotals,
             self.importWizards,
-            self.progressBar,
         )
 
     @cached_property
     def mspaint(self):
         return QImageEditor()
-
-    @cached_property
-    def progressBar(self):
-        return QAbsoluteProgressBar(self.mspaint)
 
     @cached_property
     def grid(self):

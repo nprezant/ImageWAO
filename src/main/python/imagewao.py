@@ -2,7 +2,7 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx
-from ui import DockWidget, TitleBarText, StatusBar
+from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay
 from notifications import Notifier
 
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
@@ -19,7 +19,6 @@ class QImageWAO(QtWidgets.QMainWindow):
         animalAdder,
         animalTotals,
         importWizards,
-        progressBar,
     ):
         super().__init__()
 
@@ -63,7 +62,8 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.setStatusBar(StatusBar(self))
 
         # Progress Bar
-        self.progressBar = progressBar
+        self.loadingOverlay = LoadingOverlay(self)
+        self.loadingOverlay.hide()
 
         # Flight library signal connections
         self.library.fileActivated.connect(self.grid.selectFile)
@@ -71,7 +71,8 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.library.directoryChanged.connect(self.titleBarText.setFolderName)
 
         # Image grid signal connections
-        self.grid.loadProgress.connect(self.progressBar.setValue)
+        self.grid.loadProgress.connect(self.loadingOverlay.setProgress)
+        self.grid.loadFinished.connect(self.loadingOverlay.hide)
         self.grid.selectedImageChanged.connect(self.viewer.setImage)
         self.grid.selectedFilesChanged.connect(self.library.selectFiles)
         self.grid.notificationMessage.connect(self.notifier.notify)

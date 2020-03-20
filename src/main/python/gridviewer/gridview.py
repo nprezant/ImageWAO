@@ -12,6 +12,7 @@ class QImageGridView(QtWidgets.QTableView):
     selectedImageChanged = QtCore.Signal(QtGui.QImage) # this will let the grid determine what the viewer shows
     notificationMessage = QtCore.Signal(str) # notifications to the main application
     loadProgress = QtCore.Signal(int) # loading progress notification
+    loadFinished = QtCore.Signal() # loading finished notification
     drawnItemsChanged = QtCore.Signal(str) # serialized string of items drawn on image
 
     def __init__(self):
@@ -40,7 +41,8 @@ class QImageGridView(QtWidgets.QTableView):
 
         # Bubble progress and message updates from the model
         # (The model often has to perform expensive loading operations)
-        self.model().progress.connect(self.loadProgress.emit)
+        self.model().loadProgress.connect(self.loadProgress.emit)
+        self.model().loadFinished.connect(self.loadFinished.emit)
         self.model().message.connect(self.notificationMessage.emit)
 
         # Keep track of when we last sent out a previewed image
