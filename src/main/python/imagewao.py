@@ -3,6 +3,7 @@ from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx
 from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay, Notifier, Library
+from ui.messageboxes import DoYouWantToSave
 
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
@@ -49,6 +50,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Hide unused dock widgets
         self._dockWidgets['Animal Adder'].hide()
         self._dockWidgets['Animal Totals'].hide()
+
+        # Event filters
+        self.library.installEventFilter(self)
 
         # Wizards
         self.importWizards = importWizards
@@ -165,31 +169,30 @@ class QImageWAO(QtWidgets.QMainWindow):
         self._dirty = False
         self.titleBarText.setDirty(False)
 
-    def closeEvent(self, event:QtGui.QCloseEvent):
+    def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
         '''
-        Check to ensure that changes are saved if 
-        the user wants to save them.
+        Catch library change events and see if the application needs to save
+        before accepting them.
         '''
+        if obj == self.library:
+            if event.type() == Library.Events.DirectoryChange:
+                self._exitDirectoryEvent(event)
+        return super().eventFilter(obj, event)
 
+    def _exitDirectoryEvent(self, event: QtCore.QEvent):
+        '''
+        Ensures that changes are saved (or intentionally ignored)
+        when a directory changes.
+        '''
         # If there are no changes,
         # simply accept the event.
         if not self._dirty:
             event.accept()
             return
-
-        # Create message box
-        box = QtWidgets.QMessageBox()
-        box.setText('The transect has been modified.')
-        box.setInformativeText('Do you want to save your changes?')
-        box.setStandardButtons(
-            QtWidgets.QMessageBox.Save
-            | QtWidgets.QMessageBox.Discard
-            | QtWidgets.QMessageBox.Cancel)
-        box.setDefaultButton(QtWidgets.QMessageBox.Save)
         
         # Based on user response, either save, don't save,
         # or quit.
-        ret = box.exec_()
+        ret = DoYouWantToSave().exec_()
         if ret == QtWidgets.QMessageBox.Save:
             self.save()
             event.accept()
@@ -200,3 +203,10 @@ class QImageWAO(QtWidgets.QMainWindow):
         else:
             # Should never be reached
             event.ignore()
+
+    def closeEvent(self, event:QtGui.QCloseEvent):
+        '''
+        Check to ensure that changes are saved if 
+        the user wants to save them.
+        '''
+        self._exitDirectoryEvent(event)

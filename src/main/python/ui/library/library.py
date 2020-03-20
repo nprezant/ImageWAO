@@ -8,6 +8,7 @@ from base import config
 
 from .address import AddressBar
 from .popup import LibraryMenu
+from .events import DirectoryChangeEvent, EventTypes
 
 class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
 
@@ -29,8 +30,12 @@ class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
 
 class Library(QtWidgets.QWidget):
 
+    # Signals
     fileActivated = QtCore.Signal(str)
     directoryChanged = QtCore.Signal(str)
+
+    # Events
+    Events = EventTypes()
 
     def __init__(self):
         super().__init__()
@@ -130,9 +135,7 @@ class Library(QtWidgets.QWidget):
     def viewActivated(self, index):
         sourceIndex = self.proxyModel.mapToSource(index)
         if self.sourceModel.fileInfo(sourceIndex).isDir():
-            self.proxyView.setRootIndex(index)
-            self.address.path = QtCore.QDir(self.sourceModel.filePath(sourceIndex))
-            self.directoryChanged.emit(self.sourceModel.filePath(sourceIndex))
+            QtCore.QCoreApplication.postEvent(self, DirectoryChangeEvent(index, sourceIndex))
         else:
             # Bubble up the path signal
             self.fileActivated.emit(self.sourceModel.filePath(sourceIndex))
@@ -141,6 +144,18 @@ class Library(QtWidgets.QWidget):
     def addressActivated(self, path):
         index = self.proxyModel.mapFromSource(self.sourceModel.index(path))
         self.viewActivated(index)
+
+    def customEvent(self, event):
+        '''
+        Handle the custom events. Namely, if the directory is changed.
+        '''
+        if event.type() == EventTypes.DirectoryChange:
+            # If the directory change event was accepted, then by all means change the directory.
+            index = event.proxyIndex
+            sourceIndex = event.sourceIndex
+            self.proxyView.setRootIndex(index)
+            self.address.path = QtCore.QDir(self.sourceModel.filePath(sourceIndex))
+            self.directoryChanged.emit(self.sourceModel.filePath(sourceIndex))
 
     @QtCore.Slot(list)
     def selectFiles(self, files):
