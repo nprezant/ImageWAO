@@ -14,13 +14,13 @@ class CountForm(PopupFrame):
 
     countChanged = QtCore.Signal()
 
-    def __init__(self, parent, countData=CountData()):
+    def __init__(self, parent):
         super().__init__(parent)
-        self._countData = countData
+        self._countData = CountData()
         self._item = None
-        self.initUi()
 
-        self.popupHidden.connect(self.checkChanged)
+        self.initUi()
+        self.resetForm()
 
     def initUi(self):
 
@@ -37,14 +37,12 @@ class CountForm(PopupFrame):
         for animal in config.searchableAnimals:
             self.speciesText.addItem(animal)
         self.speciesText.lineEdit().setPlaceholderText('Type to search...')
-        self.speciesText.setEditText(self._countData.species)
         
         self.numberLabel = QtWidgets.QLabel('Number', self)
         self.numberLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.numberBox = QtWidgets.QSpinBox(self)
         self.numberBox.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         self.numberBox.setRange(0, 1000)
-        self.numberBox.setValue(self._countData.number)
 
         self.duplicateLabel = QtWidgets.QLabel('Already Counted?', self)
         self.duplicateLabel.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
@@ -52,14 +50,12 @@ class CountForm(PopupFrame):
             'If this animal (or these animals) have already been counted\n'
             'somewhere else, making this count a duplicate, check this box.')
         self.duplicateBox = QtWidgets.QCheckBox(self)
-        self.duplicateBox.setChecked(self._countData.isDuplicate)
 
         self.notesLabel = QtWidgets.QLabel('Notes', self)
         self.notesText = QtWidgets.QPlainTextEdit(self)
         self.notesText.setTabChangesFocus(True)
         setPlainTextEditHeight(self.notesText, 3)
         self.notesText.viewport().setAutoFillBackground(False)
-        self.notesText.setPlainText(self._countData.notes)
 
         # Initialize form
         layout = QtWidgets.QGridLayout(self)
@@ -76,6 +72,19 @@ class CountForm(PopupFrame):
 
         self.setLayout(layout)
         self.adjustSize()
+
+    def resetForm(self):
+        '''
+        Resets the form to their default values.
+        '''
+        self._countData = CountData()
+        self._item = None
+
+        self.speciesText.setEditText(self._countData.species)
+        self.numberBox.setValue(self._countData.number)
+        self.duplicateBox.setChecked(self._countData.isDuplicate)
+        self.notesText.setPlainText(self._countData.notes)
+
 
     def popup(self, item, pos):
         '''
@@ -101,7 +110,14 @@ class CountForm(PopupFrame):
             self.notesText.toPlainText(),
         )
 
-    @QtCore.Slot()
+    def hidePopup(self):
+        '''
+        Re-implement to emit a value changed signal if necessary and reset the form.
+        '''
+        self.checkChanged()
+        self.resetForm()
+        return super().hidePopup()
+
     def checkChanged(self):
         '''
         Checks to see if this form has changed since it's launch, and if so,
