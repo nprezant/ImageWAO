@@ -15,7 +15,7 @@ class SceneCountsItemMixin:
     '''
 
     def hoverEnterEvent(self, event:QtWidgets.QGraphicsSceneHoverEvent):
-        self.setToolTip('I am the state')
+        self.setToolTip('1 Ostrich')
 
     def hoverLeaveEvent(self, event:QtWidgets.QGraphicsSceneHoverEvent):
         print('leave event -- got to hide that "..." widget now')
