@@ -5,6 +5,9 @@ of other widgets, such as loading widgets that block user input.
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
+from base import ctx
+
+
 class OverlayWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
@@ -62,8 +65,13 @@ class LoadingOverlay(OverlayWidget):
             '''
         )
 
+        # Animal images
+        self.animalLabel = QtWidgets.QLabel()
+        self.animalLabel.setPixmap(ctx.ostrichPixmap)
+
         # Layout
         layout = QtWidgets.QVBoxLayout(self)
+        layout.addWidget(self.animalLabel)
         layout.addWidget(self.label)
         self.setLayout(layout)
 

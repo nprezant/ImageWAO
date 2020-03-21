@@ -9,6 +9,8 @@ from tools import distanceToRect
 
 class PopupFrame(QtWidgets.QFrame):
 
+    popupHidden = QtCore.Signal()
+
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -152,6 +154,9 @@ class PopupFrame(QtWidgets.QFrame):
 
         # Clean up persistance
         self._persistant = False
+
+        # Emit a signal noting that the popup was hidden
+        self.popupHidden.emit()
 
         self.hide()
 

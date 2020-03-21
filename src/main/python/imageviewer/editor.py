@@ -62,8 +62,10 @@ class QImageEditor(QImageViewer):
         self._dynamicallyDrawnItem = None
         self._erasing = False
 
-        # Animal counting editor
+        # Animal counting editor. When the counts form count changes,
+        # the editor must update it's drawings.
         self._countForm = CountForm(self)
+        self._countForm.countChanged.connect(self.itemCountsUpdated)
 
         # Required to propogate events to the drawing items
         # This is necessary for the drawn items to display their associated counts.
@@ -142,12 +144,19 @@ class QImageEditor(QImageViewer):
         else:
             self.setCursor(QtCore.Qt.ArrowCursor)
 
+    @QtCore.Slot()
+    def itemCountsUpdated(self):
+        '''
+        Since an item's counts were updated, emit the items.
+        '''
+        self._emitDrawnItems()
+
     def _emitDrawnItems(self):
         '''
         Serialize drawn items into JSON format and
         emit via the drawnItemsChanged signal
         '''
-        serializer = JSONDrawnItems.loadItems(self._drawnItems)
+        serializer = JSONDrawnItems.loadDrawingData(self._drawnItems)
         self.drawnItemsChanged.emit(serializer.dumps())
 
     def readSerializedDrawnItems(self, serialized):
@@ -287,7 +296,7 @@ class QImageEditor(QImageViewer):
                 if width > minLength and height > minLength:
                     valid = True
 
-                    self._countForm.popup(event.pos())
+                    self._countForm.popup(self._dynamicallyDrawnItem, event.pos())
 
             # Some shapes use lines
             elif self.mouseAction.tooltype == ToolType.LineShape:
