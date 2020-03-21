@@ -1,10 +1,12 @@
 
-from PySide2 import QtCore
+from PySide2 import QtCore, QtGui
+
+from .countdata import CountData
 
 
 class DrawingData:
 
-    def __init__(self, name, geom, pen):
+    def __init__(self, name, geom, pen, countData:CountData=None):
         '''
         Minimum objects required to re-create an item
         drawn in a scene.
@@ -12,10 +14,13 @@ class DrawingData:
         Need name of item (Rect, Ellipse, Line)
         Need geometry of item (QRectF, QLine), 
         and the pen used to draw the item.
+
+        The count data is also included.
         '''
         self.name = name
         self.geom = geom
         self.pen = pen
+        self.countData = countData
 
     @property
     def args(self):
@@ -57,6 +62,51 @@ class DrawingData:
         Center QPointF of the geometry
         '''
         return self.geom.center()
+
+    def toDict(self):
+        '''
+        Returns this drawing data as a serializable dict
+        '''
+        if self.countData is None:
+            countData = None
+        else:
+            countData = self.countData.toDict()
+
+        return {
+            'Name': self.name,
+            'Args': self.args,
+            'PenColor': self.penColor,
+            'PenWidth': self.penWidth,
+            'CountData': countData
+        }
+
+    @staticmethod
+    def fromDict(d):
+        '''
+        Initializes object from a dict (ideally, a dict previously created with `toDict`)
+        '''
+        
+        # Extract data
+        name = d['Name']
+        args = d['Args']
+        penColor = d['PenColor']
+        penWidth = d['PenWidth']
+        countData = d['CountData']
+
+        # Setup pen
+        pen = QtGui.QPen(penColor) # Does this color need to be a QColor?
+        pen.setWidth(penWidth)
+
+        if name == 'Rect':
+            geom = QtCore.QRectF(*args)
+        elif name == 'Ellipse':
+            geom = QtCore.QRectF(*args)
+        elif name == 'Line':
+            geom = QtCore.QLineF(*args)
+        else:
+            raise ValueError(f'Unrecognized geometry name: {name}')
+
+        return DrawingData(name, geom, pen, countData)
 
     def offset(self, x, y):
         '''

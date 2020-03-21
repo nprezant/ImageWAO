@@ -5,6 +5,7 @@ from PySide2 import QtWidgets, QtCore, QtGui
 
 import scenegraphics as sg
 from base.primatives import DrawingData, CountData
+import scenegraphics as sg
 
 
 class JSONDrawnItems:
@@ -70,14 +71,17 @@ class JSONDrawnItems:
                 geom = item.line()
 
             else:
-                print(f'Unrecognized item: {item}')
-                continue
+                raise TypeError(f'Unable to serialize item type: {type(item)}')
 
             # All graphics items have associated pens
-            if isinstance(item, QtWidgets.QGraphicsItem):
+            # All graphics items derived from the counts mixin have count data
+            if isinstance(item, sg.SceneCountsItemMixin):
                 pen = item.pen()
+                countData = item.countData()
+            else:
+                raise TypeError(f'Unable to serialize item type: {type(item)}')
 
-            drawingData.append(DrawingData(name, geom, pen))
+            drawingData.append(DrawingData(name, geom, pen, countData))
         
         return JSONDrawnItems(drawingData)
 
@@ -91,32 +95,17 @@ class JSONDrawnItems:
         if s is None:
             return JSONDrawnItems([])
             
-        representations = []
+        drawings = []
         data = json.loads(s)
 
         for dataItem in data:
 
-            # TODO: Error checking -- enough data in list?
-            # correct data in list?
-            name = dataItem[0]
-            args = dataItem[1]
-            penColor = dataItem[2]
-            penWidth = dataItem[3]
+            drawing = DrawingData.fromDict(dataItem)
 
-            # Setup pen
-            pen = QtGui.QPen(penColor) # Does this color need to be a QColor?
-            pen.setWidth(penWidth)
-
-            if name == 'Rect':
-                geom = QtCore.QRectF(*args)
-            elif name == 'Ellipse':
-                geom = QtCore.QRectF(*args)
-            elif name == 'Line':
-                geom = QtCore.QLineF(*args)
-
-            representations.append(DrawingData(name, geom, pen))
+            if drawing is not None:
+                drawings.append(drawing)
         
-        return JSONDrawnItems(representations)
+        return JSONDrawnItems(drawings)
 
     def dumps(self):
         '''
@@ -126,10 +115,10 @@ class JSONDrawnItems:
             return None
 
         encoded = []
-        for d in self._drawingData:
-            encoded.append([d.name, d.args, d.penColor, d.penWidth])
+        for drawing in self._drawingData:
+            encoded.append(drawing.toDict())
 
-        return json.dumps(encoded)
+        return json.dumps(encoded, indent=4)
 
     def addToScene(self, scene:QtWidgets.QGraphicsScene):
         '''
@@ -148,6 +137,7 @@ class JSONDrawnItems:
                 item = None
 
             if item is not None:
+                item.setCountData(CountData.fromDict(drawing.countData))
                 scene.addItem(item)
                 items.append(item)
 
