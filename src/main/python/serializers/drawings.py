@@ -118,7 +118,7 @@ class JSONDrawnItems:
         for drawing in self._drawingData:
             encoded.append(drawing.toDict())
 
-        return json.dumps(encoded, indent=4)
+        return json.dumps(encoded)
 
     def addToScene(self, scene:QtWidgets.QGraphicsScene):
         '''
