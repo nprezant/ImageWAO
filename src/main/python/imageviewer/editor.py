@@ -6,6 +6,8 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from serializers import JSONDrawnItems
 from ui import CountForm
 
+import scenegraphics as sg
+
 from .imageviewer2 import QImageViewer
 from .controls import ImageController, ColorableAction, ctx
 from .cursors import Cursors
@@ -62,6 +64,10 @@ class QImageEditor(QImageViewer):
 
         # Animal counting editor
         self._countForm = CountForm(self)
+
+        # Required to propogate events to the drawing items
+        # This is necessary for the drawn items to display their associated counts.
+        self.setMouseTracking(True)
 
         # TODO: Create a way to save/load drawn items.
         # Eventually these drawn items must be saved as pixmaps,
@@ -202,14 +208,19 @@ class QImageEditor(QImageViewer):
                     initialRect = QtCore.QRectF(pos.x(), pos.y(), 1, 1)
                     
                 if self.mouseAction.tooltype == ToolType.OvalShape:
-                    self._dynamicallyDrawnItem = self.scene.addEllipse(initialRect, self._pen)
+                    self._dynamicallyDrawnItem = sg.SceneCountDataEllipse.create(initialRect, self._pen)
                 elif self.mouseAction.tooltype == ToolType.RectangleShape:
-                    self._dynamicallyDrawnItem = self.scene.addRect(initialRect, self._pen)
+                    self._dynamicallyDrawnItem = sg.SceneCountDataRect.create(initialRect, self._pen)
                 elif self.mouseAction.tooltype == ToolType.LineShape:
                     line = QtCore.QLineF(
                         pos.x(), pos.y(),
                         pos.x()+1, pos.y()+1)
-                    self._dynamicallyDrawnItem = self.scene.addLine(line, self._pen)
+                    self._dynamicallyDrawnItem = sg.SceneCountDataLine.create(line, self._pen)
+                else:
+                    self._dynamicallyDrawnItem = None
+
+                if self._dynamicallyDrawnItem is not None:
+                    self.scene.addItem(self._dynamicallyDrawnItem)
 
             # Erase if this is the right button
             elif event.button() == QtCore.Qt.RightButton:

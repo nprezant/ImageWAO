@@ -3,6 +3,8 @@ import json
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
+import scenegraphics as sg
+
 
 class GrahphicItemRepresentation:
 
@@ -219,15 +221,16 @@ class JSONDrawnItems:
         items = []
         for rep in self._reps:
             if rep.name == 'Rect':
-                item = scene.addRect(rep.geom, rep.pen)
+                item = sg.SceneCountDataRect.create(rep.geom, rep.pen)
             elif rep.name == 'Ellipse':
-                item = scene.addEllipse(rep.geom, rep.pen)
+                item = sg.SceneCountDataEllipse.create(rep.geom, rep.pen)
             elif rep.name == 'Line':
-                item = scene.addLine(rep.geom, rep.pen)
+                item = sg.SceneCountDataLine.create(rep.geom, rep.pen)
             else:
                 item = None
 
             if item is not None:
+                scene.addItem(item)
                 items.append(item)
 
         return items
