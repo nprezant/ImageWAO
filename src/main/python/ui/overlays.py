@@ -66,12 +66,16 @@ class LoadingOverlay(OverlayWidget):
         )
 
         # Animal images
-        self.animalLabel = QtWidgets.QLabel()
-        self.animalLabel.setPixmap(ctx.ostrichPixmap)
+        animalLayout = QtWidgets.QHBoxLayout()
+        animalImages = [ctx.ostrichPixmap]*4
+        for img in animalImages:
+            label = QtWidgets.QLabel()
+            label.setPixmap(img)
+            animalLayout.addWidget(label)
 
-        # Layout
-        layout = QtWidgets.QVBoxLayout(self)
-        layout.addWidget(self.animalLabel)
+        # Main layout
+        layout = QtWidgets.QVBoxLayout()
+        layout.addLayout(animalLayout)
         layout.addWidget(self.label)
         self.setLayout(layout)
 
