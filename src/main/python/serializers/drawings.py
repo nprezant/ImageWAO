@@ -137,7 +137,7 @@ class JSONDrawnItems:
                 item = None
 
             if item is not None:
-                item.setCountData(CountData.fromDict(drawing.countData))
+                item.setCountData(drawing.countData)
                 scene.addItem(item)
                 items.append(item)
 

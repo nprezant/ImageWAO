@@ -106,7 +106,7 @@ class DrawingData:
         else:
             raise ValueError(f'Unrecognized geometry name: {name}')
 
-        return DrawingData(name, geom, pen, countData)
+        return DrawingData(name, geom, pen, CountData.fromDict(countData))
 
     def offset(self, x, y):
         '''
