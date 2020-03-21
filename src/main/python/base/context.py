@@ -25,4 +25,8 @@ class AppContext(ApplicationContext):
     def explorerIcon(self):
         return QtGui.QIcon(self.get_resource('icons/ic_explorer.png'))
 
+    @cached_property
+    def ostrichPixmap(self):
+        return QtGui.QPixmap(self.get_resource('icons/animals/ostrich.png'))
+
 context = AppContext()
