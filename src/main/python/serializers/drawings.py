@@ -22,8 +22,11 @@ class JSONDrawnItems:
 
     def __init__(self, drawings: DrawingData):
         '''
-        Initialize class using one of the static methods:
-        * loadItems, for loading scene items
+        The __init__ method loads drawing data directly.
+        Other static methods are available to initialize the class:
+
+        Can also initialize class using one of the static methods:
+        * loadDrawingData, for loading drawing data items
         * loads, for loading via an encoded JSON string
 
         Item type, geometry, and pen color/width are tracked.
@@ -34,14 +37,14 @@ class JSONDrawnItems:
         # to recreate from primitive objects
         self._drawingData: DrawingData = drawings
 
-        # To iterate over these representations, we need an
+        # To iterate over this instance, we need an
         # iterater tracking variable
         self._index = 0
 
     @staticmethod
-    def loadItems(items):
+    def loadDrawingData(items: QtWidgets.QGraphicsItem):
         '''
-        Initialize with a list of QGraphicsItems.
+        Initialize serializable data with a list of QGraphicsItems.
         Supported items:
         QGraphicsRectItem
         QGrahpicsEllipseItem
