@@ -4,7 +4,7 @@ import json
 from PySide2 import QtWidgets, QtCore, QtGui
 
 import scenegraphics as sg
-from base.primatives import GrahphicItemRepresentation, CountData
+from base.primatives import DrawingData, CountData
 
 
 class JSONDrawnItems:
@@ -20,7 +20,7 @@ class JSONDrawnItems:
     "merged" before they are displayed in the viewer.
     '''
 
-    def __init__(self, reps: GrahphicItemRepresentation):
+    def __init__(self, drawings: DrawingData):
         '''
         Initialize class using one of the static methods:
         * loadItems, for loading scene items
@@ -32,7 +32,7 @@ class JSONDrawnItems:
         # Internally store the graphical representation
         # of these scene objects. Contains nough information
         # to recreate from primitive objects
-        self._reps:GrahphicItemRepresentation = reps
+        self._drawingData: DrawingData = drawings
 
         # To iterate over these representations, we need an
         # iterater tracking variable
@@ -48,7 +48,7 @@ class JSONDrawnItems:
         QGraphicsLineItem
         '''
 
-        representations = []
+        drawingData = []
 
         for item in items:
 
@@ -74,9 +74,9 @@ class JSONDrawnItems:
             if isinstance(item, QtWidgets.QGraphicsItem):
                 pen = item.pen()
 
-            representations.append(GrahphicItemRepresentation(name, geom, pen))
+            drawingData.append(DrawingData(name, geom, pen))
         
-        return JSONDrawnItems(representations)
+        return JSONDrawnItems(drawingData)
 
     @staticmethod
     def loads(s):
@@ -111,7 +111,7 @@ class JSONDrawnItems:
             elif name == 'Line':
                 geom = QtCore.QLineF(*args)
 
-            representations.append(GrahphicItemRepresentation(name, geom, pen))
+            representations.append(DrawingData(name, geom, pen))
         
         return JSONDrawnItems(representations)
 
@@ -119,12 +119,12 @@ class JSONDrawnItems:
         '''
         Return the encoded drawing items as a JSON formatted string
         '''
-        if len(self._reps) == 0:
+        if len(self._drawingData) == 0:
             return None
 
         encoded = []
-        for rep in self._reps:
-            encoded.append([rep.name, rep.args, rep.penColor, rep.penWidth])
+        for d in self._drawingData:
+            encoded.append([d.name, d.args, d.penColor, d.penWidth])
 
         return json.dumps(encoded)
 
@@ -134,13 +134,13 @@ class JSONDrawnItems:
         returning the list of items
         '''
         items = []
-        for rep in self._reps:
-            if rep.name == 'Rect':
-                item = sg.SceneCountDataRect.create(rep.geom, rep.pen)
-            elif rep.name == 'Ellipse':
-                item = sg.SceneCountDataEllipse.create(rep.geom, rep.pen)
-            elif rep.name == 'Line':
-                item = sg.SceneCountDataLine.create(rep.geom, rep.pen)
+        for drawing in self._drawingData:
+            if drawing.name == 'Rect':
+                item = sg.SceneCountDataRect.create(drawing.geom, drawing.pen)
+            elif drawing.name == 'Ellipse':
+                item = sg.SceneCountDataEllipse.create(drawing.geom, drawing.pen)
+            elif drawing.name == 'Line':
+                item = sg.SceneCountDataLine.create(drawing.geom, drawing.pen)
             else:
                 item = None
 
@@ -160,16 +160,16 @@ class JSONDrawnItems:
         the drawing was originally drawn on.
         '''
         painter = QtGui.QPainter(device)
-        for rep in self._reps:
-            painter.setPen(rep.pen)
-            rep.scale(sf)
-            painter.setPen(rep.pen)
-            if rep.name == 'Rect':
-                painter.drawRect(rep.geom)
-            elif rep.name == 'Ellipse':
-                painter.drawEllipse(rep.geom)
-            elif rep.name == 'Line':
-                painter.drawLine(rep.geom)
+        for drawing in self._drawingData:
+            painter.setPen(drawing.pen)
+            drawing.scale(sf)
+            painter.setPen(drawing.pen)
+            if drawing.name == 'Rect':
+                painter.drawRect(drawing.geom)
+            elif drawing.name == 'Ellipse':
+                painter.drawEllipse(drawing.geom)
+            elif drawing.name == 'Line':
+                painter.drawLine(drawing.geom)
         painter.end()
 
     def __iter__(self):
@@ -177,9 +177,9 @@ class JSONDrawnItems:
         return self
 
     def __next__(self):
-        if self._index == len(self._reps):
+        if self._index == len(self._drawingData):
             raise StopIteration
-        data = self._reps[self._index]
+        data = self._drawingData[self._index]
         self._index += 1
         return data
 

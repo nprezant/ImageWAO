@@ -2,7 +2,7 @@
 from PySide2 import QtCore
 
 
-class GrahphicItemRepresentation:
+class DrawingData:
 
     def __init__(self, name, geom, pen):
         '''

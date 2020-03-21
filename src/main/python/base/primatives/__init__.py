@@ -1,3 +1,3 @@
 
 from .countdata import CountData
-from .drawingdata import GrahphicItemRepresentation
+from .drawingdata import DrawingData
