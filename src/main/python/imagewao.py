@@ -74,7 +74,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Image grid signal connections
         self.grid.loadProgress.connect(self.loadingOverlay.setProgress)
-        self.grid.loadFinished.connect(self.loadingOverlay.hide)
+        self.grid.loadFinished.connect(self.loadingOverlay.fadeOut)
         self.grid.selectedImageChanged.connect(self.viewer.setImage)
         self.grid.selectedFilesChanged.connect(self.library.selectFiles)
         self.grid.notificationMessage.connect(self.notifier.notify)

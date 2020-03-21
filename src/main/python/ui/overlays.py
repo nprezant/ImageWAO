@@ -54,6 +54,15 @@ class LoadingOverlay(OverlayWidget):
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, False)
 
+        # Opacity effect / animation
+        self.opacityEffect = QtWidgets.QGraphicsOpacityEffect()
+        self.setGraphicsEffect(self.opacityEffect)
+        self.opacityAni = QtCore.QPropertyAnimation(self.opacityEffect, b'opacity')
+        self.opacityAni.setStartValue(0.)
+        self.opacityAni.setEndValue(1.)
+        self.opacityAni.setDuration(350)
+        self.opacityAni.finished.connect(self._hideIfFadedOut)
+
         # Loading label
         self.label = QtWidgets.QLabel('Loading...') # TODO: Come up with better system of setting loading text. Or add a progress bar
         self.label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
@@ -80,12 +89,38 @@ class LoadingOverlay(OverlayWidget):
         self.setLayout(layout)
 
     @QtCore.Slot()
+    def _hideIfFadedOut(self):
+        '''
+        Hides this widget if it has just been fading out.
+        Connected to the `finished` signal of the opacity animation.
+        '''
+        if self.opacityAni.direction() == self.opacityAni.Backward:
+            self.hide()
+
+    @QtCore.Slot()
+    def fadeOut(self):
+        '''
+        Fades out this overlay and hides itself when fade out is complete.
+        '''
+        self.opacityAni.setDirection(self.opacityAni.Backward)
+        self.opacityAni.start()
+
+    @QtCore.Slot()
     def activate(self):
         '''
-        Shows the overlay and begins blocking user input.
+        Fades in the overlay and begins blocking user input.
         '''
-        self.show()
-        self.grabKeyboard()
+
+        if self.isHidden():
+
+            # Start fading in if hidden
+            self.opacityEffect.setOpacity(0)
+            self.opacityAni.setDirection(self.opacityAni.Forward)
+            self.opacityAni.start()
+            self.show()
+
+            # Block keyboard input
+            self.grabKeyboard()
 
     @QtCore.Slot(int)
     def setProgress(self, value):
