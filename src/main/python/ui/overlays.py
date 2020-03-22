@@ -65,7 +65,7 @@ class LoadingOverlay(OverlayWidget):
 
         # Loading label
         self.label = QtWidgets.QLabel('Loading...') # TODO: Come up with better system of setting loading text. Or add a progress bar
-        self.label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        self.label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label.setStyleSheet(
             '''
             color: rgb(80, 90, 90);
@@ -75,16 +75,13 @@ class LoadingOverlay(OverlayWidget):
         )
 
         # Animal images
-        animalLayout = QtWidgets.QHBoxLayout()
-        animalImages = [ctx.ostrichPixmap]*4
-        for img in animalImages:
-            label = QtWidgets.QLabel()
-            label.setPixmap(img)
-            animalLayout.addWidget(label)
+        self.animalLabel = QtWidgets.QLabel()
+        self.animalLabel.setPixmap(ctx.loadingAnimalsPixmap)
+        self.animalLabel.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignBottom)
 
         # Main layout
         layout = QtWidgets.QVBoxLayout()
-        layout.addLayout(animalLayout)
+        layout.addWidget(self.animalLabel)
         layout.addWidget(self.label)
         self.setLayout(layout)
 

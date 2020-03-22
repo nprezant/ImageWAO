@@ -26,7 +26,7 @@ class AppContext(ApplicationContext):
         return QtGui.QIcon(self.get_resource('icons/ic_explorer.png'))
 
     @cached_property
-    def ostrichPixmap(self):
-        return QtGui.QPixmap(self.get_resource('icons/animals/ostrich.png'))
+    def loadingAnimalsPixmap(self):
+        return QtGui.QPixmap(self.get_resource('images/loadingAnimals.png'))
 
 context = AppContext()
