@@ -2,6 +2,7 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx
+from importers import FlightImportWizard
 from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay, Notifier, Library
 from ui.messageboxes import DoYouWantToSave
 
@@ -17,7 +18,6 @@ class QImageWAO(QtWidgets.QMainWindow):
         grid,
         animalAdder,
         animalTotals,
-        importWizards,
     ):
         super().__init__()
 
@@ -53,9 +53,6 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Event filters
         self.library.installEventFilter(self)
-
-        # Wizards
-        self.importWizards = importWizards
 
         # Notifications
         self.notifier = Notifier(self)
@@ -121,7 +118,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.fileMenu.addAction(a)
 
         a = QtWidgets.QAction('Import Flight Images', self)
-        a.triggered.connect(self.importWizards.openNewFlight)
+        a.triggered.connect(self._openFlightImportWizard)
         self.fileMenu.addAction(a)
 
         a = QtWidgets.QAction('Notify test', self)
@@ -217,3 +214,10 @@ class QImageWAO(QtWidgets.QMainWindow):
         the user wants to save them.
         '''
         self._exitDirectoryEvent(event)
+
+    def _openFlightImportWizard(self):
+        '''
+        Opens the flight import wizard as a modal form.
+        '''
+        wiz = FlightImportWizard()
+        wiz.exec_()

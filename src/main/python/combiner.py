@@ -5,7 +5,6 @@ from fbs_runtime.application_context import cached_property
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from imagewao import QImageWAO
-from importers import ImportWizards
 from imageviewer import QImageEditor
 from gridviewer import QImageGridView
 
@@ -21,7 +20,6 @@ class Combiner:
             self.grid,
             self.animalAdder,
             self.animalTotals,
-            self.importWizards,
         )
 
     @cached_property
@@ -39,10 +37,6 @@ class Combiner:
     @cached_property
     def animalTotals(self):
         return QtWidgets.QScrollArea()
-
-    @cached_property
-    def importWizards(self):
-        return ImportWizards()
 
     def run(self):
         with open(self.ctx.get_resource('style.qss')) as f:

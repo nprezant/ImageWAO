@@ -56,7 +56,7 @@ class IntroPage(QtWidgets.QWizardPage):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setTitle('Introduction')
+        self.setTitle('Choose folder to import from')
 
         topLabel = QtWidgets.QLabel(
             'This wizard will help you import new (unsorted) '
@@ -122,7 +122,7 @@ class ParametersPage(QtWidgets.QWizardPage):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setTitle('Parameters')
+        self.setTitle('Sorting Algorithm Parameters')
 
         topLabel = QtWidgets.QLabel(
             '<b>You probably don\'t need to change these.</b><br/>'
@@ -149,7 +149,7 @@ class ParametersPage(QtWidgets.QWizardPage):
         self.minCountLabel = QtWidgets.QLabel('Min photos per transect')
         self.minCountLabel.setToolTip(
             'Minimum number of photos expected on the same transect.\n\n'
-            'This number will be used to rule out test images.'
+            'This number will be used to rule out one-off test images.'
         )
         self.minCountBox = QtWidgets.QSpinBox()
         self.minCountBox.setRange(1,1000)
@@ -199,6 +199,13 @@ class ReviewPage(QtWidgets.QWizardPage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Review')
+        self.topLabel = QtWidgets.QLabel(
+            'These are the categorized transects, in chronological order.\n'
+            'Note that the geographical order, often given North to South as Alpha, Bravo, etc. '
+            'is not necessarily the same as the chronological order.\n\n'
+            'Copy and paste the correct naming order from Excel, or enter the names manually.\n'
+        )
+        self.topLabel.setWordWrap(True)
 
         self.view = TransectTableView()
         self.model = TransectTableModel()
@@ -206,6 +213,7 @@ class ReviewPage(QtWidgets.QWizardPage):
         self.view.setModel(self.model)
 
         layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.topLabel)
         layout.addWidget(self.view)
         self.setLayout(layout)
 
