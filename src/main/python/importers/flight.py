@@ -210,15 +210,44 @@ class ReviewPage(QtWidgets.QWizardPage):
         )
         self.topLabel.setWordWrap(True)
 
+        # Loading widgets
+        self.loadingLabel = QtWidgets.QLabel('Categorizing images...')
+        self.progressBar = QtWidgets.QProgressBar(self)
+
         self.view = TransectTableView()
         self.model = TransectTableModel()
+        self.model.categorizeProgress.connect(self.progressBar.setValue)
+        self.model.categorizeComplete.connect(self._categorizeComplete)
 
         self.view.setModel(self.model)
 
         layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.loadingLabel)
+        layout.addWidget(self.progressBar)
         layout.addWidget(self.topLabel)
         layout.addWidget(self.view)
         self.setLayout(layout)
+
+        # Initally the categorization has not finished
+        self._categorizationFinished = False
+
+    @QtCore.Slot()
+    def _categorizeComplete(self):
+        self.loadingLabel.setText('Categorizing images... Complete')
+
+        # Tell the page that it is complete so it can update the correct buttons.
+        self._categorizationFinished = True
+        self.completeChanged.emit()
+
+        # Ensure that the model gets renamed nicely, and share it with the other pages
+        self.model.renameByOrder()
+        self.modelChanged.emit(self.model)
+
+        # Adjust the size of the wizard to fit in the new data
+        self.wizard().adjustSize()
+
+    def isComplete(self):
+        return self._categorizationFinished
 
     def initializePage(self):
 
@@ -229,8 +258,6 @@ class ReviewPage(QtWidgets.QWizardPage):
 
         # read folder
         self.model.readFolder(folder, maxDelay, minCount)
-        self.model.renameByOrder()
-        self.modelChanged.emit(self.model)
     
     def nextId(self):
         return FlightImportWizard.Page_Metadata

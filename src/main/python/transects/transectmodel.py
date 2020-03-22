@@ -39,19 +39,18 @@ class TransectTableModel(QtCore.QAbstractTableModel):
     copyProgress = QtCore.Signal(int)
     copyComplete = QtCore.Signal()
 
+    categorizeProgress = QtCore.Signal(int)
+    categorizeComplete = QtCore.Signal()
+
     def __init__(self):
         super().__init__()
 
-        self.transects: Transect = [
-            Transect('T1', [1,2,3,4]),
-            Transect('T2', [1,4]),
-            Transect('T3', [1,2,3,4,5,6,7]),
-        ]
-
+        self.transects: Transect = []
         self.sections = ['Name', '# Images', 'Range']
 
-        # For multithreaded copying
+        # For multithreaded copying and categorizing
         self._copyWorker = None
+        self._categorizeWorker = None
         self._threadpool = QtCore.QThreadPool()
 
     def renameByOrder(self):
@@ -59,63 +58,27 @@ class TransectTableModel(QtCore.QAbstractTableModel):
             t.name = f'Transect{str(i).zfill(2)}'
 
     def readFolder(self, folder, maxDelay, minCount):
-        ''' Reads the files in a folder to construct the model '''
+        '''
+        Reads the image files from a given `folder` into the internal model.
+        This process executes on a seperate thread. Use `categorizeProgess` and
+        `categorizeComplete` to monitor progress.
+        '''
 
         searchFolder = Path(folder)/'**'
+
+        self._categorizeWorker = QWorker(categorizeFlightImages, [searchFolder, maxDelay, minCount])
+        self._categorizeWorker.includeProgress()
+        self._categorizeWorker.signals.progress.connect(self.categorizeProgress.emit)
+        self._categorizeWorker.signals.finished.connect(self.categorizeComplete.emit)
+        self._categorizeWorker.signals.result.connect(self.setTransects)
+        self._threadpool.start(self._categorizeWorker)
+
+    @QtCore.Slot(list)
+    def setTransects(self, transects):
+        self.beginResetModel()
         self.transects.clear()
-        lastdt = None
-        currentTransect = Transect()
-
-        # necessary because otherwise python references the last
-        # transect used (odd behavior...?)
-        currentTransect.clearFiles()
-
-        for filename in glob.iglob(str(searchFolder), recursive=True):
-
-            # rule out non-image files
-            fp = Path(filename)
-            if not fp.is_file():
-                continue
-
-            if not fp.suffix in config.supportedImageExtensions:
-                continue
-
-            # retrieve date and time image was taken
-            img = Image.open(fp)
-            t = img._getexif()[36867]
-            dt = datetime.strptime(t, '%Y:%m:%d %H:%M:%S')
-            
-            # add the file if this is the first one in a transect
-            if lastdt is None:
-                currentTransect.addFile(fp)
-
-            else:
-
-                # compute time delta between this image and the last one
-                delta = (dt - lastdt).seconds
-
-                # if the time is small, add to the current transect
-                if delta <= maxDelay:
-                    currentTransect.addFile(fp)
-                    lastdt = dt
-
-                # if the time is large, conclude this transect
-                # and add the file to the next one
-                else:
-                    
-                    # only record transect if it has enough images
-                    if currentTransect.numFiles >= minCount:
-                        self.transects.append(currentTransect)
-                    
-                    # make a new transect instance
-                    currentTransect = Transect(files=[fp])
-            
-            # record time of this image
-            lastdt = dt
-
-        # record the last transect if it has enough images
-        if currentTransect.numFiles >= minCount:
-            self.transects.append(currentTransect)
+        self.transects = transects
+        self.endResetModel()
 
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
@@ -260,6 +223,83 @@ def copyTransectFiles(transects, toFolder, progress=None):
             # If progress exists, emit it
             if progress is not None:
                 progress.emit(int(numFilesCopied / numFiles * 100))
+
+def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
+    '''
+    Categorizes the images in the searchFolder into transects
+    based on `maxDelay` and `minCount`.
+    
+    glob.iglob is applied to str(searchFolder) to loop through image files.
+    with the recursive flag set to true.
+    '''
+        
+    lastdt = None
+    transects = []
+    currentTransect = Transect()
+
+    # necessary because otherwise python references the last
+    # transect used (odd behavior...?)
+    currentTransect.clearFiles()
+
+    # Find the total number of files to go through.
+    numFiles = len([1 for f in glob.iglob(str(searchFolder), recursive=True)])
+
+    for i,filename in enumerate(glob.iglob(str(searchFolder), recursive=True)):
+
+        # If we have a progress indicater, use it
+        if progress is not None:
+            progress.emit(int(i/numFiles*100))
+
+        # rule out non-image files
+        fp = Path(filename)
+        if not fp.is_file():
+            continue
+
+        if not fp.suffix in config.supportedImageExtensions:
+            continue
+
+        # retrieve date and time image was taken
+        img = Image.open(fp)
+        t = img._getexif()[36867]
+        dt = datetime.strptime(t, '%Y:%m:%d %H:%M:%S')
+        
+        # add the file if this is the first one in a transect
+        if lastdt is None:
+            currentTransect.addFile(fp)
+
+        else:
+
+            # compute time delta between this image and the last one
+            delta = (dt - lastdt).seconds
+
+            # if the time is small, add to the current transect
+            if delta <= maxDelay:
+                currentTransect.addFile(fp)
+                lastdt = dt
+
+            # if the time is large, conclude this transect
+            # and add the file to the next one
+            else:
+                
+                # only record transect if it has enough images
+                if currentTransect.numFiles >= minCount:
+                    transects.append(currentTransect)
+                
+                # make a new transect instance
+                currentTransect = Transect(files=[fp])
+        
+        # record time of this image
+        lastdt = dt
+
+    # record the last transect if it has enough images
+    if currentTransect.numFiles >= minCount:
+        transects.append(currentTransect)
+
+    # If there is a progress bar, note that progress is 100%
+    if progress is not None:
+        progress.emit(100)
+
+    return transects
 
 
 if __name__ == '__main__':
