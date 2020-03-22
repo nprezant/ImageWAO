@@ -1,6 +1,5 @@
 
 import os
-import shutil
 from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets
@@ -18,6 +17,10 @@ class FlightImportWizard(QtWidgets.QWizard):
 
     def __init__(self):
         super().__init__()
+
+        # Look and feel
+        # this page should not have a cancel button
+        self.setOption(QtWidgets.QWizard.NoCancelButton)
 
         # page instances
         introPage = IntroPage(self)
@@ -347,12 +350,33 @@ class ConclusionPage(QtWidgets.QWizardPage):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.setTitle('You\'re all done')
+        self.setTitle('Copying...')
+        self.progressBar = QtWidgets.QProgressBar(self)
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.progressBar)
+        self.setLayout(layout)
+
+        # Initialize model that gets passed from the review page
         self._model = None
+
+        # Initally the copying has not finished
+        self._copyFinished = False
+
+    @QtCore.Slot()
+    def _copyComplete(self):
+        self.setTitle('Copying... Complete')
+
+        # Tell the page that it is complete so it can update the correct buttons.
+        self._copyFinished = True
+        self.completeChanged.emit()
 
     @QtCore.Slot(TransectTableModel)
     def updateModel(self, model):
-        self._model = model
+        if not model is self._model:
+            self._model = model
+            self._model.copyProgress.connect(self.progressBar.setValue)
+            self._model.copyComplete.connect(self._copyComplete)
 
     def initializePage(self):
 
@@ -368,22 +392,12 @@ class ConclusionPage(QtWidgets.QWizardPage):
 
         # construct full path
         flightPath = Path(libFolder) / flightFolder
-        flightPath.mkdir(exist_ok=True)
 
-        for t in model.transects:
+        # copy files on other thread
+        self._model.copyTransects(flightPath)
 
-            # make transect folder
-            tFolder = flightPath / t.name
-            tFolder.mkdir(exist_ok=True)
-
-            for i, fp in enumerate(t.files):
-
-                # destination file name
-                name = t.name + '_' + str(i).zfill(3) + fp.suffix
-                dst = tFolder / name
-
-                # copy files
-                shutil.copyfile(fp, dst)
+    def isComplete(self):
+        return self._copyFinished
 
     def nextId(self):
         return -1

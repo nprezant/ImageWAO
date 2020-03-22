@@ -1,5 +1,6 @@
 
 import glob
+import shutil
 from pathlib import Path
 from datetime import datetime
 
@@ -7,7 +8,8 @@ from PIL import Image
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
-from base import config
+from base import config, QWorker
+
 
 class Transect:
 
@@ -34,6 +36,9 @@ class Transect:
 
 class TransectTableModel(QtCore.QAbstractTableModel):
 
+    copyProgress = QtCore.Signal(int)
+    copyComplete = QtCore.Signal()
+
     def __init__(self):
         super().__init__()
 
@@ -44,6 +49,10 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         ]
 
         self.sections = ['Name', '# Images', 'Range']
+
+        # For multithreaded copying
+        self._copyWorker = None
+        self._threadpool = QtCore.QThreadPool()
 
     def renameByOrder(self):
         for i,t in enumerate(self.transects):
@@ -206,6 +215,51 @@ class TransectTableModel(QtCore.QAbstractTableModel):
                 | QtCore.Qt.ItemIsEditable)
         else:
             return QtCore.QAbstractTableModel.flags(self, index)
+
+    def copyTransects(self, toFolder):
+        '''
+        Copys all internal transect files to another folder, `toFolder`
+        on another thread. Use `copyProgress` and `copyComplete` to observe progress.
+        '''
+        self._copyWorker = QWorker(copyTransectFiles, [self.transects, toFolder])
+        self._copyWorker.includeProgress()
+        self._copyWorker.signals.progress.connect(self.copyProgress.emit) # bubble up progress
+        self._copyWorker.signals.finished.connect(self.copyComplete.emit)
+        self._threadpool.start(self._copyWorker)
+
+
+def copyTransectFiles(transects, toFolder, progress=None):
+    '''
+    Copies all transect files to another folder
+    If `progress` is passed in, emit progress along the way.
+    '''
+
+    # Ensure the base folder exists
+    toFolder.mkdir(exist_ok=True)
+
+    # Total number of files to copy
+    numFiles = sum([t.numFiles for t in transects])
+    numFilesCopied = 0
+
+    for t in transects:
+
+        # Make transect folder
+        tFolder = toFolder / t.name
+        tFolder.mkdir(exist_ok=True)
+
+        for i, fp in enumerate(t.files):
+
+            # Destination file name
+            name = t.name + '_' + str(i).zfill(3) + fp.suffix
+            dst = tFolder / name
+
+            # Copy files
+            shutil.copyfile(fp, dst)
+            numFilesCopied += 1
+
+            # If progress exists, emit it
+            if progress is not None:
+                progress.emit(int(numFilesCopied / numFiles * 100))
 
 
 if __name__ == '__main__':
