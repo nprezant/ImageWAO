@@ -116,8 +116,9 @@ class LoadingOverlay(OverlayWidget):
             self.opacityAni.start()
             self.show()
 
-            # Block keyboard input
+            # Block input
             self.grabKeyboard()
+            self.grabMouse()
 
     @QtCore.Slot(int)
     def setProgress(self, value):
@@ -132,6 +133,7 @@ class LoadingOverlay(OverlayWidget):
         Hides the overlay and releases the user input block.
         '''
         self.releaseKeyboard()
+        self.releaseMouse()
         super().hide()
 
     def paintEvent(self, event: QtGui.QPaintEvent):
