@@ -68,7 +68,7 @@ class Library(QtWidgets.QWidget):
         self._rootDirPreviouslyBlank = None
 
         # Default root path is $HOME$/Pictures/ImageWAO
-        self._defaultRoot = str(Path.home() / 'Pictures/ImageWAO')
+        self._defaultRoot = str(config.defaultLibraryDirectory)
         self._nothingInRootLayout = None
 
         # Root path.

@@ -2,8 +2,9 @@
 import os
 from pathlib import Path
 
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets, QtGui
 
+from base import config
 from transects import Transect, TransectTableModel, TransectTableView
 
 class FlightImportWizard(QtWidgets.QWizard):
@@ -319,14 +320,27 @@ class SetLibraryPage(QtWidgets.QWizardPage):
         self.setTitle('Copy Images')
 
         topLabel = QtWidgets.QLabel(
-            'Choose where you want to import the images to.\n'
-            'By default, this will be your flight library.'
+            'What do you want your folder of transects to be called?.'
         )
-        topLabel.setWordWrap(True)
 
+        # import to this folder name
+        self.flightFolderLabel = QtWidgets.QLabel('Name')
+        self.flightFolderLabel.setMinimumWidth (
+            self.flightFolderLabel.fontMetrics().boundingRect('Name ').width()
+        )
+        self.flightFolderBox = QtWidgets.QLineEdit('Flight XX')
+        self.registerField('flightFolder', self.flightFolderBox)
+        
         # import to this path
-        self.pathLabel = QtWidgets.QLabel('Import to')
-        self.pathEdit = QtWidgets.QLineEdit()
+        self.pathLabel = QtWidgets.QLabel('Create folder in:')
+        self.pathLabel.setToolTip('By default this is your library folder.')
+        self.pathEdit = QtWidgets.QLineEdit(self._defaultLibraryFolder)
+        self.pathEdit.setToolTip('By default this is your library folder.')
+        self.pathEdit.setReadOnly(True)
+        self.pathEdit.setStyleSheet(
+            'QLineEdit { '
+            f'background-color: {self.palette().color(QtGui.QPalette.Window).name()};'
+            '}')
         self.browse = QtWidgets.QPushButton('...')
         self.browse.setMaximumWidth(
             self.browse.fontMetrics().boundingRect('...').width() + 20
@@ -334,33 +348,22 @@ class SetLibraryPage(QtWidgets.QWizardPage):
         self.browse.clicked.connect(self._chooseImportFolder)
         self.registerField('libFolder', self.pathEdit)
 
-        # import to this folder name
-        self.flightFolderLabel = QtWidgets.QLabel('Flight folder')
-        self.flightFolderLabel.setMinimumWidth (
-            self.flightFolderLabel.fontMetrics().boundingRect('Flight folder ').width()
-        )
-        self.flightFolderBox = QtWidgets.QLineEdit('FlightXX')
-        self.registerField('flightFolder', self.flightFolderBox)
-
         layout = QtWidgets.QGridLayout()
         layout.addWidget(topLabel, 0, 0, 1, 3)
-        layout.addWidget(self.pathLabel, 1, 0)
-        layout.addWidget(self.pathEdit, 1, 1)
-        layout.addWidget(self.browse, 1, 2)
-        layout.addWidget(self.flightFolderLabel, 2, 0 ,1, 3)
-        layout.addWidget(self.flightFolderBox, 2, 1, 1, 2)
+        layout.addWidget(self.flightFolderLabel, 1, 0 ,1, 3)
+        layout.addWidget(self.flightFolderBox, 1, 1, 1, 2)
+        layout.addWidget(self.pathLabel, 2, 0)
+        layout.addWidget(self.pathEdit, 2, 1)
+        layout.addWidget(self.browse, 2, 2)
         layout.setColumnMinimumWidth(0, self.flightFolderLabel.minimumWidth())
         self.setLayout(layout)
-
-    def initializePage(self):
-        self.pathEdit.setText(str(self._defaultLibraryFolder))
 
     @property
     def _defaultLibraryFolder(self):
         settings = QtCore.QSettings()
         path = settings.value(
             'library/homeDirectory',
-            str(Path().home()).replace(os.sep, '/')
+            str(config.defaultLibraryDirectory)
         )
         return path
 

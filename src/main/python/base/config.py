@@ -1,4 +1,6 @@
 
+from pathlib import Path
+
 class Config:
 
     def __init__(self):
@@ -12,6 +14,9 @@ class Config:
         # Files and folders in each transect directory
         self.markedImageFolder = '.marked/'
         self.markedDataFile = '.marked/data.transect'
+
+        # Default library directory
+        self.defaultLibraryDirectory = Path.home() / 'Pictures/ImageWAO'
 
         # Supported image types
         self.supportedImageExtensions = ('.JPG', '.jpg', '.JPEG', '.jpeg')
