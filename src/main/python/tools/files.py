@@ -6,16 +6,19 @@ import os
 import sys
 from PySide2 import QtCore, QtGui
 
-def showInFolder(path):
+def showInFolder(path, select=True):
     '''
     Show a file or folder with explorer/finder.
     Source: https://stackoverflow.com/a/46019091/3388962
+
+    If `select` is `True`, the file or folder will be selected.
+    If `select` is `False`, 
     '''
     path = os.path.abspath(path)
     dirPath = path if os.path.isdir(path) else os.path.dirname(path)
     if sys.platform == 'win32':
         args = []
-        if not os.path.isdir(path):
+        if select:
             args.append('/select,')
         args.append(QtCore.QDir.toNativeSeparators(path))
         if QtCore.QProcess.startDetached('explorer', args):
