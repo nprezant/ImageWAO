@@ -201,6 +201,7 @@ class QImageWAO(QtWidgets.QMainWindow):
             self.save()
             event.accept()
         elif ret == QtWidgets.QMessageBox.Discard:
+            self._markAsClean()
             event.accept()
         elif ret == QtWidgets.QMessageBox.Cancel:
             event.ignore()
