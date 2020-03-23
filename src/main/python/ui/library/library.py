@@ -41,6 +41,7 @@ class Library(QtWidgets.QWidget):
         super().__init__()
 
         self.sourceModel = QtWidgets.QFileSystemModel()
+        # self.sourceModel.dataChanged.connect(self.) # TODO connect data changed to check if special layout needs to be displayed.
         self.proxyModel = SortFilterProxyModel()
         self.proxyView = QtWidgets.QListView()
 
@@ -58,6 +59,7 @@ class Library(QtWidgets.QWidget):
 
         # Default root path is $HOME$/Pictures/ImageWAO
         self._defaultRoot = str(Path.home() / 'Pictures/ImageWAO')
+        self._nothingInRootLayout = None
 
         # Root path.
         settings = QtCore.QSettings()
@@ -95,6 +97,7 @@ class Library(QtWidgets.QWidget):
         # No custom layout set, so return the default
         # prompt user to choose a flights folder
         label = QtWidgets.QLabel('There is nothing here :(')
+        label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
 
         # add to layout
         layout = QtWidgets.QVBoxLayout()
@@ -113,12 +116,12 @@ class Library(QtWidgets.QWidget):
         layout.addWidget(self.address) # Address bar always shown
 
         # If things in root dir
-        if True:
+        if not len([1 for _ in Path(self.rootPath).glob('**/*')]) == 0:
             layout.addWidget(self.proxyView, stretch=1)
 
         # Nothing in root dir
         else:
-            layout.addLayout(self.nothingInRootLayout())
+            layout.addLayout(self.nothingInRootLayout(), stretch=1)
 
         self.setLayout(layout)
 
@@ -140,9 +143,6 @@ class Library(QtWidgets.QWidget):
             # rebase view on new folder
             self.rebase(folder)
 
-            # save this root path
-            QtCore.QSettings().setValue('library/homeDirectory', folder)
-
     def rebase(self, rootPath:str):
         '''
         Re-base the file system model off of `rootPath`.
@@ -159,6 +159,9 @@ class Library(QtWidgets.QWidget):
         # Ensure root path is directory
         if not Path(self.rootPath).is_dir():
             raise ValueError(f'Root path must be directory, not: {rootPath}')
+
+        # Save this root path
+        QtCore.QSettings().setValue('library/homeDirectory', rootPath)
 
         # file model and view
         self.sourceModel.setRootPath(self.rootPath)
