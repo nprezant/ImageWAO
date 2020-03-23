@@ -6,6 +6,7 @@ of other widgets, such as loading widgets that block user input.
 from PySide2 import QtWidgets, QtCore, QtGui
 
 from base import ctx
+from tools import clearLayout
 
 
 class OverlayWidget(QtWidgets.QWidget):
@@ -19,6 +20,7 @@ class OverlayWidget(QtWidgets.QWidget):
     def newParent(self):
         if not self.parent(): return
         self.parent().installEventFilter(self)
+        self.resize(self.parent().size())
         self.raise_()
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
@@ -85,6 +87,9 @@ class LoadingOverlay(OverlayWidget):
         layout.addWidget(self.label)
         self.setLayout(layout)
 
+        # Extra overlays may be involved if there are floating dock widgets
+        self.extraOverlays = []
+
     @QtCore.Slot()
     def _hideIfFadedOut(self):
         '''
@@ -99,6 +104,10 @@ class LoadingOverlay(OverlayWidget):
         '''
         Fades out this overlay and hides itself when fade out is complete.
         '''
+        # Propogate to each extra overlay attached
+        for extra in self.extraOverlays:
+            extra.fadeOut()
+
         self.opacityAni.setDirection(self.opacityAni.Backward)
         self.opacityAni.start()
 
@@ -109,6 +118,17 @@ class LoadingOverlay(OverlayWidget):
         '''
 
         if self.isHidden():
+
+            # If this is a main window, we should also overlay dock widgets
+            if isinstance(self.parent(), QtWidgets.QMainWindow):
+
+                docks:QtWidgets.QDockWidget = self.parent().findChildren(QtWidgets.QDockWidget)
+                for dock in docks:
+                    if dock.isFloating():
+                        extra = LoadingOverlay(dock.widget())
+                        clearLayout(extra.layout()) # All we want is the color
+                        extra.activate()
+                        self.extraOverlays.append(extra)
 
             # Start fading in if hidden
             self.opacityEffect.setOpacity(0)
@@ -134,6 +154,11 @@ class LoadingOverlay(OverlayWidget):
         '''
         self.releaseKeyboard()
         # self.releaseMouse()
+
+        # Propogate to each extra overlay attached
+        for extra in self.extraOverlays:
+            extra.hide()
+
         super().hide()
 
     def paintEvent(self, event: QtGui.QPaintEvent):
