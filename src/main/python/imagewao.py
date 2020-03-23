@@ -32,14 +32,14 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.setCentralWidget(mspaint)
         self.viewer = mspaint
 
-        # Dock widgets are saved in a dictionary
-        self._dockWidgets = {}
-
         # Dock widget references
         self.grid = grid
         self.library = Library()
         self.animalAdder = animalAdder
         self.animalTotals = animalTotals
+
+        # Dock widgets are saved in a dictionary
+        self._dockWidgets = {}
 
         # Dock widget creation
         self._addDockWidget(self.grid, ctx.defaultDockIcon, 'Image Grids', startArea=QtCore.Qt.RightDockWidgetArea)
