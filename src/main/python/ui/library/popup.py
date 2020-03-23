@@ -13,6 +13,11 @@ class LibraryMenu(QtWidgets.QMenu):
     Note: You must call setTargetPaths for the context
     menu to populate.
     '''
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.revealAction = None
+
         
     def setTargetPath(self, path:str):
         '''
@@ -25,16 +30,25 @@ class LibraryMenu(QtWidgets.QMenu):
         
         # Create menu actions
         if sys.platform == 'win32':
-            showAction = QtWidgets.QAction('Show in Explorer', self.parent())
+            self.revealAction = QtWidgets.QAction('Show in Explorer', self.parent())
         elif sys.platform == 'darwin':
-            showAction = QtWidgets.QAction('Reveal in Finder', self.parent())
+            self.revealAction = QtWidgets.QAction('Reveal in Finder', self.parent())
         else:
-            showAction = QtWidgets.QAction('Show file', self.parent())
+            self.revealAction = QtWidgets.QAction('Show file', self.parent())
 
         # Connect handlers for actions
-        showAction.triggered.connect(lambda: showInFolder(path))
+        self.revealAction.triggered.connect(lambda: showInFolder(path))
 
-        # Add actions to the menu
-        self.addAction(showAction)
+    def popup(self, *args):
+        '''
+        Re-implemented to show popup menu.
+        Menu actions populate based on which actions have been set.
+        '''
+
+        if self.revealAction is not None:
+            self.addAction(self.revealAction)
+            self.addSeparator()
+
+        return super().popup(*args)
 
     
