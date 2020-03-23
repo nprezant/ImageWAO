@@ -8,7 +8,7 @@ from ui import CountForm
 
 import scenegraphics as sg
 
-from .imageviewer2 import QImageViewer
+from .imageviewer import QImageViewer
 from .controls import ImageController, ColorableAction, ctx
 from .cursors import Cursors
 

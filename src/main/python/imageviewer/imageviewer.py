@@ -1,305 +1,176 @@
 
-from pathlib import Path
-
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from .smoothing import QSmoothGraphicsView
 
-
-COLORS = {
-    'Teleric Blue': '#3296e6',
-    'Blue': 'Blue',
-    'Green': 'DarkGreen',
-    'Teal': 'Teal',
-    'Red': 'Red',
-    'Orange': 'Orange',
-    'Magenta': 'Magenta',
-    'Black': 'Black',
-    'White': 'White',
-}
-
-class QPaletteIcon(QtGui.QIcon):
-
-    def __init__(self, color):
-        super().__init__()
-
-        self.color = color
-
-        pixmap = QtGui.QPixmap(100, 100)
-        pixmap.fill(QtGui.QColor(color))
-        self.addPixmap(pixmap)
-
-class QImageViewer(QSmoothGraphicsView):
-
-    # signals
-    imageFlattened = QtCore.Signal(QtGui.QImage)
+class QImageViewer(QtWidgets.QGraphicsView):
 
     def __init__(self):
         super().__init__()
 
-        self.scene = QtWidgets.QGraphicsScene(self)
+        # Image is displayed as a QPixmap in a QGraphicsScene attached to this QGraphicsView.
+        self.scene = QtWidgets.QGraphicsScene()
         self.setScene(self.scene)
-        self.setRenderHint(QtGui.QPainter.Antialiasing)
 
-        self.mainPixmapItem = self.scene.addPixmap(QtGui.QPixmap())
+        # Store a local handle to the scene's current image pixmap.
+        self._pixmapHandle = None
 
-        # policies
-        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        # Image aspect ratio mode.
+        # !!! ONLY applies to full image. Aspect ratio is always ignored when zooming.
+        #   Qt.IgnoreAspectRatio: Scale image to fit viewport.
+        #   Qt.KeepAspectRatio: Scale image to fit inside viewport, preserving aspect ratio.
+        #   Qt.KeepAspectRatioByExpanding: Scale image to fill the viewport, preserving aspect ratio.
+        self.aspectRatioMode = QtCore.Qt.KeepAspectRatio
 
-        self.toolbar = QtWidgets.QToolBar()
-        self.initToolbar()
+        # Scroll bar behaviour.
+        #   Qt.ScrollBarAlwaysOff: Never shows a scroll bar.
+        #   Qt.ScrollBarAlwaysOn: Always shows a scroll bar.
+        #   Qt.ScrollBarAsNeeded: Shows a scroll bar only when zoomed.
+        self.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
-        self._pen = QtGui.QPen()
-        self._pen.setWidth(50)
-        self.setDefaultPenColor()
+        # Stack of QRectF zoom boxes in scene coordinates.
+        self.zoomStack = []
 
-        self._drawStartPos = None
-        self._dynamicOval = None
-        self._drawnItems = []
-
-        self.updateDragMode()
-
-    def trySetFromPath(self, path):
-        p = Path(path)
-        if p.suffix.lower() in ('.jpg', '.png'):
-            self.setMainPixmapFromPath(path)
-        else:
-            print('image not valid')
-
-    def setMainPixmapFromPath(self, imgPath):
-
-        # set image
-        pixmap = QtGui.QPixmap(imgPath)
-        self.setMainPixmap(pixmap)
-
-    def setMainPixmap(self, pixmap):
-        self.mainPixmapItem.setPixmap(pixmap)
-
-        # set scene rect
-        boundingRect = self.mainPixmapItem.boundingRect()
-        w = boundingRect.width()
-        h = boundingRect.height()
-        marginFactor = 0.5
-        boundingRect += QtCore.QMarginsF(
-            w * marginFactor, h * marginFactor,
-            w * marginFactor, h * marginFactor)
-        self.scene.setSceneRect(boundingRect)
-
-    def saveImage(self, fileName):
-        image = self.flattenImage()
-        image.save(fileName)
-
-    def flattenImageIfDrawnOn(self):
-        if not len(self._drawnItems) == 0:
-            self.flattenImage()
-
-    def flattenImage(self):
-
-        # get region of scene
-        area = self.mainPixmapItem.boundingRect()
-
-        # create a QImage to render to and fix up a QPainter for it
-        image = QtGui.QImage(area.width(), area.height(), QtGui.QImage.Format_ARGB32_Premultiplied)
-        painter = QtGui.QPainter(image)
-
-        # render the region of interest to the QImage
-        self.scene.render(painter, QtCore.QRectF(image.rect()), area)
-        painter.end()
-
-        # set this flattened image to this view
-        pixmap = self.mainPixmapItem.pixmap()
-        pixmap.convertFromImage(image)
-        self.setMainPixmap(pixmap)
-
-        # clear the drawings from the view
-        self.clearDrawnItems()
-
-        # emit flattened image signal
-        self.imageFlattened.emit(image)
-
-        # return the flattened image
-        return image
-
-    def clearDrawnItems(self):
-        for item in self._drawnItems:
-            self.scene.removeItem(item)
-
-        self._drawnItems.clear()
-
-    def removeLastDrawnItem(self):
-        try:
-            item = self._drawnItems.pop()
-        except IndexError:
-            pass
-        else:
-            self.scene.removeItem(item)
-
-    def centerImage(self):
-        self.centerOn(self.mainPixmapItem)
-
-    def bestFitImage(self):
-        self.fitInView(self.mainPixmapItem, QtCore.Qt.KeepAspectRatio)
-
-    def keyPressEvent(self, event: QtGui.QKeyEvent):
-        key = event.key()
-        if key == QtCore.Qt.Key_Space:
-            self.bestFitImage()
-        else:
-            super().keyPressEvent(event)
-
-    def mousePressEvent(self, event):
-        self._drawStartPos = None
-        if self.ovalModeAct.isChecked():
-            if self.mainPixmapItem.isUnderMouse():
-                self._drawStartPos = self.mapToScene(event.pos())
-                self._dynamicOval = self.scene.addEllipse(
-                    QtCore.QRectF(self._drawStartPos.x(), self._drawStartPos.y(), 1, 1),
-                    self._pen
-                )
-        else:
-            super().mousePressEvent(event)
-
-    def mouseMoveEvent(self, event):
-        if self._dynamicOval:
-            pos = self.mapToScene(event.pos())
-            self._dynamicOval.setRect(
-                QtCore.QRectF(self._drawStartPos.x(), self._drawStartPos.y(),
-                pos.x() - self._drawStartPos.x(), pos.y() - self._drawStartPos.y())
-            )
-        else:
-            super().mouseMoveEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        if self._dynamicOval:
-            self._drawnItems.append(self._dynamicOval)
-            self._dynamicOval = None
-        else:
-            super().mouseReleaseEvent(event)
-
-    def toggleSelectionMode(self):
-        if self.selectionModeAct.isChecked():
-            self.ovalModeAct.setChecked(False)
-        else:
-            self.selectionModeAct.setChecked(True)
-        self.updateDragMode()
-
-    def toggleOvalMode(self):
-        if self.ovalModeAct.isChecked():
-            self.selectionModeAct.setChecked(False)
-        else:
-            self.ovalModeAct.setChecked(True)
-        self.updateDragMode()
-
-    def updateDragMode(self):
-        if self.selectionModeAct.isChecked():
-            self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
-        else:
-            self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
+        # Flags for enabling/disabling mouse interaction.
+        self.canZoom = True
+        self.canPan = True
 
     @property
-    def penWidth(self):
-        return self._pen.width()
+    def viewBoundingBox(self):
+        '''
+        Bounding box of the current view.
+        '''
+        A = self.mapToScene(QtCore.QPoint(0, 0)) 
+        B = self.mapToScene(QtCore.QPoint(
+            self.viewport().width(), 
+            self.viewport().height()))
+        viewBBox = QtCore.QRectF(A, B)
 
-    @penWidth.setter
-    def penWidth(self, value):
-        self._pen.setWidth(value)
+        # This box might include parts of the scene outside
+        # the rect -- this is invalid. Need to intersect with
+        # the scene rect.
+        return viewBBox.intersected(self.sceneRect())
 
-    @property
-    def penColor(self):
-        return self._pen.color()
+    def hasImage(self):
+        '''
+        Returns whether or not the scene contains an image pixmap.
+        '''
+        return self._pixmapHandle is not None
 
-    @penColor.setter
-    def penColor(self, value):
-        self._pen.setColor(QtGui.QColor(value))
+    def clearImage(self):
+        '''
+        Removes the current image pixmap from the scene if it exists.
+        '''
+        if self.hasImage():
+            self.scene.removeItem(self._pixmapHandle)
+            self._pixmapHandle = None
 
-    def setDefaultPenColor(self):
-        self.setPenColor(COLORS['Teleric Blue']) 
+    def pixmap(self):
+        '''
+        Returns the scene's current image pixmap as a QPixmap, or else None if no image exists.
+        :rtype: QPixmap | None
+        '''
+        if self.hasImage():
+            return self._pixmapHandle.pixmap()
+        return None
 
-    def promptForPenWidth(self):
-        width, okPressed = QtWidgets.QInputDialog.getInt(self, 'Pen Width','Pen width (px):', self.penWidth, 1, 100, 1)
-        if okPressed:
-            self.penWidth = width        
+    def image(self):
+        '''
+        Returns the scene's current image pixmap as a QImage, or else None if no image exists.
+        :rtype: QImage | None
+        '''
+        if self.hasImage():
+            return self._pixmapHandle.pixmap().toImage()
+        return None
 
-    def createActions(self):
-        selectionModeFp = self.ctx.get_resource('selectIcon.png')
-        ovalModeFp = self.ctx.get_resource('ovalIcon.png')
-        flattenFp = self.ctx.get_resource('saveIcon.png')
-        undoFp = self.ctx.get_resource('undoIcon.png')
+    def scenePixmap(self):
+        return self._pixmapHandle
+
+    @QtCore.Slot(QtGui.QImage)
+    def setImage(self, image):
+        '''
+        Set the scene's current image pixmap to the input QImage or QPixmap.
+        Raises a RuntimeError if the input image has type other than QImage or QPixmap.
+        :type image: QImage | QPixmap
+        '''
+        if type(image) is QtGui.QPixmap:
+            pixmap = image
+        elif type(image) is QtGui.QImage:
+            pixmap = QtGui.QPixmap.fromImage(image)
+        else:
+            raise RuntimeError('ImageViewer.setImage: Argument must be a QImage or QPixmap.')
+        if self.hasImage():
+            self._pixmapHandle.setPixmap(pixmap)
+        else:
+            self._pixmapHandle = self.scene.addPixmap(pixmap)
+        self.setSceneRect(QtCore.QRectF(pixmap.rect()))  # Set scene size to image size.
+        if self.canZoom:
+            self.zoomStack = []  # Clear zoom stack.
+        self.updateViewer()
+
+    def updateViewer(self):
+        '''
+        Show current zoom (if showing entire image, apply current aspect ratio mode).
+        '''
+        if not self.hasImage():
+            return
+        if len(self.zoomStack) and self.sceneRect().contains(self.zoomStack[-1]):
+            self.fitInView(self.zoomStack[-1], QtCore.Qt.KeepAspectRatio)  # Show zoomed rect (ignore aspect ratio).
+        else:
+            self.zoomStack = []  # Clear the zoom stack (in case we got here because of an invalid zoom).
+            self.fitInView(self.sceneRect(), self.aspectRatioMode)  # Show entire image (use current aspect ratio mode).
+
+    def resizeEvent(self, event):
+        '''
+        Maintain current zoom on resize.
+        '''
+        self.updateViewer()
+
+    def clearZoom(self):
+        '''
+        Clears and resets the zoom stack
+        '''
+        self.zoomStack = []
+        self.updateViewer()
+
+    def zoomIn(self, percent):
+        '''
+        Zooms the view in by a given percent.
+        Percentage on scale of 0 to 1.
+        '''
+        viewBBox = self.viewBoundingBox
+        margin = int(viewBBox.width() * percent)
+        smallerRect = viewBBox.marginsRemoved(QtCore.QMargins(margin, margin, margin, margin))
+        self.zoomTo(smallerRect)
+
+    def zoomTo(self, rect):
+        '''
+        Zoom the view to the given rectangle.
+        This is most commonly used with rubberband
+        selection rectangles
+        '''
         
-        self.selectionModeAct = QtWidgets.QAction(QtGui.QIcon(selectionModeFp), 'Select (v)', self)
-        self.selectionModeAct.setCheckable(True)
-        self.selectionModeAct.setChecked(True)
-        self.selectionModeAct.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_V))
-        self.selectionModeAct.triggered.connect(self.toggleSelectionMode)
-
-        self.ovalModeAct = QtWidgets.QAction(QtGui.QIcon(ovalModeFp), 'Draw &Oval (o)', self)
-        self.ovalModeAct.setCheckable(True)
-        self.ovalModeAct.setChecked(False)
-        self.ovalModeAct.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_O))
-        self.ovalModeAct.triggered.connect(self.toggleOvalMode)
+        viewBBox = self.viewBoundingBox
         
-        self.flattenAct = QtWidgets.QAction(QtGui.QIcon(flattenFp), 'Save', self)
-        self.flattenAct.setShortcut(QtGui.QKeySequence.Save)
-        self.flattenAct.triggered.connect(self.flattenImage)
-        
-        self.undoAct = QtWidgets.QAction(QtGui.QIcon(undoFp), 'Undo', self)
-        self.undoAct.setShortcut(QtGui.QKeySequence.Undo)
-        self.undoAct.triggered.connect(self.removeLastDrawnItem)
+        # The box that we want to zoom to is the one that
+        # intersects with the view's bounding box.
+        # (E.g. if the requested box is outside the scene,
+        # clip the box to the scene's limits)
+        selectionBBox = rect.intersected(viewBBox)
 
-        self.setPenWidthAct = QtWidgets.QAction('Set Pen Width', self)
-        self.setPenWidthAct.triggered.connect(self.promptForPenWidth)
+        # Clear current selection area.
+        self.scene.setSelectionArea(QtGui.QPainterPath())
 
-    def addPenToolMenu(self):
-        penFp = self.ctx.get_resource('pen.png')
-        penWidthFp = self.ctx.get_resource('penWidth.png')
+        # Execute zoom
+        if selectionBBox.isValid() and (selectionBBox != viewBBox):
+            self.zoomStack.append(selectionBBox)
+            self.updateViewer()
 
-        penButton = QtWidgets.QToolButton(self)
-        penButton.setText('Pen')
-        penButton.setIcon(QtGui.QIcon(penFp))
-        penButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
+    def zoomOut(self):
+        '''
+        Zooms the view by a single zoom level.
+        '''
+        if len(self.zoomStack):
+            self.zoomStack.pop()
+            self.updateViewer()
 
-        self.penMenu = QtWidgets.QMenu(penButton)
-        self.penMenu.addAction(self.setPenWidthAct)
-
-        self.addPaletteToMenu(self.penMenu)
-
-        penButton.setMenu(self.penMenu)
-
-        self.toolbar.addWidget(penButton)
-
-    def setPenColor(self, color):
-        qColor = QtGui.QColor(color)
-        for a in self.penMenu.actions():
-            a.setChecked(False)
-            try:
-                actionColor = QtGui.QColor(a.color)
-            except AttributeError:
-                pass
-            else:
-                if actionColor == qColor:
-                    a.setChecked(True)
-                    self.penColor = actionColor
-
-    def addPaletteToMenu(self, menu):
-        for name, color in COLORS.items():
-            paletteIcon = QPaletteIcon(color)
-            action = QtWidgets.QAction(paletteIcon, name, self, checkable=True)
-            action.color = color
-            action.triggered.connect(lambda checked, color=color: self.setPenColor(color))
-            menu.addAction(action)
-
-    def initToolbar(self):
-        self.createActions()
-        self.toolbar.addAction(self.flattenAct)
-        self.toolbar.addAction(self.undoAct)
-        # self.toolbar.addSeparator()
-        self.toolbar.addAction(self.selectionModeAct)
-        self.toolbar.addAction(self.ovalModeAct)
-        self.addPenToolMenu()
-
-
-class QImagePainterToolbar(QtWidgets.QToolBar):
-
-    def __init__(self):
-        super().__init__()
