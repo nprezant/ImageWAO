@@ -41,7 +41,7 @@ class Library(QtWidgets.QWidget):
         super().__init__()
 
         self.sourceModel = QtWidgets.QFileSystemModel()
-        # self.sourceModel.dataChanged.connect(self.) # TODO connect data changed to check if special layout needs to be displayed.
+        self.watcher = QtCore.QFileSystemWatcher()
         self.proxyModel = SortFilterProxyModel()
         self.proxyView = QtWidgets.QListView()
 
@@ -51,11 +51,21 @@ class Library(QtWidgets.QWidget):
 
         self.address = AddressBar()
 
+        # When the root path changes, we'll need to update the file watcher
+        self.sourceModel.rootPathChanged.connect(self._changeWatchedPath)
+
+        # When the file watcher has the directory change, we'll want to *maybe* update the layout
+        self.watcher.directoryChanged.connect(self.setConditionalLayout)
+        self.watcher.fileChanged.connect(self.setConditionalLayout)
+
         # Context menu policy must be CustomContextMenu for us to implement
         # our own context menu. Connect the context menu request to our internal slot.
         self.menu = LibraryMenu(self)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._customMenuRequested)
+
+        # For optimization purposes, determining the proper layout
+        self._rootDirPreviouslyBlank = None
 
         # Default root path is $HOME$/Pictures/ImageWAO
         self._defaultRoot = str(Path.home() / 'Pictures/ImageWAO')
@@ -75,6 +85,19 @@ class Library(QtWidgets.QWidget):
 
         # Re-base the model on the new root path.
         self.rebase(rootPath)
+
+    @QtCore.Slot(str)
+    def _changeWatchedPath(self, fp):
+        '''
+        Change the watched path to `fp`. Removes all other paths.
+        '''
+        files = self.watcher.files()
+        dirs = self.watcher.directories()
+        if files:
+            self.watcher.removePaths(files)
+        if dirs:
+            self.watcher.removePaths(dirs)
+        self.watcher.addPath(fp)
 
     def setNothingInRootLayout(self, layout):
         '''
@@ -104,26 +127,75 @@ class Library(QtWidgets.QWidget):
         layout.addWidget(label)
         return layout
 
-    def setConditionalLayout(self):
+    @QtCore.Slot(str)
+    def setConditionalLayout(self, path:str=None):
         '''
         Sets the layout based on whether or not anything is found in the root directory.
         '''
 
-        # Main layout
+        # If we are not currently in the root, nothing to do.
+        if self._rootProxyIndex() != self.proxyView.rootIndex():
+            return
+
+        # If things in root dir
+        rootDirBlank = len([1 for _ in Path(self.rootPath).glob('**/*')]) == 0
+        
+        # If this is the same situation as last time we checked, nothing to do
+        if self._rootDirPreviouslyBlank is None:
+            pass
+        elif self._rootDirPreviouslyBlank == rootDirBlank:
+            return
+
+        # Record whether anything is in the root directory
+        self._rootDirPreviouslyBlank = rootDirBlank
+
+        # Reparent current layout so we can use a new one
+        if self.layout() is not None:
+            
+            # Get a reference to the layout's items so we don't lose them to the garbage collector
+            # There should be two items: address bar, main item
+            keepIndexes = [] # Track which indexes to keep references to
+            for i in range(self.layout().count()):
+                item = self.layout().itemAt(i)
+                if not item:
+                    continue
+
+                w = item.widget()
+                if w:
+                    if w is self.address or w is self.proxyView:
+                        keepIndexes.append(i)
+                    else:
+                        pass
+
+            # Taking the items that we want to keep out of the 
+            # layout will maintain their references, because otherwise they'll
+            # be deleted when we re-parent the layout.
+            keepIndexes.sort(reverse=True)
+            for i in keepIndexes:
+                item = self.layout().takeAt(i)
+                item.widget().hide()
+
+            QtWidgets.QWidget().setLayout(self.layout())
+
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0,0,0,0)
         layout.setSpacing(0)
-        layout.addWidget(self.address) # Address bar always shown
+        self.setLayout(layout)
 
-        # If things in root dir
-        if not len([1 for _ in Path(self.rootPath).glob('**/*')]) == 0:
+        # Add the address bar on top. Always shown.
+        layout.addWidget(self.address)
+        self.address.show()
+
+        # If root dir has files or folders
+        if not rootDirBlank:
             layout.addWidget(self.proxyView, stretch=1)
+            self.proxyView.show()
 
         # Nothing in root dir
         else:
             layout.addLayout(self.nothingInRootLayout(), stretch=1)
 
-        self.setLayout(layout)
+
 
     def changeRootFolderDialog(self):
 
