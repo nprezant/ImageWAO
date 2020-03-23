@@ -320,5 +320,5 @@ class Library(QtWidgets.QWidget):
             paths.append(self.sourceModel.filePath(sourceIndex))
 
         if paths:
-            self.menu.setTargetPaths(paths)
+            self.menu.setTargetPath(paths[0])
             self.menu.popup(self.mapToGlobal(pos))

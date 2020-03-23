@@ -14,7 +14,7 @@ class LibraryMenu(QtWidgets.QMenu):
     menu to populate.
     '''
         
-    def setTargetPaths(self, paths:list):
+    def setTargetPath(self, path:str):
         '''
         This menu is based off of target paths.
         The context buttons will populate automatically.
@@ -32,7 +32,7 @@ class LibraryMenu(QtWidgets.QMenu):
             showAction = QtWidgets.QAction('Show file', self.parent())
 
         # Connect handlers for actions
-        showAction.triggered.connect(lambda: showInFolder(paths[0]))
+        showAction.triggered.connect(lambda: showInFolder(path))
 
         # Add actions to the menu
         self.addAction(showAction)
