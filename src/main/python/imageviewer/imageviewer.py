@@ -166,7 +166,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
             self.zoomStack.append(selectionBBox)
             self.updateViewer()
 
-    def zoomOut(self):
+    def zoomOutOneLevel(self):
         '''
         Zooms the view by a single zoom level.
         '''

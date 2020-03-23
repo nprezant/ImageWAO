@@ -349,7 +349,7 @@ class QImageEditor(QImageViewer):
                 elif event.button() == QtCore.Qt.RightButton:
 
                     # Zoom out from the selected rectangle
-                    self.zoomOut()
+                    self.zoomOutOneLevel()
 
             # Regardless of the reason we were in rubberband
             # drag mode, we don't want to be in that mode anymore

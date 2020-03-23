@@ -5,8 +5,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 
 from base import config, ctx
 
-from .colormenu import ColorMenu, ColorableAction
-from .widthmenu import WidthMenu
+from .menus import ColorMenu, ColorableAction, WidthMenu
 
 
 class ImageController(QtCore.QObject):
