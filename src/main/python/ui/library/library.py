@@ -119,7 +119,7 @@ class Library(QtWidgets.QWidget):
 
         # No custom layout set, so return the default
         # prompt user to choose a flights folder
-        label = QtWidgets.QLabel('There is nothing here :(')
+        label = QtWidgets.QLabel('  There is nothing here :(  \n  Right click to import flight images  ')
         label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
 
         # add to layout
