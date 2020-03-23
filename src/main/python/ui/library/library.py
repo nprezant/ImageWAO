@@ -134,7 +134,7 @@ class Library(QtWidgets.QWidget):
         '''
 
         # If we are not currently in the root, nothing to do.
-        if self._rootProxyIndex() != self.proxyView.rootIndex():
+        if not self._inRootIndex():
             return
 
         # If things in root dir
@@ -195,8 +195,6 @@ class Library(QtWidgets.QWidget):
         else:
             layout.addLayout(self.nothingInRootLayout(), stretch=1)
 
-
-
     def changeRootFolderDialog(self):
 
         # prompt user to choose folder
@@ -255,11 +253,16 @@ class Library(QtWidgets.QWidget):
     def _rootProxyIndex(self):
         return self.proxyModel.mapFromSource(self.sourceModel.index(self.rootPath))
 
+    def _inRootIndex(self):
+        '''True if the current view index is the model root index'''
+        return self._rootProxyIndex() == self.proxyView.rootIndex()
+
     @QtCore.Slot()
     def viewActivated(self, index):
         sourceIndex = self.proxyModel.mapToSource(index)
         if self.sourceModel.fileInfo(sourceIndex).isDir():
             QtCore.QCoreApplication.postEvent(self, DirectoryChangeEvent(index, sourceIndex))
+            self.proxyView.clearSelection() # Clear selection on directory change
         else:
             # Bubble up the path signal
             self.fileActivated.emit(self.sourceModel.filePath(sourceIndex))
@@ -321,4 +324,11 @@ class Library(QtWidgets.QWidget):
 
         if paths:
             self.menu.setTargetPath(paths[0])
-            self.menu.popup(self.mapToGlobal(pos))
+
+        # We should be able to open the flight import wizard by right clicking anywhere
+        # so long as we are in the root index
+        if self._inRootIndex():
+            self.menu.enableImportWizard()
+
+        # Show the menu
+        self.menu.popup(self.mapToGlobal(pos))

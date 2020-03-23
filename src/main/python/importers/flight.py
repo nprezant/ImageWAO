@@ -55,6 +55,13 @@ class FlightImportWizard(QtWidgets.QWizard):
         except AttributeError:
             pass
 
+    @staticmethod
+    def openNew():
+        '''
+        Creates and opens a new FlightImportWizard using the `exec_` method.
+        '''
+        FlightImportWizard().exec_()
+
 class IntroPage(QtWidgets.QWizardPage):
     
     def __init__(self, *args, **kwargs):

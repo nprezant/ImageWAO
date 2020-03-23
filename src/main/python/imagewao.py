@@ -118,7 +118,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.fileMenu.addAction(a)
 
         a = QtWidgets.QAction('Import Flight Images', self)
-        a.triggered.connect(self._openFlightImportWizard)
+        a.triggered.connect(FlightImportWizard().openNew)
         self.fileMenu.addAction(a)
 
         a = QtWidgets.QAction('Notify test', self)
@@ -214,10 +214,3 @@ class QImageWAO(QtWidgets.QMainWindow):
         the user wants to save them.
         '''
         self._exitDirectoryEvent(event)
-
-    def _openFlightImportWizard(self):
-        '''
-        Opens the flight import wizard as a modal form.
-        '''
-        wiz = FlightImportWizard()
-        wiz.exec_()
