@@ -75,11 +75,24 @@ class ImageController(QtCore.QObject):
         # Must track the last mouse event so we can determine whether tool buttons
         # are single or multi-use.
         self._lastMouseEvent = None
+        self._mouseSingleUse = True
+
+        # In order for us to know when an escape key event occurs, we need to filter events
+        # on the widgets that this controller serves.
+        if isinstance(self.parent(), QtWidgets.QGraphicsView):
+            # Scene gets key events in a QGraphicsView
+            self._parentEventWidget = self.parent().scene()
+        else:
+            self._parentEventWidget = self.parent()
+        self._parentEventWidget.installEventFilter(self)
 
     def eventFilter(self, watched:QtCore.QObject, event:QtCore.QEvent):
         '''
         Sets whether a tool button is single use or multi-use based on
         whether the user clicked or double-clicked.
+
+        Also checks whether that single use has been used up on the parent,
+        and if so changes the active action.
 
         Order of events is important:
         Click:
@@ -102,9 +115,9 @@ class ImageController(QtCore.QObject):
                 # Set as multi use if the last mouse event was a double click ONLY
                 if event.type() == QtCore.QEvent.MouseButtonRelease:
                     if self._lastMouseEvent == QtCore.QEvent.MouseButtonDblClick:
-                        watched.defaultAction().setSingleUse(False)
+                        self._mouseSingleUse = False
                     else:
-                        watched.defaultAction().setSingleUse(True)
+                        self._mouseSingleUse = True
                     self._lastMouseEvent = QtCore.QEvent.MouseButtonRelease      
               
                 elif event.type() == QtCore.QEvent.MouseButtonDblClick:
@@ -113,7 +126,24 @@ class ImageController(QtCore.QObject):
                 elif event.type() == QtCore.QEvent.MouseButtonPress:
                     self._lastMouseEvent = QtCore.QEvent.MouseButtonPress
 
+        # If we are pressing the escape key we should return to the default
+        # active item
+        if event.type() == QtCore.QEvent.KeyPress:
+            if event.key() == int(QtCore.Qt.Key_Escape):
+                self.mouseActions.resetActiveItem()
+
         return super().eventFilter(watched, event)
+
+    @QtCore.Slot()
+    def mouseActionUsed(self):
+        '''
+        Use this slot to inform the controller that the mouse action
+        was used and to update the active toolbuttons accordingly.
+        This depends on whether the mouse action was set to single or
+        multi use.
+        '''
+        if self._mouseSingleUse:
+            self.mouseActions.resetActiveItem()
 
     @property
     def activeMouseAction(self):
@@ -149,7 +179,7 @@ class SingleSelectionGroup(QtCore.QObject):
 
     itemChanged = QtCore.Signal(QtCore.QObject)
     
-    def __init__(self, items, startIndex=0):
+    def __init__(self, items, defaultIndex=0):
 
         # Initialize signals
         super().__init__()
@@ -164,7 +194,8 @@ class SingleSelectionGroup(QtCore.QObject):
             item.triggered.connect(self._handleItemTriggered)
 
         # Set checked on one item to start
-        self._activeIndex = startIndex
+        self._defaultIndex = defaultIndex
+        self._activeIndex = self._defaultIndex
         self.activeItem.setChecked(True)
 
     @property
@@ -177,6 +208,13 @@ class SingleSelectionGroup(QtCore.QObject):
     @property
     def activeItem(self):
         return self._items[self._activeIndex]
+
+    def resetActiveItem(self):
+        '''
+        Resets the active item to the default item specified
+        by `_defaultIndex`.
+        '''
+        self._items[self._defaultIndex].trigger()
 
     def _handleItemTriggered(self, checked):
 
