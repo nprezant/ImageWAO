@@ -4,7 +4,7 @@ from enum import Enum
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from serializers import JSONDrawnItems
-from ui import CountForm
+from ui import CountForm, SingleUseAction
 
 import scenegraphics as sg
 
@@ -377,7 +377,7 @@ class QImageEditor(QImageViewer):
         super().mouseDoubleClickEvent(event)
         
 
-class MouseToolAction(ColorableAction):
+class MouseToolAction(ColorableAction, SingleUseAction):
     '''
     An action associated with a specific mouse tool use
     '''

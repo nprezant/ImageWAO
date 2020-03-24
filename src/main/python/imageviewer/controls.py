@@ -4,6 +4,7 @@ from collections import namedtuple
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from base import config, ctx
+from ui import SingleUseAction
 
 from .menus import ColorMenu, ColorableAction, WidthMenu
 
@@ -63,6 +64,57 @@ class ImageController(QtCore.QObject):
         
         # Trigger the color menu signal to recolor necessary toolbar icons
         self._colorMenu.emitActiveColor()
+
+        # We want to know when the toolbutton is double clicked or single clicked.
+        # We only want to know this for toolbuttons that are using SingleUseActions,
+        # so we can install an event filter on these buttons to intercept within
+        # this class.
+        for button in self.toolbar.findChildren(QtWidgets.QToolButton):
+            if isinstance(button.defaultAction(), SingleUseAction):
+                button.installEventFilter(self)
+
+        # Must track the last mouse event so we can determine whether tool buttons
+        # are single or multi-use.
+        self._lastMouseEvent = None
+
+    def eventFilter(self, watched:QtCore.QObject, event:QtCore.QEvent):
+        '''
+        Sets whether a tool button is single use or multi-use based on
+        whether the user clicked or double-clicked.
+
+        Order of events is important:
+        Click:
+            MouseButtonPress
+            Paint
+            MouseButtonRelease
+
+        DoubleClick:
+            MouseButtonPress
+            Paint
+            MouseButtonRelease
+            ...
+            MouseButtonDblClick
+            Paint
+            MouseButtonRelease
+        '''
+        if isinstance(watched, QtWidgets.QToolButton):
+            if isinstance(watched.defaultAction(), SingleUseAction):
+
+                # Set as multi use if the last mouse event was a double click ONLY
+                if event.type() == QtCore.QEvent.MouseButtonRelease:
+                    if self._lastMouseEvent == QtCore.QEvent.MouseButtonDblClick:
+                        watched.defaultAction().setSingleUse(False)
+                    else:
+                        watched.defaultAction().setSingleUse(True)
+                    self._lastMouseEvent = QtCore.QEvent.MouseButtonRelease      
+              
+                elif event.type() == QtCore.QEvent.MouseButtonDblClick:
+                    self._lastMouseEvent = QtCore.QEvent.MouseButtonDblClick
+
+                elif event.type() == QtCore.QEvent.MouseButtonPress:
+                    self._lastMouseEvent = QtCore.QEvent.MouseButtonPress
+
+        return super().eventFilter(watched, event)
 
     @property
     def activeMouseAction(self):
