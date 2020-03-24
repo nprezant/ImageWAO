@@ -183,6 +183,13 @@ class QImageEditor(QImageViewer):
             if self.mouseAction.tooltype == ToolType.HandTool:
                 self.setCursor(QtCore.Qt.OpenHandCursor)
 
+        # Plus and equal keys are often in the same button
+        if event.key() in (QtCore.Qt.Key_Plus, QtCore.Qt.Key_Equal):
+            self.zoomIn(0.1)
+
+        elif event.key() == QtCore.Qt.Key_Minus:
+            self.zoomOut(0.1)
+
         return super().keyPressEvent(event)
 
     def keyReleaseEvent(self, event:QtGui.QKeyEvent):

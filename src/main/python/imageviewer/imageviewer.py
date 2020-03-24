@@ -142,6 +142,16 @@ class QImageViewer(QtWidgets.QGraphicsView):
         smallerRect = viewBBox.marginsRemoved(QtCore.QMargins(margin, margin, margin, margin))
         self.zoomTo(smallerRect)
 
+    def zoomOut(self, percent):
+        '''
+        Zooms the view out by a given percent
+        Percentage on scale of 0 to 1
+        '''
+        viewBBox = self.viewBoundingBox
+        margin = int(viewBBox.width() * percent)
+        largerRect = viewBBox.marginsAdded(QtCore.QMargins(margin, margin, margin, margin))
+        self.zoomTo(largerRect)
+
     def zoomTo(self, rect):
         '''
         Zoom the view to the given rectangle.
@@ -149,7 +159,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
         selection rectangles
         '''
         
-        viewBBox = self.viewBoundingBox
+        viewBBox = self.sceneRect()
         
         # The box that we want to zoom to is the one that
         # intersects with the view's bounding box.
