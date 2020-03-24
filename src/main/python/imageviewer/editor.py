@@ -165,18 +165,18 @@ class QImageEditor(QImageViewer):
         itself the current scene.
         '''
         serializer = JSONDrawnItems.loads(serialized)
-        self._drawnItems = serializer.addToScene(self.scene)
+        self._drawnItems = serializer.addToScene(self.scene())
 
     def _clearDrawnItems(self):
         for item in self._drawnItems:
-            self.scene.removeItem(item)
+            self.scene().removeItem(item)
 
         self._drawnItems.clear()
 
     def _removeDrawnItemsUnderPoint(self, point:QtCore.QPointF):
         for item in self._drawnItems:
             if item.contains(point):
-                self.scene.removeItem(item)
+                self.scene().removeItem(item)
                 self._drawnItems.remove(item)
 
     def mousePressEvent(self, event):
@@ -229,7 +229,7 @@ class QImageEditor(QImageViewer):
                     self._dynamicallyDrawnItem = None
 
                 if self._dynamicallyDrawnItem is not None:
-                    self.scene.addItem(self._dynamicallyDrawnItem)
+                    self.scene().addItem(self._dynamicallyDrawnItem)
 
             # Erase if this is the right button
             elif event.button() == QtCore.Qt.RightButton:
@@ -310,7 +310,7 @@ class QImageEditor(QImageViewer):
                 self._drawnItems.append(self._dynamicallyDrawnItem)
                 self._emitDrawnItems()
             else:
-                self.scene.removeItem(self._dynamicallyDrawnItem)
+                self.scene().removeItem(self._dynamicallyDrawnItem)
 
             # Reset object handle
             self._dynamicallyDrawnItem = None
@@ -326,7 +326,7 @@ class QImageEditor(QImageViewer):
         elif self.dragMode() == QtWidgets.QGraphicsView.RubberBandDrag:
 
             # This is the bounding box selected by the mouse
-            selectionBBox = self.scene.selectionArea().boundingRect()
+            selectionBBox = self.scene().selectionArea().boundingRect()
 
             # We might be zooming from the right button of the 
             # main hand tool
