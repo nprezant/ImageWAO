@@ -352,6 +352,9 @@ class QImageEditor(QImageViewer):
             # Reset object handle
             self._dynamicallyDrawnItem = None
 
+            # We just used the mouse action -- let the controller know so it can go 
+            # go back to the default action
+
         # If we just erased something, let the world know
         elif self._erasing:
             self._erasing = False
@@ -365,19 +368,11 @@ class QImageEditor(QImageViewer):
             # This is the bounding box selected by the mouse
             selectionBBox = self.scene().selectionArea().boundingRect()
 
-            # We might be zooming from the right button of the 
-            # main hand tool
-            if self.mouseAction.tooltype == ToolType.HandTool:
-                if event.button() == QtCore.Qt.RightButton:
-
-                    # Zoom to the selected rectangle                    
-                    self.zoomTo(selectionBBox)
-
             # We might be zooming because the zoom tool is active.
             # If this is the case, we zoom *in* to the selection box
             # if the left mouse button is used, but zoom *out* from
             # the selection box if the right mouse button is used.
-            elif self.mouseAction.tooltype == ToolType.ZoomTool:
+            if self.mouseAction.tooltype == ToolType.ZoomTool:
                 if event.button() == QtCore.Qt.LeftButton:
 
                     # Zoom to the selected rectangle
@@ -397,6 +392,9 @@ class QImageEditor(QImageViewer):
             # Regardless of the reason we were in scroll hand
             # drag mode, we don't want to be in that mode anymore
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
+        
+        # Let the controller know that we used a mouse action
+        self.controller.mouseActionUsed()
 
     def mouseDoubleClickEvent(self, event):
         '''
