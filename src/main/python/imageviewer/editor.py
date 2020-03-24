@@ -70,18 +70,6 @@ class QImageEditor(QImageViewer):
         # Required to propogate events to the drawing items
         # This is necessary for the drawn items to display their associated counts.
         self.setMouseTracking(True)
-
-        # TODO: Create a way to save/load drawn items.
-        # Eventually these drawn items must be saved as pixmaps,
-        # But before that it would be nice to have a simple save/load operation
-        # just for the drawn items. Then, those can be saved to a seperate file,
-        # and just those items can be loaded in when we look at someone's transects.
-        #
-        # Additionally, we'll be able to show a QListView of these items, and perhaps
-        # include some nice select & delete operations to go along with it.
-        # 
-        # On top of that, when we are comparing one person's transects to another
-        # person's, we can choose whose *counts* (including markup) to look at. 
         
     @property
     def toolbar(self):
