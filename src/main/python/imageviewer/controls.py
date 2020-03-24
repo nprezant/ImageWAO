@@ -21,16 +21,15 @@ class ImageController(QtCore.QObject):
 
     def __init__(self, parent, selectionActions):
 
-        super().__init__()
-        self.parent = parent
+        super().__init__(parent)
 
         # Toolbar
         self.toolbar = QtWidgets.QToolBar('Image Controls')
 
         # Color palette button
-        self.colorButton = QtWidgets.QToolButton(self.parent)
+        self.colorButton = QtWidgets.QToolButton(self.parent())
         self.colorButton.setDefaultAction(
-            ColorableAction(self.parent, QtGui.QPixmap(ctx.get_resource('icons/ic_palette.png'))))
+            ColorableAction(self.parent(), QtGui.QPixmap(ctx.get_resource('icons/ic_palette.png'))))
         self.colorButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         # Color palette popup menu
@@ -41,9 +40,9 @@ class ImageController(QtCore.QObject):
         self.colorButton.setMenu(self._colorMenu)
 
         # Width button
-        self.widthButton = QtWidgets.QToolButton(self.parent)
+        self.widthButton = QtWidgets.QToolButton(self.parent())
         self.widthButton.setDefaultAction(
-            ColorableAction(self.parent, ctx.defaultDockIcon))
+            ColorableAction(self.parent(), ctx.defaultDockIcon))
         self.widthButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         # Width button popup menu
