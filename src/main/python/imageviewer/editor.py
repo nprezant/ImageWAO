@@ -70,6 +70,9 @@ class QImageEditor(QImageViewer):
         # Required to propogate events to the drawing items
         # This is necessary for the drawn items to display their associated counts.
         self.setMouseTracking(True)
+
+        # Modulator key tracking for viewport navigation
+        self._ctrlPressed = False
         
     @property
     def toolbar(self):
@@ -167,6 +170,42 @@ class QImageEditor(QImageViewer):
                 self.scene().removeItem(item)
                 self._drawnItems.remove(item)
 
+    def keyPressEvent(self, event:QtGui.QKeyEvent):
+        '''
+        Some keys are necessary to track for navigating the view
+        with the mouse and keyboard.
+        '''
+        if event.key() == QtCore.Qt.Key_Control:
+            self._ctrlPressed = True
+
+            # If we are currently on the main mouse button, we should update the cursor
+            # to let the user know that we can pan around now.
+            if self.mouseAction.tooltype == ToolType.HandTool:
+                self.setCursor(QtCore.Qt.OpenHandCursor)
+
+        return super().keyPressEvent(event)
+
+    def keyReleaseEvent(self, event:QtGui.QKeyEvent):
+        '''
+        Some keys are necessary to track for navigating the view
+        with the mouse and keyboard.
+        '''
+        if event.key() == QtCore.Qt.Key_Control:
+            self._ctrlPressed = False
+
+            # If we just had the panning cursor up, we can't pan anymore and
+            # should update the cursor to match.
+            if self.cursor() == QtCore.Qt.OpenHandCursor:
+                self.setCursor(QtCore.Qt.ArrowCursor)
+
+        return super().keyReleaseEvent(event)
+
+    def leaveEvent(self, event:QtCore.QEvent):
+        '''
+        When the mouse leaves the widget we reset modulator keys
+        '''
+        self._ctrlPressed = False
+
     def mousePressEvent(self, event):
 
         # Sometimes we want the default handler,
@@ -174,14 +213,17 @@ class QImageEditor(QImageViewer):
         if self.scenePixmap() is None:
             pass
 
-        # Standard hand tool allows dragging with left
-        # mouse button and zooming to a selection rubber
-        # band box with the right mouse button.
+        # Standard hand tool allows selection rubber band with left
+        # mouse button, or panning if the control key is pressed.
+        # The context menu pops up with the right mouse button
         elif self.mouseAction.tooltype == ToolType.HandTool:
             if event.button() == QtCore.Qt.LeftButton:
-                self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+                if self._ctrlPressed:
+                    self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
+                else:
+                    self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
             elif event.button() == QtCore.Qt.RightButton:
-                self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
+                print('something should popup now')
 
         # Zoom tool allows user to zoom in and out with 
         # a selection rubber band box. The release event takes
