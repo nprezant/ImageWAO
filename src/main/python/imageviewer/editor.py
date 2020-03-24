@@ -11,6 +11,7 @@ import scenegraphics as sg
 from .imageviewer import QImageViewer
 from .controls import ImageController, ColorableAction, ctx
 from .cursors import Cursors
+from .menus import ItemMenu
 
 class ToolType(Enum):
     Default = 0
@@ -73,6 +74,11 @@ class QImageEditor(QImageViewer):
 
         # Modulator key tracking for viewport navigation
         self._ctrlPressed = False
+
+        # Menu
+        self.menu = ItemMenu(self)
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self._customMenuRequested)
         
     @property
     def toolbar(self):
@@ -141,6 +147,17 @@ class QImageEditor(QImageViewer):
         Since an item's counts were updated, emit the items.
         '''
         self._emitDrawnItems()
+
+    @QtCore.Slot(QtCore.QPoint)
+    def _customMenuRequested(self, pos:QtCore.QPoint):
+        '''
+        Open the context menu with the currently selected item.
+        '''
+
+
+
+        # Show the menu
+        self.menu.popup(self.mapToGlobal(pos))
 
     def _emitDrawnItems(self):
         '''
