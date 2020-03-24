@@ -8,8 +8,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
         super().__init__()
 
         # Image is displayed as a QPixmap in a QGraphicsScene attached to this QGraphicsView.
-        self.scene = QtWidgets.QGraphicsScene()
-        self.setScene(self.scene)
+        self.setScene(QtWidgets.QGraphicsScene())
 
         # Store a local handle to the scene's current image pixmap.
         self._pixmapHandle = None
@@ -62,7 +61,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
         Removes the current image pixmap from the scene if it exists.
         '''
         if self.hasImage():
-            self.scene.removeItem(self._pixmapHandle)
+            self.scene().removeItem(self._pixmapHandle)
             self._pixmapHandle = None
 
     def pixmap(self):
@@ -102,7 +101,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
         if self.hasImage():
             self._pixmapHandle.setPixmap(pixmap)
         else:
-            self._pixmapHandle = self.scene.addPixmap(pixmap)
+            self._pixmapHandle = self.scene().addPixmap(pixmap)
         self.setSceneRect(QtCore.QRectF(pixmap.rect()))  # Set scene size to image size.
         if self.canZoom:
             self.zoomStack = []  # Clear zoom stack.
@@ -159,7 +158,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
         selectionBBox = rect.intersected(viewBBox)
 
         # Clear current selection area.
-        self.scene.setSelectionArea(QtGui.QPainterPath())
+        self.scene().setSelectionArea(QtGui.QPainterPath())
 
         # Execute zoom
         if selectionBBox.isValid() and (selectionBBox != viewBBox):
