@@ -18,6 +18,7 @@ class ImageController(QtCore.QObject):
     widthChanged = QtCore.Signal(int)
     colorChanged = QtCore.Signal(QtGui.QColor)
     mouseActionChanged = QtCore.Signal(QtWidgets.QAction)
+    zoomToFitRequested = QtCore.Signal()
 
     def __init__(self, parent, selectionActions):
 
@@ -52,6 +53,13 @@ class ImageController(QtCore.QObject):
         # Assign width menu to width button
         self.widthButton.setMenu(self._widthMenu)
 
+        # Fit to screen button
+        _zoomAct = QtWidgets.QAction('Zoom to fit', self.parent())
+        _zoomAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/ic_fitscreen.png')))
+        self.zoomToFitButton = QtWidgets.QToolButton(self.parent())
+        self.zoomToFitButton.setDefaultAction(_zoomAct)
+        self.zoomToFitButton.triggered.connect(lambda *args: self.zoomToFitRequested.emit())
+
         # Single-selection buttons -- only one can be selected at a time
         self.mouseActions = SingleSelectionGroup(selectionActions)
         self.mouseActions.itemChanged.connect(self.mouseActionChanged.emit)
@@ -60,6 +68,7 @@ class ImageController(QtCore.QObject):
         self.toolbar.addWidget(self.colorButton)
         self.toolbar.addWidget(self.widthButton)
         self.toolbar.addActions(self.mouseActions.items)
+        self.toolbar.addWidget(self.zoomToFitButton)
         
         # Trigger the color menu signal to recolor necessary toolbar icons
         self._colorMenu.emitActiveColor()

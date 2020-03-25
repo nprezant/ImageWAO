@@ -56,6 +56,7 @@ class QImageEditor(QImageViewer):
         self.controller.colorChanged.connect(self._updatePenColor)
         self.controller.widthChanged.connect(self._updatePenWidth)
         self.controller.mouseActionChanged.connect(self._updateCursor)
+        self.controller.zoomToFitRequested.connect(self.clearZoom)
         self.controller.sendSignals()
 
         # Drawing variables
@@ -239,15 +240,14 @@ class QImageEditor(QImageViewer):
 
         # Standard hand tool allows selection rubber band with left
         # mouse button, or panning if the control key is pressed.
-        # The context menu pops up with the right mouse button
+        # The context menu pops up with the right mouse button (handled
+        # on mouse release)
         elif self.mouseAction.tooltype == ToolType.HandTool:
             if event.button() == QtCore.Qt.LeftButton:
                 if self._ctrlPressed:
                     self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
                 else:
                     self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
-            elif event.button() == QtCore.Qt.RightButton:
-                print('something should popup now')
 
         # Zoom tool allows user to zoom in and out with 
         # a selection rubber band box. The release event takes
