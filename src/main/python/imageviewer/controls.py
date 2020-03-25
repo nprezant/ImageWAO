@@ -67,7 +67,9 @@ class ImageController(QtCore.QObject):
         # Add buttons to toolbar
         self.toolbar.addWidget(self.colorButton)
         self.toolbar.addWidget(self.widthButton)
+        self.toolbar.addSeparator()
         self.toolbar.addActions(self.mouseActions.items)
+        self.toolbar.addSeparator()
         self.toolbar.addWidget(self.zoomToFitButton)
         
         # Trigger the color menu signal to recolor necessary toolbar icons
