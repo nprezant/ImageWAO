@@ -96,8 +96,8 @@ class ColorableAction(QtWidgets.QAction):
     Instance also contains information about what kind of drawing
     it might perform
     '''
-    def __init__(self, parent, mask: QtGui.QPixmap):
-        super().__init__(parent)
+    def __init__(self, mask: QtGui.QPixmap, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mask = mask
         self.setIcon(mask)
 

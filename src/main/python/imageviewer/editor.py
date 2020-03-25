@@ -1,26 +1,15 @@
 
-from enum import Enum
-
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from serializers import JSONDrawnItems
-from ui import CountForm, SingleUseAction
+from ui import CountForm
 
 import scenegraphics as sg
 
 from .imageviewer import QImageViewer
-from .controls import ImageController, ColorableAction, ctx
+from .controls import ImageController, ColorableAction, ctx, ToolType
 from .cursors import Cursors
 from .menus import ItemMenu
-
-class ToolType(Enum):
-    Default = 0
-    HandTool = 1
-    ZoomTool = 2
-    OvalShape = 3
-    RectangleShape = 4
-    LineShape = 5
-    Eraser = 6
 
 
 class QImageEditor(QImageViewer):
@@ -38,15 +27,7 @@ class QImageEditor(QImageViewer):
         # Drawing (User can draw on image with specified shape)
 
         # Controller (Toolbar, file menu, etc.)
-        selectionActions = [
-            MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_hand.png')), ToolType.HandTool),
-            MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_zoom.png')), ToolType.ZoomTool),
-            MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_oval.png')), ToolType.OvalShape),
-            MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_rect.png')), ToolType.RectangleShape),
-            MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_line.png')), ToolType.LineShape),
-            MouseToolAction(self, QtGui.QPixmap(ctx.get_resource('icons/ic_eraser.png')), ToolType.Eraser),
-        ]
-        self.controller = ImageController(self, selectionActions)
+        self.controller = ImageController(self)
 
         # Drawing pen
         self._pen = QtGui.QPen()
@@ -427,20 +408,3 @@ class QImageEditor(QImageViewer):
                 self.clearZoom()
 
         super().mouseDoubleClickEvent(event)
-        
-
-class MouseToolAction(ColorableAction, SingleUseAction):
-    '''
-    An action associated with a specific mouse tool use
-    '''
-
-    def __init__(self, parent, mask, tooltype=ToolType.Default):
-        super().__init__(parent, mask)
-
-        self.tooltype = tooltype
-
-        # Convenience -- if this is a "shape" tool
-        if 'shape' in tooltype.name.lower():
-            self.isShapeTool = True
-        else:
-            self.isShapeTool = False

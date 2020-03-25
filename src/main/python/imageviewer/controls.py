@@ -1,4 +1,5 @@
 
+from enum import Enum
 from collections import namedtuple
 
 from PySide2 import QtCore, QtGui, QtWidgets
@@ -8,6 +9,53 @@ from ui import SingleUseAction
 
 from .menus import ColorMenu, ColorableAction, WidthMenu
 
+class ToolType(Enum):
+    Default = 0
+    HandTool = 1
+    ZoomTool = 2
+    OvalShape = 3
+    RectangleShape = 4
+    LineShape = 5
+    Eraser = 6
+
+class MouseToolAction(ColorableAction):
+    '''
+    An action associated with a specific mouse tool use
+    '''
+
+    def __init__(self, tooltype, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.tooltype = tooltype
+
+        # Convenience -- if this is a "shape" tool
+        if 'shape' in tooltype.name.lower():
+            self.isShapeTool = True
+        else:
+            self.isShapeTool = False
+
+def createSelectionActions(parent):
+    '''
+    Convienence method for separating out where the selection actions are
+    defined.
+    '''
+
+    # Tool definitions
+    handTool = MouseToolAction(ToolType.HandTool, QtGui.QPixmap(ctx.get_resource('icons/ic_hand.png')), 'Hand tool (ESC)', parent)
+    zoomTool = MouseToolAction(ToolType.ZoomTool, QtGui.QPixmap(ctx.get_resource('icons/ic_zoom.png')), 'Zoom tool (Z)', parent)
+    ovalTool = MouseToolAction(ToolType.OvalShape, QtGui.QPixmap(ctx.get_resource('icons/ic_oval.png')), 'Oval shape (O)', parent)
+    rectTool = MouseToolAction(ToolType.RectangleShape, QtGui.QPixmap(ctx.get_resource('icons/ic_rect.png')), 'Rectangle shape (R)', parent)
+    lineTool = MouseToolAction(ToolType.LineShape, QtGui.QPixmap(ctx.get_resource('icons/ic_line.png')), 'Line shape (L)', parent)
+    erasTool = MouseToolAction(ToolType.Eraser, QtGui.QPixmap(ctx.get_resource('icons/ic_eraser.png')), 'Eraser (E)', parent)
+    
+    # Key sequences
+    zoomTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Z))
+    ovalTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_O))
+    rectTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_R))
+    lineTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_L))
+    erasTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_E))
+
+    return [handTool, zoomTool, ovalTool, rectTool, lineTool, erasTool]
 
 class ImageController(QtCore.QObject):
     '''
@@ -20,7 +68,7 @@ class ImageController(QtCore.QObject):
     mouseActionChanged = QtCore.Signal(QtWidgets.QAction)
     zoomToFitRequested = QtCore.Signal()
 
-    def __init__(self, parent, selectionActions):
+    def __init__(self, parent):
 
         super().__init__(parent)
 
@@ -30,7 +78,7 @@ class ImageController(QtCore.QObject):
         # Color palette button
         self.colorButton = QtWidgets.QToolButton(self.parent())
         self.colorButton.setDefaultAction(
-            ColorableAction(self.parent(), QtGui.QPixmap(ctx.get_resource('icons/ic_palette.png'))))
+            ColorableAction(QtGui.QPixmap(ctx.get_resource('icons/ic_palette.png')), 'Change color', self.parent()))
         self.colorButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         # Color palette popup menu
@@ -43,7 +91,7 @@ class ImageController(QtCore.QObject):
         # Width button
         self.widthButton = QtWidgets.QToolButton(self.parent())
         self.widthButton.setDefaultAction(
-            ColorableAction(self.parent(), ctx.defaultDockIcon))
+            ColorableAction(ctx.defaultDockIcon, 'Change line width', self.parent()))
         self.widthButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         # Width button popup menu
@@ -54,14 +102,15 @@ class ImageController(QtCore.QObject):
         self.widthButton.setMenu(self._widthMenu)
 
         # Fit to screen button
-        _zoomAct = QtWidgets.QAction('Zoom to fit', self.parent())
+        _zoomAct = QtWidgets.QAction('Zoom to fit (SPACE)', self.parent())
         _zoomAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/ic_fitscreen.png')))
+        _zoomAct.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
         self.zoomToFitButton = QtWidgets.QToolButton(self.parent())
         self.zoomToFitButton.setDefaultAction(_zoomAct)
         self.zoomToFitButton.triggered.connect(lambda *args: self.zoomToFitRequested.emit())
 
         # Single-selection buttons -- only one can be selected at a time
-        self.mouseActions = SingleSelectionGroup(selectionActions)
+        self.mouseActions = SingleSelectionGroup(createSelectionActions(self))
         self.mouseActions.itemChanged.connect(self.mouseActionChanged.emit)
 
         # Add buttons to toolbar
