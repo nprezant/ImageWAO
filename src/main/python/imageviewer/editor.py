@@ -136,7 +136,12 @@ class QImageEditor(QImageViewer):
         Open the context menu with the currently selected item.
         '''
 
-
+        # Get the topmost item at this point and let the context 
+        # menu know (if it is a scene counts item)
+        item = self.itemAt(pos)
+        if isinstance(item, sg.SceneCountsItemMixin):
+            self.menu.addEditableItem(item, lambda *args: self._countForm.popup(item, pos), 'Edit counts')
+            self.menu.addDeletableItem(item, lambda *args: self._removeDrawnItem(item), 'Delete')
 
         # Show the menu
         self.menu.popup(self.mapToGlobal(pos))
@@ -166,8 +171,11 @@ class QImageEditor(QImageViewer):
     def _removeDrawnItemsUnderPoint(self, point:QtCore.QPointF):
         for item in self._drawnItems:
             if item.contains(point):
-                self.scene().removeItem(item)
-                self._drawnItems.remove(item)
+                self._removeDrawnItem(item)
+
+    def _removeDrawnItem(self, item):
+        self.scene().removeItem(item)
+        self._drawnItems.remove(item)
 
     def keyPressEvent(self, event:QtGui.QKeyEvent):
         '''
