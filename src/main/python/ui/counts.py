@@ -85,6 +85,13 @@ class CountForm(PopupFrame):
         self.duplicateBox.setChecked(self._countData.isDuplicate)
         self.notesText.setPlainText(self._countData.notes)
 
+    def keyPressEvent(self, event:QtGui.QKeyEvent):
+        '''
+        Close the form if enter is pressed
+        '''
+        if event.key() in (int(QtCore.Qt.Key_Enter), int(QtCore.Qt.Key_Return)):
+            self.hidePopup()
+        super().keyPressEvent(event)
 
     def popup(self, item, pos):
         '''

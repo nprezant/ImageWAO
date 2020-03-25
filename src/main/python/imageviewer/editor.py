@@ -197,6 +197,10 @@ class QImageEditor(QImageViewer):
         elif event.key() == QtCore.Qt.Key_Minus:
             self.zoomOut(0.1)
 
+        # If the count form is shown, forward events there.
+        if self._countForm.isVisible():
+            self._countForm.keyPressEvent(event)
+
         return super().keyPressEvent(event)
 
     def keyReleaseEvent(self, event:QtGui.QKeyEvent):
