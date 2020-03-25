@@ -77,9 +77,14 @@ class CountForm(PopupFrame):
         '''
         Resets the form to their default values.
         '''
-        self._countData = CountData()
         self._item = None
+        self.setCountData(CountData())
 
+    def setCountData(self, countData):
+        '''
+        Set the count data and update the form values to match.
+        '''
+        self._countData = countData
         self.speciesText.setEditText(self._countData.species)
         self.numberBox.setValue(self._countData.number)
         self.duplicateBox.setChecked(self._countData.isDuplicate)
@@ -101,9 +106,9 @@ class CountForm(PopupFrame):
         self._item = item
         countData = self._item.countData()
         if countData is not None:
-            self._countData = countData
+            self.setCountData(countData)
         else:
-            self._countData = CountData()
+            self.setCountData(CountData())
         return super().popup(pos)
 
     def countData(self):
