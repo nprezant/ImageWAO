@@ -9,11 +9,10 @@ from .merging import MergedIndexes
 class QImageGridView(QtWidgets.QTableView):
 
     selectedFilesChanged = QtCore.Signal(Path) # this prevents redundant signal emits
-    selectedImageChanged = QtCore.Signal(QtGui.QImage) # this will let the grid determine what the viewer shows
+    selectedImageChanged = QtCore.Signal(QtGui.QImage, str) # this will let the grid determine what the viewer shows
     notificationMessage = QtCore.Signal(str) # notifications to the main application
     loadProgress = QtCore.Signal(int) # loading progress notification
     loadFinished = QtCore.Signal() # loading finished notification
-    drawnItemsChanged = QtCore.Signal(str) # serialized string of items drawn on image
 
     def __init__(self):
         super().__init__()
@@ -101,13 +100,12 @@ class QImageGridView(QtWidgets.QTableView):
         index = indexes[0]
         if index.isValid():
 
-            # Emit image
-            self.selectedImageChanged.emit(index.data(role=UserRoles.FullResImage))
-
-            # Only emit items if we find some
+            # Get the image to be displayed, and the items drawn on it
+            img = index.data(role=UserRoles.FullResImage)
             items = index.data(role=UserRoles.DrawnItems)
-            if items is not None:
-                self.drawnItemsChanged.emit(items)
+
+            # Note: items will be "None" if there are none set.
+            self.selectedImageChanged.emit(img, items)
 
         # Emit the files that are currently selected
         files = [idx.data(role=UserRoles.ImagePath) for idx in indexes]
@@ -136,10 +134,7 @@ class QImageGridView(QtWidgets.QTableView):
         mergedItems = self._mergedIndexes.drawnItems()
 
         # Emit data
-        self.selectedImageChanged.emit(preview)
-
-        if mergedItems is not None:
-            self.drawnItemsChanged.emit(mergedItems)
+        self.selectedImageChanged.emit(preview, mergedItems)
 
     @QtCore.Slot(str)
     def selectFile(self, path):

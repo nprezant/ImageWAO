@@ -83,8 +83,8 @@ class QImageEditor(QImageViewer):
         self._clearDrawnItems()
         super().clearImage()
 
-    @QtCore.Slot()
-    def setImage(self, image):
+    @QtCore.Slot(QtGui.QImage, str)
+    def setImage(self, image:QtGui.QImage, drawings:str):
         '''
         Re-implement to ensure that drawn items are 
         cleared when a new image is set, and to save
@@ -93,6 +93,10 @@ class QImageEditor(QImageViewer):
         self._clearDrawnItems() # Ensure drawn items are cleared
         self._countForm.hidePopup() # Ensure popup is hidden
         super().setImage(image)
+
+        # If we have drawings, redraw them
+        if not drawings in (None, ''):
+            self.readSerializedDrawnItems(drawings)
 
     @QtCore.Slot(QtGui.QColor)
     def _updatePenColor(self, qcolor):
