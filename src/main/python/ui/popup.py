@@ -185,7 +185,7 @@ class PopupFrame(QtWidgets.QFrame):
 
         # If the user moves the mouse outside of this widget,
         # determine whether we need to do anything about that.
-        if event.type() == QtCore.QEvent.MouseMove:
+        elif event.type() == QtCore.QEvent.MouseMove:
 
             # If we are not visible, no need to compute anything
             if self.isVisible() == False:

@@ -10,9 +10,6 @@ class QImageViewer(QtWidgets.QGraphicsView):
         # Image is displayed as a QPixmap in a QGraphicsScene attached to this QGraphicsView.
         self.setScene(QtWidgets.QGraphicsScene())
 
-        # Store a local handle to the scene's current image pixmap.
-        self._pixmapHandle = None
-
         # Image aspect ratio mode.
         # !!! ONLY applies to full image. Aspect ratio is always ignored when zooming.
         #   Qt.IgnoreAspectRatio: Scale image to fit viewport.
@@ -34,7 +31,6 @@ class QImageViewer(QtWidgets.QGraphicsView):
         self.canZoom = True
         self.canPan = True
 
-    @property
     def viewBoundingBox(self):
         '''
         Bounding box of the current view.
@@ -50,68 +46,55 @@ class QImageViewer(QtWidgets.QGraphicsView):
         # the scene rect.
         return viewBBox.intersected(self.sceneRect())
 
-    def hasImage(self):
-        '''
-        Returns whether or not the scene contains an image pixmap.
-        '''
-        return self._pixmapHandle is not None
-
-    def clearImage(self):
-        '''
-        Removes the current image pixmap from the scene if it exists.
-        '''
-        if self.hasImage():
-            self.scene().removeItem(self._pixmapHandle)
-            self._pixmapHandle = None
-
-    def pixmap(self):
-        '''
-        Returns the scene's current image pixmap as a QPixmap, or else None if no image exists.
-        :rtype: QPixmap | None
-        '''
-        if self.hasImage():
-            return self._pixmapHandle.pixmap()
-        return None
-
-    def image(self):
-        '''
-        Returns the scene's current image pixmap as a QImage, or else None if no image exists.
-        :rtype: QImage | None
-        '''
-        if self.hasImage():
-            return self._pixmapHandle.pixmap().toImage()
-        return None
-
-    def scenePixmap(self):
-        return self._pixmapHandle
-
     @QtCore.Slot(QtGui.QImage)
-    def setImage(self, image):
+    def setImage(self, image:QtGui.QImage):
         '''
-        Set the scene's current image pixmap to the input QImage or QPixmap.
-        Raises a RuntimeError if the input image has type other than QImage or QPixmap.
-        :type image: QImage | QPixmap
+        Set the scene's current image pixmap to the input QImage
         '''
-        if type(image) is QtGui.QPixmap:
-            pixmap = image
-        elif type(image) is QtGui.QImage:
-            pixmap = QtGui.QPixmap.fromImage(image)
-        else:
-            raise RuntimeError('ImageViewer.setImage: Argument must be a QImage or QPixmap.')
-        if self.hasImage():
-            self._pixmapHandle.setPixmap(pixmap)
-        else:
-            self._pixmapHandle = self.scene().addPixmap(pixmap)
-        self.setSceneRect(QtCore.QRectF(pixmap.rect()))  # Set scene size to image size.
+        pixmap = QtGui.QPixmap.fromImage(image)
+
+        # Add the pixmap to the scene and set a custom attribute so we
+        # can find it with scene().items()
+        item = self.scene().addPixmap(pixmap)
+        item._mainViewerItem = True
+
+        # set scene size to image size.
+        self.setSceneRect(QtCore.QRectF(pixmap.rect()))
+
         if self.canZoom:
             self.zoomStack = []  # Clear zoom stack.
+
         self.updateViewer()
+
+    def hasMainImage(self):
+        '''
+        Checks to see if the image set with `setImage` is
+        in the scene.
+        '''
+        mainImage = self.mainImage()
+        if mainImage is None:
+            return False
+        else:
+            return True
+
+    def mainImage(self):
+        '''
+        Returns main pixmap item, or `None` if it cannot be found.
+        '''
+        for item in self.scene().items():
+            try:
+                _ = item._mainViewerItem
+            except AttributeError:
+                continue
+            else:
+                return item
+        return None
 
     def updateViewer(self):
         '''
         Show current zoom (if showing entire image, apply current aspect ratio mode).
         '''
-        if not self.hasImage():
+        if not self.hasMainImage():
             return
         if len(self.zoomStack) and self.sceneRect().contains(self.zoomStack[-1]):
             self.fitInView(self.zoomStack[-1], QtCore.Qt.KeepAspectRatio)  # Show zoomed rect (ignore aspect ratio).
@@ -137,7 +120,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
         Zooms the view in by a given percent.
         Percentage on scale of 0 to 1.
         '''
-        viewBBox = self.viewBoundingBox
+        viewBBox = self.viewBoundingBox()
         margin = int(viewBBox.width() * percent)
         smallerRect = viewBBox.marginsRemoved(QtCore.QMargins(margin, margin, margin, margin))
         self.zoomTo(smallerRect)
@@ -147,7 +130,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
         Zooms the view out by a given percent
         Percentage on scale of 0 to 1
         '''
-        viewBBox = self.viewBoundingBox
+        viewBBox = self.viewBoundingBox()
         margin = int(viewBBox.width() * percent)
         largerRect = viewBBox.marginsAdded(QtCore.QMargins(margin, margin, margin, margin))
         self.zoomTo(largerRect)

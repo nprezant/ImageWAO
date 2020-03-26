@@ -41,7 +41,6 @@ class QImageEditor(QImageViewer):
         self.controller.sendSignals()
 
         # Drawing variables
-        self._drawnItems = []
         self._dynamicallyDrawnItem = None
         self._erasing = False
 
@@ -76,12 +75,12 @@ class QImageEditor(QImageViewer):
         '''
         return self.controller.activeMouseAction
 
+    @QtCore.Slot()
     def clear(self):
         '''
         Clears the image and the current drawings.
         '''
-        self._clearDrawnItems()
-        super().clearImage()
+        self.scene().clear()
 
     @QtCore.Slot(QtGui.QImage, str)
     def setImage(self, image:QtGui.QImage, drawings:str):
@@ -90,7 +89,7 @@ class QImageEditor(QImageViewer):
         cleared when a new image is set, and to save
         the old image if necessary
         '''
-        self._clearDrawnItems() # Ensure drawn items are cleared
+        self.scene().clear() # We'll be redrawing the whole scene
         self._countForm.hidePopup() # Ensure popup is hidden
         super().setImage(image)
 
@@ -149,7 +148,7 @@ class QImageEditor(QImageViewer):
         item = self.itemAt(pos)
         if isinstance(item, sg.SceneCountsItemMixin):
             self.menu.addEditableItem(item, lambda *args: self._countForm.popup(item, pos), 'Edit counts')
-            self.menu.addDeletableItem(item, lambda *args: self._removeDrawnItem(item), 'Delete')
+            self.menu.addDeletableItem(item, lambda *args: self.scene().removeItem(item), 'Erase')
 
             # Show the menu
             self.menu.popup(self.mapToGlobal(pos))
@@ -159,7 +158,13 @@ class QImageEditor(QImageViewer):
         Serialize drawn items into JSON format and
         emit via the drawnItemsChanged signal
         '''
-        serializer = JSONDrawnItems.loadDrawingData(self._drawnItems)
+        # Get each of the drawn items
+        drawnItems = []
+        for item in self.scene().items():
+            if isinstance(item ,sg.SceneCountsItemMixin):
+                drawnItems.append(item)
+
+        serializer = JSONDrawnItems.loadDrawingData(drawnItems)
         self.drawnItemsChanged.emit(serializer.dumps())
 
     def readSerializedDrawnItems(self, serialized):
@@ -168,22 +173,13 @@ class QImageEditor(QImageViewer):
         itself the current scene.
         '''
         serializer = JSONDrawnItems.loads(serialized)
-        self._drawnItems = serializer.addToScene(self.scene())
-
-    def _clearDrawnItems(self):
-        for item in self._drawnItems:
-            self.scene().removeItem(item)
-
-        self._drawnItems.clear()
+        serializer.addToScene(self.scene())
 
     def _removeDrawnItemsUnderPoint(self, point:QtCore.QPointF):
-        for item in self._drawnItems:
-            if item.contains(point):
-                self._removeDrawnItem(item)
-
-    def _removeDrawnItem(self, item):
-        self.scene().removeItem(item)
-        self._drawnItems.remove(item)
+        items = self.scene().items(point)
+        for item in items:
+            if isinstance(item, sg.SceneCountsItemMixin):
+                self.scene().removeItem(item)
 
     def keyPressEvent(self, event:QtGui.QKeyEvent):
         '''
@@ -236,7 +232,7 @@ class QImageEditor(QImageViewer):
 
         # Sometimes we want the default handler,
         # Like when no image is loaded.
-        if self.scenePixmap() is None:
+        if not self.hasMainImage():
             pass
 
         # Standard hand tool allows selection rubber band with left
@@ -264,7 +260,7 @@ class QImageEditor(QImageViewer):
 
                 # Don't start drawing unless the pixmap is under the
                 # mouse in the scene
-                if not self.scenePixmap().isUnderMouse():
+                if not self.mainImage().isUnderMouse():
                     super().mousePressEvent(event)
                     return
                 else:
@@ -304,6 +300,9 @@ class QImageEditor(QImageViewer):
 
         # Update dynamically drawn object if it exists
         if self._dynamicallyDrawnItem is not None:
+
+            # Prepare geometry for changing (since we're dragging it)
+            self._dynamicallyDrawnItem.prepareGeometryChange()
 
             # Current mouse position
             pos = self.mapToScene(event.pos())
@@ -362,7 +361,6 @@ class QImageEditor(QImageViewer):
 
             # Only save if the shape is a valid size
             if valid:
-                self._drawnItems.append(self._dynamicallyDrawnItem)
                 self._emitDrawnItems()
             else:
                 self.scene().removeItem(self._dynamicallyDrawnItem)
