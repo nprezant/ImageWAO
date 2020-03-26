@@ -129,7 +129,7 @@ class ImageController(QtCore.QObject):
         # so we can install an event filter on these buttons to intercept within
         # this class.
         for button in self.toolbar.findChildren(QtWidgets.QToolButton):
-            if isinstance(button.defaultAction(), SingleUseAction):
+            if isinstance(button.defaultAction(), MouseToolAction):
                 button.installEventFilter(self)
 
         # Must track the last mouse event so we can determine whether tool buttons
@@ -170,7 +170,7 @@ class ImageController(QtCore.QObject):
             MouseButtonRelease
         '''
         if isinstance(watched, QtWidgets.QToolButton):
-            if isinstance(watched.defaultAction(), SingleUseAction):
+            if isinstance(watched.defaultAction(), MouseToolAction):
 
                 # Set as multi use if the last mouse event was a double click ONLY
                 if event.type() == QtCore.QEvent.MouseButtonRelease:
