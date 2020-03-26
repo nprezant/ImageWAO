@@ -6,19 +6,17 @@ from importers import FlightImportWizard
 from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay, Notifier, Library
 from ui.messageboxes import DoYouWantToSave
 
+from gridviewer import QImageGridView
+from imageviewer import QImageEditor
+from gridviewer import QImageGridView
+
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
 QtCore.QCoreApplication.setApplicationName('ImageWAO')
 
 class QImageWAO(QtWidgets.QMainWindow):
 
-    def __init__(
-        self,
-        mspaint,
-        grid,
-        animalAdder,
-        animalTotals,
-    ):
+    def __init__(self):
         super().__init__()
 
         # Whether or not the application has changes
@@ -29,14 +27,14 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.titleBarText.changed.connect(self.setWindowTitle)
 
         # The image editor is the central widget
-        self.setCentralWidget(mspaint)
-        self.viewer = mspaint
+        self.viewer = QImageEditor()
+        self.setCentralWidget(self.viewer)
 
         # Dock widget references
-        self.grid = grid
+        self.grid = QImageGridView()
         self.library = Library()
-        self.animalAdder = animalAdder
-        self.animalTotals = animalTotals
+        self.animalAdder = QtWidgets.QScrollArea()
+        self.animalTotals = QtWidgets.QScrollArea()
 
         # Dock widgets are saved in a dictionary
         self._dockWidgets = {}
