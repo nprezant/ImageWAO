@@ -140,6 +140,10 @@ class QImageEditor(QImageViewer):
         Open the context menu with the currently selected item.
         '''
 
+        # The context menu is only accessible from the main mouse tool
+        if not self.mouseAction.tooltype == ToolType.HandTool:
+            return
+
         # Get the topmost item at this point and let the context 
         # menu know (if it is a scene counts item)
         item = self.itemAt(pos)
@@ -147,8 +151,8 @@ class QImageEditor(QImageViewer):
             self.menu.addEditableItem(item, lambda *args: self._countForm.popup(item, pos), 'Edit counts')
             self.menu.addDeletableItem(item, lambda *args: self._removeDrawnItem(item), 'Delete')
 
-        # Show the menu
-        self.menu.popup(self.mapToGlobal(pos))
+            # Show the menu
+            self.menu.popup(self.mapToGlobal(pos))
 
     def _emitDrawnItems(self):
         '''
