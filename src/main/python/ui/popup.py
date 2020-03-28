@@ -17,6 +17,7 @@ class PopupFrame(QtWidgets.QFrame):
         # The popup window will hide itself when the mouse moves this distance
         # away from the window
         self._hidePopupDistance = 50
+        self._hidePersistantPopupDistance = 150
         self._fullOpacityMargin = 10
         self._extraAutoMargin = 0
 
@@ -191,10 +192,6 @@ class PopupFrame(QtWidgets.QFrame):
             if self.isVisible() == False:
                 pass
 
-            # If the widget is persistant, no need to compute anything
-            elif self.isPersistant():
-                pass
-
             else:
                 # Compute distance to mouse cursor.
                 d = distanceToRect(event.pos(), self.geometry())
@@ -209,8 +206,14 @@ class PopupFrame(QtWidgets.QFrame):
         Updates the widget opacity and hidden status based on
         the cursor distance to the widget.
         '''
+        # The hiding distance changes depending 
+        if self.isPersistant():
+            hideDistance = self._hidePersistantPopupDistance
+        else:
+            hideDistance = self._hidePopupDistance
+
         # If the cursor is too far away, hide the popup
-        if d > self._hidePopupDistance:
+        if d > hideDistance:
             self.hidePopup()
 
         # If the cursor is within a close margin, set 100% opacity
@@ -219,7 +222,7 @@ class PopupFrame(QtWidgets.QFrame):
 
         # If the cursor is some other distance, adjust the opacity
         else:
-            opacity = 1 - (d - self._fullOpacityMargin) / (self._hidePopupDistance - self._fullOpacityMargin)
+            opacity = 1 - (d - self._fullOpacityMargin) / (hideDistance - self._fullOpacityMargin)
             self._opacityEffect.setOpacity(opacity)
 
     def enterEvent(self, event:QtCore.QEvent):
