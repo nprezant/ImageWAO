@@ -8,7 +8,7 @@ from ui.messageboxes import DoYouWantToSave
 
 from gridviewer import QImageGridView
 from imageviewer import QImageEditor
-from gridviewer import QImageGridView
+from counttotals import CountTotals
 
 QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
 QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
@@ -33,21 +33,16 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Dock widget references
         self.grid = QImageGridView()
         self.library = Library()
-        self.animalAdder = QtWidgets.QScrollArea()
-        self.animalTotals = QtWidgets.QScrollArea()
+        self.countTotals = CountTotals()
 
         # Dock widgets are saved in a dictionary
         self._dockWidgets = {}
 
         # Dock widget creation
+        # Access dock widgets like so: self._dockWidgets['Flight Explorer']
         self._addDockWidget(self.library, ctx.explorerIcon, 'Flight Explorer', startArea=QtCore.Qt.LeftDockWidgetArea)
-        self._addDockWidget(self.grid, ctx.defaultDockIcon, 'Image Grids', startArea=QtCore.Qt.LeftDockWidgetArea)
-        self._addDockWidget(self.animalAdder, ctx.defaultDockIcon, 'Animal Adder', startArea=QtCore.Qt.RightDockWidgetArea)
-        self._addDockWidget(self.animalTotals, ctx.defaultDockIcon, 'Animal Totals', startArea=QtCore.Qt.RightDockWidgetArea)
-
-        # Hide unused dock widgets
-        self._dockWidgets['Animal Adder'].hide()
-        self._dockWidgets['Animal Totals'].hide()
+        self._addDockWidget(self.grid, ctx.defaultDockIcon, 'Image Grids', startArea=QtCore.Qt.RightDockWidgetArea)
+        self._addDockWidget(self.countTotals, ctx.defaultDockIcon, 'Count Totals', startArea=QtCore.Qt.LeftDockWidgetArea)
 
         # Event filters
         self.library.installEventFilter(self)

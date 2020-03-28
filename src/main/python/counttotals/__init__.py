@@ -1,0 +1,2 @@
+
+from .totalswidget import CountTotals
