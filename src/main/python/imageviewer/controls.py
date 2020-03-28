@@ -138,15 +138,6 @@ class ImageController(QtCore.QObject):
         self._lastMouseEvent = None
         self._mouseSingleUse = True
 
-        # In order for us to know when an escape key event occurs, we need to filter events
-        # on the widgets that this controller serves.
-        if isinstance(self.parent(), QtWidgets.QGraphicsView):
-            # Scene gets key events in a QGraphicsView
-            self._parentEventWidget = self.parent().scene()
-        else:
-            self._parentEventWidget = self.parent()
-        self._parentEventWidget.installEventFilter(self)
-
     def eventFilter(self, watched:QtCore.QObject, event:QtCore.QEvent):
         '''
         Sets whether a tool button is single use or multi-use based on
