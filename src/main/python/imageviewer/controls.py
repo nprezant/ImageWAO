@@ -49,6 +49,7 @@ def createSelectionActions(parent):
     erasTool = MouseToolAction(ToolType.Eraser, QtGui.QPixmap(ctx.get_resource('icons/ic_eraser.png')), 'Eraser (E)', parent)
     
     # Key sequences
+    handTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Escape))
     zoomTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Z))
     ovalTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_O))
     rectTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_R))
@@ -185,12 +186,6 @@ class ImageController(QtCore.QObject):
 
                 elif event.type() == QtCore.QEvent.MouseButtonPress:
                     self._lastMouseEvent = QtCore.QEvent.MouseButtonPress
-
-        # If we are pressing the escape key we should return to the default
-        # active item
-        if event.type() == QtCore.QEvent.KeyPress:
-            if event.key() == int(QtCore.Qt.Key_Escape):
-                self.mouseActions.resetActiveItem()
 
         return super().eventFilter(watched, event)
 
