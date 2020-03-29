@@ -13,7 +13,8 @@ fbs run
 
 ## TODO
 * Improve zooming features: (inspiration from BOTW Object Map)
-* Add "double click to persist" functionality to editing tools
-* Save count data along with drawn item data (reading and writing)
-* New control on drawn items to allow editing count data
-* Tool tip on drawn items to show animal counts
+* Save import log/meta data in text file. Include path mapping -- DSC_0101.jpg -> Transect01.jpg
+* Create UI form to edit/view flight metadata
+* Visual separation of different images in grid viewer (new delegate?)
+* Better line width image
+* Create UI/logic for Count Totals form
