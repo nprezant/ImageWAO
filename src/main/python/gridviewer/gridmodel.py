@@ -1,166 +1,17 @@
 
 from pathlib import Path
-from multiprocessing import Queue
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from serializers import JSONDrawnItems
 from transects import TransectSaveData
 from base import QWorker, config
-from tools import saveManyImages
+from tools import saveManyImages, roundToMultiple
 
 from .merging import MergedIndexes
 from .enums import UserRoles
+from .imagedata import FullImage
 
-
-class FullImage:
-
-    def __init__(self, image, path=Path(), rows=2, cols=2, scaledWidth=200):
-        self.image = image
-        self.path = path
-        self.rows = rows
-        self.cols = cols
-        self._scaledWidth = scaledWidth
-
-        self.rects = []
-        self.parts = []
-        self.scaledParts = []
-        self._drawnItems = []
-
-        self.compute()
-
-    def part(self, r, c, scaled=True):
-        '''
-        Returns a portions of this image.
-        The portion is is computed as the item of the image at
-        row r and column c, given that the image is divided
-        into the class variable rows and cols.
-        '''
-        if scaled:
-            return self.scaledParts[r][c]
-        else:
-            return self.parts[r][c]
-
-    def drawnPart(self, r, c):
-        '''
-        Gets the scaled portion of this image,
-        with the items drawn on it.
-        '''
-        img = self.part(r,c).copy()
-
-        # Add drawing items if present
-        sItems = self.drawnItems(r,c)
-        if sItems is not None:
-
-            # Since we are drawing on a scaled part of the image,
-            # we need to use the scale factor
-            sf = self._scaledWidth / self.part(r,c,scaled=False).width()
-            JSONDrawnItems.loads(sItems).paintToDevice(img, sf)
-        
-        return img
-
-    def drawnItems(self, r, c):
-        '''
-        Gets the serialized string
-        of the drawn items at the given 
-        row, column
-        '''
-        return self._drawnItems[r][c]
-
-    def setDrawings(self, r, c, drawings):
-        '''
-        Sets the serialized string of the 
-        drawn items at the given row, column to
-        the given value.
-        '''
-        self._drawnItems[r][c] = drawings
-
-    def compute(self):
-        '''
-        Computes the rects of the image,
-        divided into a grid self.rows by self.cols.
-        Uses those rects to generate tables of the parts and scaled
-        parts of this pixmap.
-        '''
-            
-        self.rects = []
-        self.parts = []
-        self.scaledParts = []
-        self._drawnItems = []
-
-        w = self.image.width()
-        h = self.image.height()
-
-        segmentWidth = w / self.cols
-        segmentHeight = h / self.rows
-
-        for row in range(self.rows):
-
-            self.rects.append([])
-            self.parts.append([])
-            self.scaledParts.append([])
-            self._drawnItems.append([])
-
-            for col in range(self.cols):
-
-                x = w - (self.cols - col) * segmentWidth
-                y = h - (self.rows - row) * segmentHeight
-
-                rect = QtCore.QRect(x, y, segmentWidth, segmentHeight)
-
-                self.rects[-1].append(rect)
-                self.parts[-1].append(self.image.copy(rect))
-                self.scaledParts[-1].append(self.parts[-1][-1].scaledToWidth(self._scaledWidth))
-                self._drawnItems[-1].append(None)
-
-    @staticmethod
-    def CreateFromFiles(files, *args, progress=None):
-
-        images = []
-        count = len(files)
-
-        for i, fp in enumerate(files):
-            if not progress is None:
-                progress.emit(int((i / count)*100))
-            images.append(FullImage(QtGui.QImage(str(fp)), Path(fp), *args))
-        
-        if not progress is None:
-            progress.emit(100)
-
-        return images
-
-
-# class ImageDelegate(QtWidgets.QAbstractItemDelegate):
-
-#     def __init__(self, parent=None):
-#         super().__init__(parent)
-#         self._pixelHeight = 200
-
-#     def paint(self, painter, option, index):
-#         if option.state == QtWidgets.QStyle.State_Selected:
-#             painter.fillRect(option.rect, option.palette.highlight())
-
-#         painter.save()
-#         painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
-#         painter.setPen(QtCore.Qt.NoPen)
-
-#         if (option.state == QtWidgets.QStyle.State_Selected):
-#             painter.setBrush(option.palette.highlightedText())
-#         else:
-#             painter.setBrush(option.palette.text())
-
-#         painter.drawRect(
-#             QtCore.QRectF(
-#                 option.rect.x(), option.rect.y(),
-#                 option.rect.width(), option.rect.height()))
-#         painter.restore()
-
-#     def sizeHint(self, option, index):
-#         return QtCore.QSize(self._pixelHeight, self._pixelHeight)
-
-#     def setPixelSize(self, size):
-#         self._pixelHeight = size
-    
     
 class QImageGridModel(QtCore.QAbstractTableModel):
 
@@ -173,7 +24,11 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         self._imageRows = 2
         self._imageCols = 2
-        self._displayWidth = 200
+        self._minimumImageWidth = 20
+        self._singleImageWidth:int = None
+        self._lastSingleImageWidth:int = None
+        self._displayWidth:int = None
+        self.setDisplayWidth(200)
 
         self._images: FullImage = []
 
@@ -183,6 +38,39 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         # Keep track of which indexes changed
         # so we know what to save
         self._changedIndexes = []
+
+    def displayWidth(self):
+        return self._displayWidth
+
+    def setDisplayWidth(self, width):
+        '''
+        Sets the width of the viewport that these images
+        will be displayed in. Use this to change the size
+        that the images are rendered at.
+
+        Internally, this updates the _singleImageWidth variable.
+        '''
+        self._displayWidth = width
+
+        # Compute single image width
+        numCols = self.columnCount()
+        margin = config.gridImageMargin
+        preciseImageWidth = self._displayWidth / numCols - (margin * (numCols+1))
+        imageWidth = roundToMultiple(preciseImageWidth, config.gridImageUpdateWidth)
+
+        # Only set this value if it is the same as the last once computed.
+        # This fixes a bug that caused flip flopping image sizes and freezing
+        # when the user hovers the mouse right on the verge
+        # of a smaller/larger image width threshold.
+        if imageWidth == self._lastSingleImageWidth:
+            
+            # Set the value if valid. Note that there is a minimum width
+            if imageWidth < self._minimumImageWidth:
+                self._singleImageWidth = self._minimumImageWidth
+            else:
+                self._singleImageWidth = imageWidth
+
+        self._lastSingleImageWidth = imageWidth
 
     def tryAddFolder(self, path):
 
@@ -214,7 +102,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
     def resetImagesFromFiles(self, imgList):
 
         # Initialize runner with arguments for FullImage static constructor
-        args=[imgList, self._imageRows, self._imageCols, self._displayWidth]
+        args=[imgList, self._imageRows, self._imageCols, [self._singleImageWidth]]
         self._loadWorker = QWorker(FullImage.CreateFromFiles, args)
         self._loadWorker.includeProgress()
         self._loadWorker.signals.progress.connect(self.loadProgress.emit) # bubble up progress
@@ -440,13 +328,13 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         c = index.column()
 
         if role == QtCore.Qt.DecorationRole:
-            return image.drawnPart(r, c)
+            return image.drawnPart(r, c, self._singleImageWidth)
 
         if role == QtCore.Qt.SizeHintRole:
-            return image.part(r, c).size()
+            return image.part(r, c, self._singleImageWidth).size()
 
         if role == UserRoles.FullResImage:
-            return image.part(r, c, False)
+            return image.part(r, c, None)
 
         if role == UserRoles.EntireImage:
             return image.image

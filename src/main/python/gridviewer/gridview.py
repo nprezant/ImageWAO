@@ -5,6 +5,8 @@ from PySide2 import QtCore, QtWidgets, QtGui
 
 from .gridmodel import QImageGridModel, UserRoles
 from .merging import MergedIndexes
+from .delegates import ImageDelegate
+
 
 class QImageGridView(QtWidgets.QTableView):
 
@@ -17,6 +19,7 @@ class QImageGridView(QtWidgets.QTableView):
     def __init__(self):
         super().__init__()
         self.setModel(QImageGridModel())
+        self.setItemDelegate(ImageDelegate())
 
         # Hide headers
         self.horizontalHeader().hide()
@@ -194,6 +197,10 @@ class QImageGridView(QtWidgets.QTableView):
         Save the model.
         '''
         self.model().save()
+
+    def resizeEvent(self, event:QtGui.QResizeEvent):
+        self.model().setDisplayWidth(event.size().width())
+        super().resizeEvent(event)
 
 
 if __name__ == '__main__':

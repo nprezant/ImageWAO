@@ -70,4 +70,8 @@ class Config:
             'Zebra',
         ]
 
+        # Threshold for resizing image grids
+        self.gridImageUpdateWidth = 25
+        self.gridImageMargin = 2
+
 config = Config()

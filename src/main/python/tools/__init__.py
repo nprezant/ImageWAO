@@ -4,3 +4,4 @@ from .files import showInFolder
 from .saving import saveManyImages
 from .geometry import distanceToRect
 from .sizing import setPlainTextEditHeight
+from .numbers import roundToMultiple
