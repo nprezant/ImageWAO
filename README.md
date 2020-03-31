@@ -18,3 +18,4 @@ fbs run
 * Visual separation of different images in grid viewer (new delegate?)
 * Better line width image
 * Create UI/logic for Count Totals form
+* Actual main logo -- elephant with box drawn around it
