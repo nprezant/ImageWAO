@@ -13,6 +13,20 @@ class AppContext(ApplicationContext):
     a cached_property in this class.
     '''
 
+    def icon(self, fp):
+        '''
+        Convenience method for returning an icon
+        of the image at the given path, `fp`.
+        '''
+        return QtGui.QIcon(self.get_resource(fp))
+
+    def pixmap(self, fp):
+        '''
+        Convenience method for returning a pixmap
+        of the image at the given path, `fp`.
+        '''
+        return QtGui.QPixmap(self.get_resource(fp))
+
     @cached_property
     def defaultDockIcon(self):
         return QtGui.QIcon(self.get_resource('icons/ic_storage.png'))

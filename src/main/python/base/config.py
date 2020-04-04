@@ -74,4 +74,7 @@ class Config:
         self.gridImageUpdateWidth = 25
         self.gridImageMargin = 2
 
+        # Button sizes
+        self.toolbuttonSize = (25,25)
+
 config = Config()
