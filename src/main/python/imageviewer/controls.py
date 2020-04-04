@@ -126,7 +126,7 @@ class ImageController(QtCore.QObject):
         self.zoomInButton.triggered.connect(lambda *args: self.zoomInRequested.emit())
 
         # Zoom out button
-        _zoomOutAct = QtWidgets.QAction('Zoom in (-)', self.parent())
+        _zoomOutAct = QtWidgets.QAction('Zoom out (-)', self.parent())
         _zoomOutAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/ic_zoomout.png')))
         # Shortcuts
         self._minusShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self.parent())
