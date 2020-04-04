@@ -15,10 +15,18 @@ class CountTotals(QtWidgets.QWidget):
         exportButton.setIconSize(QtCore.QSize(*config.toolbuttonSize))
         exportButton.setDefaultAction(self.exportAction)
 
+        # Refresh Action
+        self.refreshAction = QtWidgets.QAction(ctx.icon('icons/ic_refresh.png'), 'Refresh', self)
+        refreshButton = QtWidgets.QToolButton()
+        refreshButton.setIconSize(QtCore.QSize(*config.toolbuttonSize))
+        refreshButton.setDefaultAction(self.refreshAction)
+
         # Horizontal row of buttons at top
         buttons = QtWidgets.QHBoxLayout()
         buttons.setContentsMargins(5,0,0,0)
         buttons.addWidget(exportButton, alignment=QtCore.Qt.AlignLeft)
+        buttons.addWidget(refreshButton, alignment=QtCore.Qt.AlignLeft)
+        buttons.addStretch()
 
         # Totals view
         self.totalsView = TotalsView()
