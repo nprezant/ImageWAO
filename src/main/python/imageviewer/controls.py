@@ -68,6 +68,8 @@ class ImageController(QtCore.QObject):
     colorChanged = QtCore.Signal(QtGui.QColor)
     mouseActionChanged = QtCore.Signal(QtWidgets.QAction)
     zoomToFitRequested = QtCore.Signal()
+    zoomInRequested = QtCore.Signal()
+    zoomOutRequested = QtCore.Signal()
 
     def __init__(self, parent):
 
@@ -110,6 +112,32 @@ class ImageController(QtCore.QObject):
         self.zoomToFitButton.setDefaultAction(_zoomAct)
         self.zoomToFitButton.triggered.connect(lambda *args: self.zoomToFitRequested.emit())
 
+        # Zoom in button
+        _zoomInAct = QtWidgets.QAction('Zoom in (+)', self.parent())
+        _zoomInAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/ic_zoomin.png')))
+        # Shortcuts
+        self._plusShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Plus), self.parent())
+        self._equalShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Equal), self.parent())
+        self._plusShortcut.activated.connect(_zoomInAct.trigger)
+        self._equalShortcut.activated.connect(_zoomInAct.trigger)
+        # Button
+        self.zoomInButton = QtWidgets.QToolButton(self.parent())
+        self.zoomInButton.setDefaultAction(_zoomInAct)
+        self.zoomInButton.triggered.connect(lambda *args: self.zoomInRequested.emit())
+
+        # Zoom out button
+        _zoomOutAct = QtWidgets.QAction('Zoom in (-)', self.parent())
+        _zoomOutAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/ic_zoomout.png')))
+        # Shortcuts
+        self._minusShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self.parent())
+        self._hyphenShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_hyphen), self.parent())
+        self._minusShortcut.activated.connect(_zoomOutAct.trigger)
+        self._hyphenShortcut.activated.connect(_zoomOutAct.trigger)
+        # Button
+        self.zoomOutButton = QtWidgets.QToolButton(self.parent())
+        self.zoomOutButton.setDefaultAction(_zoomOutAct)
+        self.zoomOutButton.triggered.connect(lambda *args: self.zoomOutRequested.emit())
+
         # Single-selection buttons -- only one can be selected at a time
         self.mouseActions = SingleSelectionGroup(createSelectionActions(self))
         self.mouseActions.itemChanged.connect(self.mouseActionChanged.emit)
@@ -121,6 +149,8 @@ class ImageController(QtCore.QObject):
         self.toolbar.addActions(self.mouseActions.items)
         self.toolbar.addSeparator()
         self.toolbar.addWidget(self.zoomToFitButton)
+        self.toolbar.addWidget(self.zoomOutButton)
+        self.toolbar.addWidget(self.zoomInButton)
         
         # Trigger the color menu signal to recolor necessary toolbar icons
         self._colorMenu.emitActiveColor()

@@ -38,6 +38,8 @@ class QImageEditor(QImageViewer):
         self.controller.widthChanged.connect(self._updatePenWidth)
         self.controller.mouseActionChanged.connect(self._updateCursor)
         self.controller.zoomToFitRequested.connect(self.clearZoom)
+        self.controller.zoomInRequested.connect(lambda: self.zoomIn(0.1))
+        self.controller.zoomOutRequested.connect(lambda: self.zoomOut(0.1))
         self.controller.sendSignals()
 
         # Drawing variables
