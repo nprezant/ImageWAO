@@ -72,6 +72,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.grid.selectedImageChanged.connect(self.viewer.setImage)
         self.grid.selectedFilesChanged.connect(self.library.selectFiles)
         self.grid.notificationMessage.connect(self.notifier.notify)
+        self.grid.statusMessage.connect(self.showStatusMessage)
 
         # Image viewer signal connections
         self.viewer.drawnItemsChanged.connect(self.grid.setDrawings)
@@ -86,6 +87,10 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Toolbars
         self.addToolBar(QtCore.Qt.TopToolBarArea, self.viewer.toolbar)
+
+    @QtCore.Slot(tuple)
+    def showStatusMessage(self, args):
+        self.statusBar().showMessage(*args)
 
     def _addDockWidget(self, w, icon, name:str, startArea=QtCore.Qt.LeftDockWidgetArea):
         dock = DockWidget(name, icon, parent=self)

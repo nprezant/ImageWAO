@@ -17,7 +17,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
     loadProgress = QtCore.Signal(int)
     loadFinished = QtCore.Signal()
-    message = QtCore.Signal(str)
+    message = QtCore.Signal(tuple)
 
     def __init__(self):
         super().__init__()
@@ -272,17 +272,17 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         # On another thread, do the heavily-lifing of
         # saving the images.
         if len(markedImages) != 1:
-            msg = f'Saving {len(markedImages) + 1} images.\n\n'
+            msg = f'Saving {len(markedImages) + 1} images...'
         else:
-            msg = f'Saving {Path(*markedImages[0][1]).name}\n\n'
-        self.message.emit(msg + 'Please do not exit the application :)')
+            msg = f'Saving {Path(*markedImages[0][1]).name}...'
+        self.message.emit((msg,))
         self._saveWorker = QWorker(saveManyImages, [markedImages])
         self._saveWorker.signals.finished.connect(self._resetSaveWorker)
         self._saveWorker.signals.finished.connect(self._saveWorkerFinished)
         self._threadpool.start(self._saveWorker)
 
     def _saveWorkerFinished(self):
-        self.message.emit('Save complete')
+        self.message.emit(('Save complete', 5000))
 
     def _resetSaveWorker(self):
         self._saveWorker = None
