@@ -253,6 +253,7 @@ class ReviewPage(QtWidgets.QWizardPage):
 
         # Adjust the size of the wizard to fit in the new data
         self.wizard().adjustSize()
+        self.view.resizeColumnsToContents()
 
     def isComplete(self):
         return self._categorizationFinished
@@ -265,6 +266,7 @@ class ReviewPage(QtWidgets.QWizardPage):
         minCount = self.field('minCount')
 
         # read folder
+        self.model.clearData()
         self.model.readFolder(folder, maxDelay, minCount)
     
     def nextId(self):

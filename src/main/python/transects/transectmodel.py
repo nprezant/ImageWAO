@@ -88,6 +88,10 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         ''' Returns the number of columns the model holds. '''
         return len(self.sections)
 
+    def clearData(self):
+        ''' Clears the internal data structure '''
+        self.setTransects([])
+
     def data(self, index, role=QtCore.Qt.DisplayRole):
         ''' Depending on the index and role given, return data.
             If not returning data, return None (equv. to Qt's QVariant)
