@@ -9,6 +9,7 @@ from .totalsview import TotalsView
 class CountTotals(QtWidgets.QWidget):
 
     fileActivated = QtCore.Signal(str)
+    selectedFilesChanged = QtCore.Signal(Path)
     
     def __init__(self):
         super().__init__()
@@ -35,6 +36,7 @@ class CountTotals(QtWidgets.QWidget):
         # Totals view
         self.totalsView = TotalsView()
         self.totalsView.fileActivated.connect(self.fileActivated.emit)
+        self.totalsView.selectedFilesChanged.connect(self.selectedFilesChanged.emit)
 
         # Layout
         layout = QtWidgets.QVBoxLayout(self)

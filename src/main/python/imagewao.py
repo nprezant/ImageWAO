@@ -80,6 +80,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Count totals form connections
         self.countTotals.fileActivated.connect(self.grid.selectFile)
+        self.countTotals.selectedFilesChanged.connect(self.library.selectFiles)
 
         # File | Etc. Menus
         self._menusCreated = False
