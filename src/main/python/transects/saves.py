@@ -2,6 +2,9 @@
 import json
 from collections import UserDict
 
+from base.primatives import CountData, CountDataSet
+
+
 class TransectSaveData(UserDict):
     '''
     Manages transect save data in a primitive
@@ -93,3 +96,23 @@ class TransectSaveData(UserDict):
         for imageName, imageData in self.data.items():
             if 'drawings' in imageData.keys():
                 yield imageName, imageData['drawings']
+
+    def imageCounts(self):
+        '''
+        Generator yielding tuple of images
+        and their counts.
+        (imageName:str, counts:CountData)
+        '''
+        for imageName, imageData in self.data.items():
+            if 'drawings' in imageData.keys():
+                drawings = json.loads(imageData['drawings'])
+                for drawing in drawings:
+                    if drawing['CountData'] is not None:
+                        yield imageName, CountData.fromDict(drawing['CountData'])
+
+    def countDataSet(self):
+        ''' Computes the count data set from this save data '''
+        countSet = CountDataSet()
+        for imageName, countData in self.imageCounts():
+            countSet.addData(imageName, countData)
+        return countSet

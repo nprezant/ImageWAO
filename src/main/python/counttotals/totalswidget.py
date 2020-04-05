@@ -1,4 +1,6 @@
 
+from pathlib import Path
+
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from base import ctx, config
@@ -37,3 +39,12 @@ class CountTotals(QtWidgets.QWidget):
         layout.setSpacing(0)
         layout.addLayout(buttons)
         layout.addWidget(self.totalsView)
+    
+    @QtCore.Slot(str)
+    @QtCore.Slot(Path)
+    def readDirectory(self, fp):
+        '''
+        Reads the directory.
+        `fp` is any Path() - able type.
+        '''
+        self.totalsView.model().readDirectory(fp)

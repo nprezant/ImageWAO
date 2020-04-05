@@ -53,3 +53,22 @@ class CountData:
             and self.isDuplicate == other.isDuplicate
             and self.notes == other.notes
         )
+
+    def __repr__(self):
+        noBreakNotes = self.notes.replace('\n', '')
+        return f'CountData({self.species}, {self.number}, isDuplicate:{self.isDuplicate}, notes:"{noBreakNotes}")'
+
+    def __iadd__(self, other):
+        ''' Implement `+=` functionality. '''
+        if self.species != other.species:
+            raise ValueError(
+                'Cannot add in place when species '
+                f'do not match: {self.species}; {other.species}')
+        
+        if self.isDuplicate:
+            raise ValueError('You should not try adding in place to duplicate CountData')
+
+        self.number += other.number
+        self.notes += other.notes
+        return self
+            

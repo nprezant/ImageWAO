@@ -1,5 +1,12 @@
 
+from pathlib import Path
+
 from PySide2 import QtCore, QtWidgets, QtGui
+
+from transects import TransectSaveData
+from base import QWorker, config
+from base.primatives import CountDataSet
+
 
 class TotalsModel(QtCore.QAbstractListModel):
 
@@ -10,7 +17,7 @@ class TotalsModel(QtCore.QAbstractListModel):
     def __init__(self):
         super().__init__()
 
-        self._data = [1,2,3,4]
+        self._data = CountDataSet()
 
         self._loadWorker = None
         self._threadpool = QtCore.QThreadPool()
@@ -31,7 +38,7 @@ class TotalsModel(QtCore.QAbstractListModel):
             return None
 
         if role == QtCore.Qt.DisplayRole:
-            return self._data[index.row()]
+            return self._data.displayIndex(index.row())
 
         return None
 
@@ -52,4 +59,33 @@ class TotalsModel(QtCore.QAbstractListModel):
             QtCore.QAbstractListModel.flags(self, index)
             # | QtCore.Qt.ItemIsEditable
         )
+
+    def readDirectory(self, fp):
+        ''' Populates model from directory. `fp`: any Path()-able type'''
+        fp = Path(fp)
+
+        # Error checks
+        if not fp.exists():
+            raise ValueError(f'Cannot read data from path that does not exist: {fp}')
+        if not fp.is_dir():
+            raise ValueError(f'Can only read from dir, not file: {fp}')
+        
+        # If the .marked/ folder exists, this is a single transect
+        markedFolder = fp / config.markedImageFolder
+        if markedFolder.exists():
+
+            # If the save file exists, read it
+            saveFile = fp / config.markedDataFile
+            if saveFile.exists():
+                saveData = TransectSaveData.load(saveFile)
+                dataSet = saveData.countDataSet()
+                self._resetData(dataSet)
+            else:
+                return # No data saved to this transect yet
+
+    def _resetData(self, data):
+        self.beginResetModel()
+        self._data = data
+        self.endResetModel()
+
 

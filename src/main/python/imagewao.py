@@ -61,6 +61,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.library.fileActivated.connect(self.grid.selectFile)
         self.library.directoryChanged.connect(self.grid.addFolder)
         self.library.directoryChanged.connect(self.titleBarText.setFolderName)
+        self.library.directoryChanged.connect(self.countTotals.readDirectory)
 
         # Image grid signal connections
         self.grid.loadProgress.connect(self.loadingOverlay.setProgress)
