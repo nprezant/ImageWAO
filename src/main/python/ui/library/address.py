@@ -62,10 +62,7 @@ class AddressBar(QtWidgets.QWidget):
         actions = []
 
         # add home action
-        act = QtWidgets.QAction(
-            QtGui.QIcon(ctx.get_resource('home.png')),
-            'Home',
-        )
+        act = QtWidgets.QAction(ctx.icon('icons/home.png'), 'Home')
         act.triggered.connect(self.emitHomePath)
         act.setToolTip(f'Home: {self.home_path.absolutePath()}')
         actions.append(act)
