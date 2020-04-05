@@ -312,18 +312,18 @@ class Library(QtWidgets.QWidget):
         Open the context menu with the currently selected item.
         '''
 
-        # Find the selected files, and let the menu
-        # know what they are
-        selectionModel = self.proxyView.selectionModel()
-        proxyIndexes = selectionModel.selectedIndexes()
+        # The position given is with respect to the parent widget.
+        # Need to convert it to the local viewport position.
+        gp = self.mapToGlobal(pos)
+        lp = self.proxyView.viewport().mapFromGlobal(gp)
+        
+        # Find the file under the mouse
+        idx = self.proxyView.indexAt(lp)
+        srcIndex = self.proxyModel.mapToSource(idx)
+        path = self.sourceModel.filePath(srcIndex)
 
-        paths = []
-        for idx in proxyIndexes:
-            sourceIndex = self.proxyModel.mapToSource(idx)  
-            paths.append(self.sourceModel.filePath(sourceIndex))
-
-        if paths:
-            self.menu.setTargetPath(paths[0])
+        if path:
+            self.menu.setTargetPath(path)
 
         # We should be able to open the flight import wizard by right clicking anywhere
         # so long as we are in the root index
