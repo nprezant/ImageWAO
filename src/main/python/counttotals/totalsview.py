@@ -21,5 +21,6 @@ class TotalsView(QtWidgets.QListView):
 
     @QtCore.Slot(QtCore.QModelIndex)
     def indexActivated(self, index:QtCore.QModelIndex) -> str:
-        fp = index.data(UserRoles.AbsolutePath)
-        self.fileActivated.emit(fp)
+        if self.model().inTransect:
+            fp = index.data(UserRoles.AbsolutePath)
+            self.fileActivated.emit(fp)

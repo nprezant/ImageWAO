@@ -22,6 +22,7 @@ class TotalsModel(QtCore.QAbstractListModel):
 
         self._data = CountDataSet()
         self._parentDir = None
+        self.inTransect = False
 
         self._loadWorker = None
         self._threadpool = QtCore.QThreadPool()
@@ -42,7 +43,10 @@ class TotalsModel(QtCore.QAbstractListModel):
             return None
 
         if role == QtCore.Qt.DisplayRole:
-            return self._data.displayIndex(index.row())
+            if self.inTransect:
+                return self._data.animalsAt(index.row())
+            else:
+                return self._data.summaryAt(index.row())
 
         if role == UserRoles.AbsolutePath:
             return str(Path(self._parentDir) / list(self._data.keys())[index.row()])
@@ -82,17 +86,20 @@ class TotalsModel(QtCore.QAbstractListModel):
         markedFolder = fp / config.markedImageFolder
         if markedFolder.exists():
 
+            self.inTransect = True
+
             # If the save file exists, read it
             saveFile = fp / config.markedDataFile
             if saveFile.exists():
                 saveData = TransectSaveData.load(saveFile)
                 dataSet = saveData.countDataSet()
                 self._resetData(dataSet)
-            else:
-                return # No data saved to this transect yet
 
         # Otherwise, try to find all .marked/ folders within this dir
         else:
+
+            self.inTransect = False
+
             markedFolderMatchString = Path(config.markedImageFolder).name
             subfolders = subfolders= [f for f in os.scandir(fp) if f.is_dir()]
             filesToLoad = []
