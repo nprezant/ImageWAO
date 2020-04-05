@@ -44,3 +44,9 @@ class CountDataSet(OrderedDict):
             s += f'\n    - {data.number} {speciesKey}'
         return s
 
+    def __iadd__(self, other):
+        for key, dataSet in other.items():
+            for countData in dataSet.values():
+                self.addData(key, countData)
+        return self
+

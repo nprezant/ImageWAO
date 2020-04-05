@@ -57,6 +57,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.loadingOverlay = LoadingOverlay(self)
         self.loadingOverlay.hide()
 
+        # Send initializing signals
+        self.countTotals.readDirectory(self.library.rootPath)
+
         # Flight library signal connections
         self.library.fileActivated.connect(self.grid.selectFile)
         self.library.directoryChanged.connect(self.grid.addFolder)

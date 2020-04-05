@@ -110,9 +110,19 @@ class TransectSaveData(UserDict):
                     if drawing['CountData'] is not None:
                         yield imageName, CountData.fromDict(drawing['CountData'])
 
-    def countDataSet(self):
-        ''' Computes the count data set from this save data '''
+    def countDataSet(self, topLevel=None):
+        '''
+        Computes the count data set from this save data.
+
+        If the `topLevel` is not specified, the data set will
+        be categorized with respect to the image name.
+        If the `topLevel` is given, all counts will be categorized
+        with respect to that `topLevel`.
+        '''
         countSet = CountDataSet()
         for imageName, countData in self.imageCounts():
-            countSet.addData(imageName, countData)
+            if topLevel is not None:
+                countSet.addData(topLevel, countData)
+            else:
+                countSet.addData(imageName, countData)
         return countSet
