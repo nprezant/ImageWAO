@@ -13,6 +13,12 @@ class TotalsView(QtWidgets.QListView):
         self.setModel(TotalsModel())
         self.activated.connect(self.indexActivated)
 
+        # Alternate row colors
+        p = self.palette()
+        p.setColor(p.AlternateBase, QtGui.QColor('#ffe8c9'))
+        self.setPalette(p)
+        self.setAlternatingRowColors(True)
+
     @QtCore.Slot(QtCore.QModelIndex)
     def indexActivated(self, index:QtCore.QModelIndex) -> str:
         fp = index.data(UserRoles.AbsolutePath)
