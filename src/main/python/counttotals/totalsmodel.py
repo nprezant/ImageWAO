@@ -7,6 +7,8 @@ from transects import TransectSaveData
 from base import QWorker, config
 from base.primatives import CountDataSet
 
+from .enums import UserRoles
+
 
 class TotalsModel(QtCore.QAbstractListModel):
 
@@ -18,6 +20,7 @@ class TotalsModel(QtCore.QAbstractListModel):
         super().__init__()
 
         self._data = CountDataSet()
+        self._parentDir = None
 
         self._loadWorker = None
         self._threadpool = QtCore.QThreadPool()
@@ -39,6 +42,9 @@ class TotalsModel(QtCore.QAbstractListModel):
 
         if role == QtCore.Qt.DisplayRole:
             return self._data.displayIndex(index.row())
+
+        if role == UserRoles.AbsolutePath:
+            return str(Path(self._parentDir) / list(self._data.keys())[index.row()])
 
         return None
 
@@ -62,6 +68,7 @@ class TotalsModel(QtCore.QAbstractListModel):
 
     def readDirectory(self, fp):
         ''' Populates model from directory. `fp`: any Path()-able type'''
+        self._parentDir = str(fp)
         fp = Path(fp)
 
         # Error checks

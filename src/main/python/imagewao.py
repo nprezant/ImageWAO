@@ -74,6 +74,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.viewer.drawnItemsChanged.connect(self.grid.setDrawings)
         self.viewer.drawnItemsChanged.connect(self._markAsDirty)
 
+        # Count totals form connections
+        self.countTotals.fileActivated.connect(self.grid.selectFile)
+
         # File | Etc. Menus
         self._menusCreated = False
         self._makeMenus()

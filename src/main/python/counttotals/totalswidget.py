@@ -7,6 +7,8 @@ from base import ctx, config
 from .totalsview import TotalsView
 
 class CountTotals(QtWidgets.QWidget):
+
+    fileActivated = QtCore.Signal(str)
     
     def __init__(self):
         super().__init__()
@@ -32,6 +34,7 @@ class CountTotals(QtWidgets.QWidget):
 
         # Totals view
         self.totalsView = TotalsView()
+        self.totalsView.fileActivated.connect(self.fileActivated.emit)
 
         # Layout
         layout = QtWidgets.QVBoxLayout(self)
