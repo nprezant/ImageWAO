@@ -13,3 +13,6 @@ inkscape
 
 # misc reference code from internet and other project
 misccode
+
+# MS Office
+*.xlsx
