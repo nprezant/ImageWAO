@@ -59,7 +59,6 @@ class Config:
             'Impala',
             'Jackal',
             'Kudu',
-            'Kudu',
             'Ostrich',
             'Oryx',
             'Rhino',
