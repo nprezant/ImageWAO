@@ -53,7 +53,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Status bar
         self.setStatusBar(StatusBar(self))
 
-        # Progress Bar
+        # Loading overlay screen
         self.loadingOverlay = LoadingOverlay(self)
         self.loadingOverlay.hide()
 
