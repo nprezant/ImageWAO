@@ -44,7 +44,12 @@ class CountData:
         '''
         Converts the data in this object into a string suitable for a tool tip.
         '''
-        return f'{self.number} {self.species}'
+        s = f'{self.number} {self.species}'
+        if self.isDuplicate:
+            s += ' (already counted)'
+        if self.notes:
+            s += f'\n{self.notes}'
+        return s
 
     def __eq__(self, other):
         return (
