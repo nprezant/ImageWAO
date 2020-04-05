@@ -10,13 +10,13 @@ class CountTotals(QtWidgets.QWidget):
         super().__init__()
 
         # Export Action
-        self.exportAction = QtWidgets.QAction(ctx.icon('icons/ic_excel.png'), 'Export', self)
+        self.exportAction = QtWidgets.QAction(ctx.icon('icons/excel.png'), 'Export', self)
         exportButton = QtWidgets.QToolButton()
         exportButton.setIconSize(QtCore.QSize(*config.toolbuttonSize))
         exportButton.setDefaultAction(self.exportAction)
 
         # Refresh Action
-        self.refreshAction = QtWidgets.QAction(ctx.icon('icons/ic_refresh.png'), 'Refresh', self)
+        self.refreshAction = QtWidgets.QAction(ctx.icon('icons/refresh.png'), 'Refresh', self)
         refreshButton = QtWidgets.QToolButton()
         refreshButton.setIconSize(QtCore.QSize(*config.toolbuttonSize))
         refreshButton.setDefaultAction(self.refreshAction)

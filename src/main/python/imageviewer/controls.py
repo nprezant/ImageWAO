@@ -41,12 +41,12 @@ def createSelectionActions(parent):
     '''
 
     # Tool definitions
-    handTool = MouseToolAction(ToolType.HandTool, QtGui.QPixmap(ctx.get_resource('icons/ic_hand.png')), 'Hand tool (ESC)', parent)
-    zoomTool = MouseToolAction(ToolType.ZoomTool, QtGui.QPixmap(ctx.get_resource('icons/ic_zoom.png')), 'Zoom tool (Z)', parent)
-    ovalTool = MouseToolAction(ToolType.OvalShape, QtGui.QPixmap(ctx.get_resource('icons/ic_oval.png')), 'Oval shape (O)', parent)
-    rectTool = MouseToolAction(ToolType.RectangleShape, QtGui.QPixmap(ctx.get_resource('icons/ic_rect.png')), 'Rectangle shape (R)', parent)
-    lineTool = MouseToolAction(ToolType.LineShape, QtGui.QPixmap(ctx.get_resource('icons/ic_line.png')), 'Line shape (L)', parent)
-    erasTool = MouseToolAction(ToolType.Eraser, QtGui.QPixmap(ctx.get_resource('icons/ic_eraser.png')), 'Eraser (E)', parent)
+    handTool = MouseToolAction(ToolType.HandTool, QtGui.QPixmap(ctx.get_resource('icons/hand.png')), 'Hand tool (ESC)', parent)
+    zoomTool = MouseToolAction(ToolType.ZoomTool, QtGui.QPixmap(ctx.get_resource('icons/zoom.png')), 'Zoom tool (Z)', parent)
+    ovalTool = MouseToolAction(ToolType.OvalShape, QtGui.QPixmap(ctx.get_resource('icons/oval.png')), 'Oval shape (O)', parent)
+    rectTool = MouseToolAction(ToolType.RectangleShape, QtGui.QPixmap(ctx.get_resource('icons/rect.png')), 'Rectangle shape (R)', parent)
+    lineTool = MouseToolAction(ToolType.LineShape, QtGui.QPixmap(ctx.get_resource('icons/line.png')), 'Line shape (L)', parent)
+    erasTool = MouseToolAction(ToolType.Eraser, QtGui.QPixmap(ctx.get_resource('icons/eraser.png')), 'Eraser (E)', parent)
     
     # Key sequences
     handTool.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Escape))
@@ -81,7 +81,7 @@ class ImageController(QtCore.QObject):
         # Color palette button
         self.colorButton = QtWidgets.QToolButton(self.parent())
         self.colorButton.setDefaultAction(
-            ColorableAction(QtGui.QPixmap(ctx.get_resource('icons/ic_palette.png')), 'Change color', self.parent()))
+            ColorableAction(QtGui.QPixmap(ctx.get_resource('icons/palette.png')), 'Change color', self.parent()))
         self.colorButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         # Color palette popup menu
@@ -106,7 +106,7 @@ class ImageController(QtCore.QObject):
 
         # Fit to screen button
         _zoomAct = QtWidgets.QAction('Zoom to fit (SPACE)', self.parent())
-        _zoomAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/ic_fitscreen.png')))
+        _zoomAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/fitscreen.png')))
         _zoomAct.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
         self.zoomToFitButton = QtWidgets.QToolButton(self.parent())
         self.zoomToFitButton.setDefaultAction(_zoomAct)
@@ -114,7 +114,7 @@ class ImageController(QtCore.QObject):
 
         # Zoom in button
         _zoomInAct = QtWidgets.QAction('Zoom in (+)', self.parent())
-        _zoomInAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/ic_zoomin.png')))
+        _zoomInAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/zoomin.png')))
         # Shortcuts
         self._plusShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Plus), self.parent())
         self._equalShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Equal), self.parent())
@@ -127,7 +127,7 @@ class ImageController(QtCore.QObject):
 
         # Zoom out button
         _zoomOutAct = QtWidgets.QAction('Zoom out (-)', self.parent())
-        _zoomOutAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/ic_zoomout.png')))
+        _zoomOutAct.setIcon(QtGui.QIcon(ctx.get_resource('icons/zoomout.png')))
         # Shortcuts
         self._minusShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self.parent())
         self._hyphenShortcut = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_hyphen), self.parent())

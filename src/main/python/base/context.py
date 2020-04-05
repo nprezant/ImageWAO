@@ -29,15 +29,15 @@ class AppContext(ApplicationContext):
 
     @cached_property
     def defaultDockIcon(self):
-        return QtGui.QIcon(self.get_resource('icons/ic_storage.png'))
+        return QtGui.QIcon(self.get_resource('icons/storage.png'))
 
     @cached_property
     def closeDockIcon(self):
-        return QtGui.QIcon(self.get_resource('icons/ic_close.png'))
+        return QtGui.QIcon(self.get_resource('icons/close.png'))
 
     @cached_property
     def explorerIcon(self):
-        return QtGui.QIcon(self.get_resource('icons/ic_explorer.png'))
+        return QtGui.QIcon(self.get_resource('icons/explorer.png'))
 
     @cached_property
     def loadingAnimalsPixmap(self):
