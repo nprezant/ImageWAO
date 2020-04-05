@@ -44,3 +44,7 @@ class TotalsView(QtWidgets.QListView):
         files = [Path(idx.data(role=UserRoles.AbsolutePath)) for idx in indexes]
         self.selectedFilesChanged.emit(files)
 
+    @QtCore.Slot()
+    def export(self):
+        self.model().export()
+

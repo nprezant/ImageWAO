@@ -14,11 +14,18 @@ class CountTotals(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
+        # Totals view
+        self.totalsView = TotalsView()
+        self.totalsView.fileActivated.connect(self.fileActivated.emit)
+        self.totalsView.selectedFilesChanged.connect(self.selectedFilesChanged.emit)
+
         # Export Action
         self.exportAction = QtWidgets.QAction(ctx.icon('icons/excel.png'), 'Export', self)
+        self.exportAction.triggered.connect(self.totalsView.export)
         exportButton = QtWidgets.QToolButton()
         exportButton.setIconSize(QtCore.QSize(*config.toolbuttonSize))
         exportButton.setDefaultAction(self.exportAction)
+        exportButton.setToolTip('Copies data to clipboard. Paste data into Excel (or any text editor)')
 
         # Refresh Action
         self.refreshAction = QtWidgets.QAction(ctx.icon('icons/refresh.png'), 'Refresh', self)
@@ -32,11 +39,6 @@ class CountTotals(QtWidgets.QWidget):
         buttons.addWidget(exportButton, alignment=QtCore.Qt.AlignLeft)
         buttons.addWidget(refreshButton, alignment=QtCore.Qt.AlignLeft)
         buttons.addStretch()
-
-        # Totals view
-        self.totalsView = TotalsView()
-        self.totalsView.fileActivated.connect(self.fileActivated.emit)
-        self.totalsView.selectedFilesChanged.connect(self.selectedFilesChanged.emit)
 
         # Layout
         layout = QtWidgets.QVBoxLayout(self)

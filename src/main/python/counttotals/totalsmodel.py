@@ -130,6 +130,15 @@ class TotalsModel(QtCore.QAbstractListModel):
         self._data = data
         self.endResetModel()
 
+    def export(self):
+        ''' Exports all data. Rn just copies data to clipboard. '''
+        clipboard = QtWidgets.QApplication.instance().clipboard()
+        txt = self._data.clipboardText()
+        clipboard.setText(txt)
+        QtWidgets.QMessageBox.information(
+            self.parent(), 'Copied!',
+            'Count information copied to the clipboard!'
+            '\nPaste into Excel or a notepad to view it.')
 
 def fast_scandir(dirname):
     '''

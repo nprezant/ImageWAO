@@ -67,6 +67,16 @@ class CountDataSet(OrderedDict):
         s += f'\n    - {uniqueSpeciesCounted} species'
         return s
 
+    def clipboardText(self):
+        '''
+        Returns text containing all identifying data, copyable to the clipboard.
+        '''
+        s = 'Top Level\tSpecies\tNumber\tIs Duplicate\tNotes'
+        for topLevel, dataSet in self.items():
+            for speciesKey, countData in dataSet.items():
+                s += f'\n{topLevel}\t{speciesKey}\t{countData.number}\t{countData.isDuplicate}\t{countData.notes}'
+        return s
+
     def __iadd__(self, other):
         for key, dataSet in other.items():
             for countData in dataSet.values():
