@@ -390,3 +390,14 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             QtCore.QAbstractTableModel.flags(self, index)
             # | QtCore.Qt.ItemIsEditable
         )
+
+    def inLastLocalRow(self, index):
+        '''
+        Returns `True` if the index is in the last row,
+        relative to the image it is a part of.
+        '''
+        localRow = index.row() % self._imageRows # if 2x2, local row is 0 or 1
+        if localRow == self._imageRows - 1:
+            return True
+        else:
+            return False
