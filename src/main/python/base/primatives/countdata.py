@@ -70,8 +70,8 @@ class CountData:
                 'Cannot add in place when species '
                 f'do not match: {self.species}; {other.species}')
         
-        if self.isDuplicate:
-            raise ValueError('You should not try adding in place to duplicate CountData')
+        if self.isDuplicate != other.isDuplicate:
+            raise ValueError('Cannot add in place when isDuplicate does not match')
 
         self.number += other.number
         self.notes += other.notes

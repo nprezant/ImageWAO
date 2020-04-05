@@ -16,30 +16,31 @@ class CountDataSet(OrderedDict):
     etc.
     '''
 
-    def addData(self, key:str, data:CountData, dropDuplicates=True):
+    def addData(self, key:str, data:CountData):
         ''' Adds count data to this set. '''
 
-        if dropDuplicates and data.isDuplicate:
-            return
+        speciesKey = data.species
+        if data.isDuplicate:
+            speciesKey += ' (duplicate)'
 
         try:
             self[key]
         except KeyError:
-            self[key] = {data.species: data}
+            self[key] = {speciesKey: data}
         else:
             dataSet = self[key]
             try:
-                dataSet[data.species]
+                dataSet[speciesKey]
             except KeyError:
-                dataSet[data.species] = data
+                dataSet[speciesKey] = data
             else:
-                dataSet[data.species] += data
+                dataSet[speciesKey] += data
 
     def displayIndex(self, idx:int):
         '''Displays the data at the given index nicely.'''
         key, dataSet = list(self.items())[idx]
         s = key
-        for data in dataSet.values():
-            s += f'\n    - {data.number} {data.species}'
+        for speciesKey, data in dataSet.items():
+            s += f'\n    - {data.number} {speciesKey}'
         return s
 
