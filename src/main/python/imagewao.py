@@ -85,7 +85,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Count totals form connections
         self.countTotals.fileActivated.connect(self.grid.selectFile)
         self.countTotals.selectedFilesChanged.connect(self.library.selectFiles)
-        self.countTotals.requestDrawingUpdate.connect(self.grid.computeTransectData)
+        self.countTotals.requestDrawingUpdate.connect(self.grid.save) # Hacky. Ideally you could request the data without saving.
 
         # File | Etc. Menus
         self._menusCreated = False
