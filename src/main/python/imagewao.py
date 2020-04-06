@@ -22,6 +22,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Whether or not the application has changes
         self._dirty = False
 
+        # Window icon
+        self.setWindowIcon(ctx.icon('icons/winIcon.png'))
+
         # Title bar text is managed
         self.titleBarText = TitleBarText(ctx.app.applicationName())
         self.titleBarText.changed.connect(self.setWindowTitle)
