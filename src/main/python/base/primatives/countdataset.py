@@ -77,6 +77,10 @@ class CountDataSet(OrderedDict):
                 s += f'\n{topLevel}\t{speciesKey}\t{countData.number}\t{countData.isDuplicate}\t{countData.notes}'
         return s
 
+    def sorted(self):
+        ''' Returns `CountDataSet` sorted based by `Keys` '''
+        return CountDataSet(sorted(self.items(), key=lambda t: t[0]))
+
     def __iadd__(self, other):
         for key, dataSet in other.items():
             for countData in dataSet.values():

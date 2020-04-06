@@ -142,7 +142,7 @@ class TotalsModel(QtCore.QAbstractListModel):
 
     def _resetData(self, data):
         self.beginResetModel()
-        self._data = data
+        self._data = data.sorted()
         self.endResetModel()
 
     def export(self):
