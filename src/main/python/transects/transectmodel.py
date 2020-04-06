@@ -214,6 +214,9 @@ def copyTransectFiles(transects, toFolder, progress=None):
         tFolder = toFolder / t.name
         tFolder.mkdir(exist_ok=True)
 
+        # Make .marked/ folder
+        Path(tFolder / config.markedImageFolder).mkdir(exist_ok=True)
+
         for i, fp in enumerate(t.files):
 
             # Destination file name
