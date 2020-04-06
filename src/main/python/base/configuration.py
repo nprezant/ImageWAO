@@ -24,9 +24,9 @@ class Config:
 
         # Drawing colors
         self.colors = [
+            'Teal',
             'Blue',
             'DarkGreen',
-            'Teal',
             'Red',
             'Orange',
             'Magenta',
