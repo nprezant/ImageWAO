@@ -190,6 +190,9 @@ class QImageWAO(QtWidgets.QMainWindow):
                 if event.isAccepted():
                     self.grid.clear()
                     self.viewer.clear()
+                    return False # Don't filter it, allow to progate
+                else:
+                    return True # Filter this one! Don't let the dir change
 
         return super().eventFilter(obj, event)
 
