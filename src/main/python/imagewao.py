@@ -19,6 +19,9 @@ class QImageWAO(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # Read build settings
+        self.version = ctx.build_settings['version']
+
         # Whether or not the application has changes
         self._dirty = False
 
@@ -112,16 +115,18 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def _clearMenus(self):
         self.fileMenu.clear()
-        self.viewMenu.clear()
+        self.helpMenu.clear()
 
     def _createMenus(self):
         if self._menusCreated == False:
             self.fileMenu = QtWidgets.QMenu('&File', self)
-            self.viewMenu = QtWidgets.QMenu('&View', self)
+            self.expeMenu = QtWidgets.QMenu('&Exp.', self) # Experimental
+            self.helpMenu = QtWidgets.QMenu('&Help', self)
             self._menusCreated = True
         
     def _populateMenus(self):
 
+        # File Menu
         a = QtWidgets.QAction('Save', self)
         a.setShortcut('Ctrl+S')
         a.triggered.connect(self._saveIfDirty)
@@ -131,20 +136,26 @@ class QImageWAO(QtWidgets.QMainWindow):
         a.triggered.connect(FlightImportWizard().openNew)
         self.fileMenu.addAction(a)
 
-        a = QtWidgets.QAction('Notify test', self)
-        a.setShortcut('Ctrl+n')
+        # Experimental Menu
+        a = QtWidgets.QAction('Test notification', self)
+        a.setShortcut('Ctrl+N')
         a.triggered.connect(
             lambda:
             self.notifier.notify(''))
-        self.fileMenu.addAction(a)
+        self.expeMenu.addAction(a)
 
         a = QtWidgets.QAction('Reset settings', self)
         a.triggered.connect(
             lambda: QtCore.QSettings().clear())
-        self.fileMenu.addAction(a)
+        self.expeMenu.addAction(a)
+
+        # Help Menu
+        self.helpMenu.addAction(QtWidgets.QAction(f'Version: {self.version}', self))
 
     def _arrangeMenus(self):
         self.menuBar().addMenu(self.fileMenu)
+        self.menuBar().addMenu(self.expeMenu)
+        self.menuBar().addMenu(self.helpMenu)
 
     def _saveIfDirty(self):
         if self._dirty:
