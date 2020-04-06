@@ -109,7 +109,8 @@ class CountForm(PopupFrame):
             self.setCountData(countData)
         else:
             self.setCountData(CountData())
-        return super().popup(pos)
+        super().popup(pos)
+        self.speciesText.setFocus(QtCore.Qt.PopupFocusReason)
 
     def countData(self):
         '''
