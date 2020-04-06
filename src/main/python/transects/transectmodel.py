@@ -267,8 +267,12 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
 
         # retrieve date and time image was taken
         img = Image.open(fp)
-        t = img._getexif()[36867]
-        dt = datetime.strptime(t, '%Y:%m:%d %H:%M:%S')
+        try:
+            t = img._getexif()[36867]
+        except:
+            raise RuntimeError(f'The following image has no time data and cannot be categorized: {fp.name}')
+        else:
+            dt = datetime.strptime(t, '%Y:%m:%d %H:%M:%S')
         
         # add the file if this is the first one in a transect
         if lastdt is None:
