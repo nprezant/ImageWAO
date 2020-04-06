@@ -63,8 +63,8 @@ class CountDataSet(OrderedDict):
                 uniqueSpeciesCounted += 1
 
         s = key
-        s += f'\n    - {uniqueAnimalsCounted} unique animals'
         s += f'\n    - {uniqueSpeciesCounted} species'
+        s += f'\n    - {uniqueAnimalsCounted} unique animals'
         return s
 
     def clipboardText(self):
