@@ -29,6 +29,14 @@ class TransectSaveData(UserDict):
 
         return TransectSaveData(data)
 
+    @staticmethod
+    def loads(s):
+        '''
+        Loads a seriealized string.
+        '''
+        data = json.loads(s)
+        return TransectSaveData(data)
+
     def dump(self, fp):
         '''
         Serialize save data and save to specified path.

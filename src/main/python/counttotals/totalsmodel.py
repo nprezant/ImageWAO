@@ -71,6 +71,17 @@ class TotalsModel(QtCore.QAbstractListModel):
             # | QtCore.Qt.ItemIsEditable
         )
 
+    def loadTransectData(self, data:TransectSaveData):
+        ''' Populates model from JSON serialized string of transect counts '''
+        if not self.inTransect:
+            raise ValueError('You should not try to load transect data while not inside a transect!')
+
+        dataSet = data.countDataSet()
+        self._resetData(dataSet)
+
+    def refresh(self):
+        self.readDirectory(self._parentDir)
+
     def readDirectory(self, fp):
         ''' Populates model from directory. `fp`: any Path()-able type'''
         self._parentDir = str(fp)
@@ -94,6 +105,8 @@ class TotalsModel(QtCore.QAbstractListModel):
                 saveData = TransectSaveData.load(saveFile)
                 dataSet = saveData.countDataSet()
                 self._resetData(dataSet)
+            else:
+                self._resetData(CountDataSet())
 
         # Otherwise, try to find all .marked/ folders within this dir
         else:
@@ -112,6 +125,8 @@ class TotalsModel(QtCore.QAbstractListModel):
                         filesToLoad.append((dirname.name, saveFile))
             if filesToLoad:
                 self._loadFiles(filesToLoad)
+            else:
+                self._resetData(CountDataSet())
 
     def _loadFiles(self, filesToLoad):
         '''

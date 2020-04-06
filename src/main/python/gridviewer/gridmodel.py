@@ -18,6 +18,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
     loadProgress = QtCore.Signal(int)
     loadFinished = QtCore.Signal()
     message = QtCore.Signal(tuple)
+    transectDataChanged = QtCore.Signal(TransectSaveData)
 
     def __init__(self):
         super().__init__()
@@ -177,6 +178,61 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         '''
         return self.data(self.createIndex(r,c), UserRoles.ImagePath).parent
 
+    def transectData(self):
+        ''' Computes the transect save data and returns it. '''
+        if len(self._changedIndexes) == 0:
+            return
+
+        # If the save file doesn't exist, initialize empty.
+        transectPath = self._folder() / Path(config.markedDataFile)
+        if transectPath.exists():
+            saveData = TransectSaveData.load(transectPath)
+        else:
+            saveData = TransectSaveData()
+
+        # Only save files that have changed
+        for index in self._changedIndexes:
+
+            # If this index is None, i.e., was already taken care of
+            # by a previous index (part of same overall image), continue 
+            # to next index.
+            if index is None:
+                continue
+
+            # Retreive the path of the original image, and find
+            # the indexes of the images that also correspond
+            # to that path.
+            originalPath: Path = self.data(index, role=UserRoles.ImagePath)
+            indexes = self.matchPath(originalPath)
+
+            # Now that we have all the indexes associated with this
+            # path, we no longer need them in "changedIndexes"
+            for idx in indexes:
+                try:
+                    num = self._changedIndexes.index(idx)
+                except ValueError:
+                    pass
+                else:
+                    self._changedIndexes[num] = None
+
+            # Merge the indexes togther, create a preview image
+            mergedIndexes = MergedIndexes(indexes)
+            _ = mergedIndexes.resultantImage()
+
+            # Merge drawn items and draw them onto the image
+            drawings = mergedIndexes.drawnItems()
+            if drawings is not None:
+
+                # We should only save these drawings if they aren't already saved.
+                if not saveData.imageHasDrawings(originalPath.name, drawings):
+                    saveData.addDrawings(originalPath.name, drawings)
+
+            else:
+                saveData.removeDrawings(originalPath.name)
+
+        # Return the transect data
+        return saveData
+
     @QtCore.Slot()
     def save(self):
         '''
@@ -263,7 +319,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
                     # existed, we need to delete them)
                     saveData.removeDrawings(originalPath.name)
 
-        # Save the transect data
+        # Save & emit the transect data
+        self.transectDataChanged.emit(saveData)
         saveData.dump(transectPath)
 
         # Clear the changed index list

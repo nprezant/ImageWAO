@@ -73,6 +73,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.grid.selectedFilesChanged.connect(self.library.selectFiles)
         self.grid.notificationMessage.connect(self.notifier.notify)
         self.grid.statusMessage.connect(self.showStatusMessage)
+        self.grid.countDataChanged.connect(self.countTotals.setTransectData)
 
         # Image viewer signal connections
         self.viewer.drawnItemsChanged.connect(self.grid.setDrawings)
@@ -81,6 +82,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Count totals form connections
         self.countTotals.fileActivated.connect(self.grid.selectFile)
         self.countTotals.selectedFilesChanged.connect(self.library.selectFiles)
+        self.countTotals.requestDrawingUpdate.connect(self.grid.computeTransectData)
 
         # File | Etc. Menus
         self._menusCreated = False

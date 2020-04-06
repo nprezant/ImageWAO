@@ -4,12 +4,14 @@ from pathlib import Path
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from base import ctx, config
+from transects import TransectSaveData
 from .totalsview import TotalsView
 
 class CountTotals(QtWidgets.QWidget):
 
     fileActivated = QtCore.Signal(str)
     selectedFilesChanged = QtCore.Signal(Path)
+    requestDrawingUpdate = QtCore.Signal()
     
     def __init__(self):
         super().__init__()
@@ -29,9 +31,11 @@ class CountTotals(QtWidgets.QWidget):
 
         # Refresh Action
         self.refreshAction = QtWidgets.QAction(ctx.icon('icons/refresh.png'), 'Refresh', self)
+        self.refreshAction.triggered.connect(self.refresh)
         refreshButton = QtWidgets.QToolButton()
         refreshButton.setIconSize(QtCore.QSize(*config.toolbuttonSize))
         refreshButton.setDefaultAction(self.refreshAction)
+        refreshButton.setToolTip('Update counts from the current state of the viewer')
 
         # Horizontal row of buttons at top
         buttons = QtWidgets.QHBoxLayout()
@@ -55,3 +59,14 @@ class CountTotals(QtWidgets.QWidget):
         `fp` is any Path() - able type.
         '''
         self.totalsView.model().readDirectory(fp)
+
+    @QtCore.Slot(TransectSaveData)
+    def setTransectData(self, data):
+        self.totalsView.model().loadTransectData(data)
+
+    @QtCore.Slot()
+    def refresh(self):
+        if self.totalsView.model().inTransect:
+            self.requestDrawingUpdate.emit()
+        else:
+            self.totalsView.model().refresh()
