@@ -217,6 +217,11 @@ def copyTransectFiles(transects, toFolder, progress=None):
         # Make .marked/ folder
         Path(tFolder / config.markedImageFolder).mkdir(exist_ok=True)
 
+        # Make migration log file, init logging variable
+        log = Path(tFolder / config.transectMigrationLog)
+        log.touch(exist_ok=True)
+        copyLog = [] # (copyFrom, copyTo)
+
         for i, fp in enumerate(t.files):
 
             # Destination file name
@@ -225,11 +230,17 @@ def copyTransectFiles(transects, toFolder, progress=None):
 
             # Copy files
             shutil.copyfile(fp, dst)
+            copyLog.append((fp, dst))
             numFilesCopied += 1
 
             # If progress exists, emit it
             if progress is not None:
                 progress.emit(int(numFilesCopied / numFiles * 100))
+
+        # Write log
+        with open(log, 'w') as f:
+            for fromPath, toPath in copyLog:
+                f.write(f'{fromPath.name}\t-->\t{toPath.name}\n')
 
 def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
     '''

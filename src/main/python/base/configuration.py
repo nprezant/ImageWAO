@@ -14,6 +14,7 @@ class Config:
         # Files and folders in each transect directory
         self.markedImageFolder = '.marked/'
         self.markedDataFile = '.marked/data.transect'
+        self.transectMigrationLog = '.marked/migration.log'
 
         # Default library directory
         self.defaultLibraryDirectory = Path.home() / 'Pictures/ImageWAO'
