@@ -360,6 +360,11 @@ class SetLibraryPage(QtWidgets.QWizardPage):
         layout.setColumnMinimumWidth(0, self.flightFolderLabel.minimumWidth())
         self.setLayout(layout)
 
+    def initializePage(self):
+        importFolderName = Path(self.field('importFolder')).name
+        if importFolderName is not None:
+            self.flightFolderBox.setText(importFolderName)
+
     @property
     def _defaultLibraryFolder(self):
         settings = QtCore.QSettings()
