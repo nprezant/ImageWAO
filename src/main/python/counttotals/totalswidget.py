@@ -62,7 +62,7 @@ class CountTotals(QtWidgets.QWidget):
 
     @QtCore.Slot(TransectSaveData)
     def setTransectData(self, data):
-        self.totalsView.model().loadTransectData(data)
+        self.totalsView.model().refresh()
 
     @QtCore.Slot()
     def refresh(self):
@@ -70,3 +70,7 @@ class CountTotals(QtWidgets.QWidget):
             self.requestDrawingUpdate.emit()
         else:
             self.totalsView.model().refresh()
+
+    @QtCore.Slot(str)
+    def selectFile(self, fp:str):
+        self.totalsView.selectFile(fp)

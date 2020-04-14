@@ -25,6 +25,11 @@ class TotalsView(QtWidgets.QListView):
         # Handle selection changes and map to appropriate signals
         self.selectionModel().selectionChanged.connect(self._handleSelectionChange)
 
+        # Selection is sometimes changed programatically and this can lead to
+        # infinite recursion. To combat this, we can tell the selectionChanged signal
+        # to not be emitted when the selection is programatically changed.
+        self.emitNextSelectionSignal = True
+
     @QtCore.Slot(QtCore.QModelIndex)
     def indexActivated(self, index:QtCore.QModelIndex) -> str:
         if self.model().inTransect:
@@ -33,6 +38,14 @@ class TotalsView(QtWidgets.QListView):
 
     @QtCore.Slot(QtCore.QItemSelection, QtCore.QItemSelection)
     def _handleSelectionChange(self, selected, deselected):
+
+        # If the selection was just changed programatically,
+        # do not emit any further selection changed signals.
+        if not self.emitNextSelectionSignal:
+            self.emitNextSelectionSignal = True
+            return
+
+        # Retreive the selected indexes
         model = self.selectionModel()
         indexes = model.selectedIndexes()
 
@@ -48,3 +61,27 @@ class TotalsView(QtWidgets.QListView):
     def export(self):
         self.model().export()
 
+    def selectFile(self, fp:str):
+        '''
+        Selects the file or folder at the given path if possible.
+        This has a bit of a recursion issue when you connect this to
+        the library and the library back to this.
+        '''
+
+        # Clear the current selection
+        self.selectionModel().clearSelection()
+
+        # Get name of item
+        name = Path(fp).name
+
+        # Get model indexes
+        index = self.model().indexOfName(name)
+        if index is None:
+            return
+
+        # Select new index
+        self.emitNextSelectionSignal = False
+        self.selectionModel().select(index, QtCore.QItemSelectionModel.Select)
+
+        # Scroll to the index
+        self.scrollTo(index)

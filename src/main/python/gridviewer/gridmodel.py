@@ -188,7 +188,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         if transectPath.exists():
             saveData = TransectSaveData.load(transectPath)
         else:
-            saveData = TransectSaveData()
+            saveData = TransectSaveData(fp=transectPath)
 
         # Only save files that have changed
         for index in self._changedIndexes:
@@ -250,10 +250,13 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         transectPath = self._folder() / Path(config.markedDataFile)
         transectPath.parent.mkdir(exist_ok=True)
-        transectPath.touch()
 
-        # Initialize save data from old data path
-        saveData = TransectSaveData.load(transectPath)
+        if transectPath.exists():
+            # Initialize save data from old data path
+            saveData = TransectSaveData.load(transectPath)
+        else:
+            transectPath.touch()
+            saveData = TransectSaveData(fp=transectPath)
 
         # List of images to be saved and the `save` arguments
         # [(image, ['C:/Photos/myFavoriteImage.jpg']), ]
@@ -320,8 +323,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
                     saveData.removeDrawings(originalPath.name)
 
         # Save & emit the transect data
-        self.transectDataChanged.emit(saveData)
         saveData.dump(transectPath)
+        self.transectDataChanged.emit(saveData)
 
         # Clear the changed index list
         self._changedIndexes = []

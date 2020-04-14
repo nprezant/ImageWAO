@@ -67,6 +67,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.countTotals.readDirectory(self.library.rootPath)
 
         # Flight library signal connections
+        self.library.fileSelected.connect(self.countTotals.selectFile)
         self.library.fileActivated.connect(self.grid.selectFile)
         self.library.directoryChanged.connect(self.grid.addFolder)
         self.library.directoryChanged.connect(self.titleBarText.setFolderName)
