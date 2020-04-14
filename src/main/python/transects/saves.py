@@ -118,17 +118,27 @@ class TransectSaveData(UserDict):
                     if drawing['CountData'] is not None:
                         yield imageName, CountData.fromDict(drawing['CountData'])
 
-    def numSpecies(self):
+    def uniqueSpecies(self):
         '''
-        Computes the number of different species in this data set
+        Returns a list of all the different species in this save file
         '''
-        return 1
+        species = []
+        for _, countData in self.imageCounts():
+            if not countData.species in species:
+                species.append(countData.species)
+        return species
 
-    def numUniqueAnimals(self):
+    def uniqueAnimals(self):
         '''
-        Computes the number of unique animals in this data set.
+        Returns a list of the animals in this data set, excluding those
+        marked as "duplicates". The length of this list is the total number of animals counted
+        in this data set.
         '''
-        return 2
+        animals = []
+        for _, countData in self.imageCounts():
+            if not countData.isDuplicate:
+                animals.extend([countData.species]*countData.number)
+        return animals
 
     def countDataSet(self, topLevel=None):
         '''
@@ -227,13 +237,13 @@ class TransectSaveDatas(UserList):
     def numSpecies(self):
         num = 0
         for dataGroup in self.data:
-            num += dataGroup.saveData.numSpecies()
+            num += len(dataGroup.saveData.uniqueSpecies())
         return num
 
     def numUniqueAnimals(self):
         num = 0
         for dataGroup in self.data:
-            num += dataGroup.saveData.numUniqueAnimals()
+            num += len(dataGroup.saveData.uniqueAnimals())
         return num
 
     def sorted(self):
