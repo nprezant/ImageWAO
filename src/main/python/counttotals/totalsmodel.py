@@ -103,9 +103,6 @@ class TotalsModel(QtCore.QAbstractListModel):
             if saveFile.exists():
                 saveDatas = TransectSaveDatas()
                 saveDatas.load(saveFile)
-                # saveData = TransectSaveData.load(saveFile)
-                # dataSet = saveData.countDataSet()
-                # self._resetData(dataSet)
                 self._resetData(saveDatas)
             else:
                 self._resetData(TransectSaveDatas())
@@ -137,8 +134,6 @@ class TotalsModel(QtCore.QAbstractListModel):
         saveDatas = TransectSaveDatas()
         for topLevel, saveFile in filesToLoad:
             saveDatas.load(saveFile, groupName=topLevel)
-            # ds = saveData.countDataSet(topLevel=topLevel)
-            # dataSet += ds
         self._resetData(saveDatas)
 
     def _resetData(self, data):
