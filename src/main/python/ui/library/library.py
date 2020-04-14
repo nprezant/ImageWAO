@@ -31,6 +31,7 @@ class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
 class Library(QtWidgets.QWidget):
 
     # Signals
+    fileSelected = QtCore.Signal(str)
     fileActivated = QtCore.Signal(str)
     directoryChanged = QtCore.Signal(str)
 
@@ -66,6 +67,9 @@ class Library(QtWidgets.QWidget):
 
         # For optimization purposes, determining the proper layout
         self._rootDirPreviouslyBlank = None
+
+        # Handle selection changes and map to appropriate signals
+        self.proxyView.selectionModel().selectionChanged.connect(self._handleSelectionChange)
 
         # Default root path is $HOME$/Pictures/ImageWAO
         self._defaultRoot = str(config.defaultLibraryDirectory)
@@ -332,3 +336,19 @@ class Library(QtWidgets.QWidget):
 
         # Show the menu
         self.menu.popup(self.mapToGlobal(pos))
+
+    @QtCore.Slot(QtCore.QItemSelection, QtCore.QItemSelection)
+    def _handleSelectionChange(self, selected, deselected):
+        model = self.proxyView.selectionModel()
+        indexes = model.selectedIndexes()
+
+        # Nothing to do if there are no indexes selected
+        if len(indexes) == 0:
+            return
+
+        # Emit the first of the selected files
+        index = indexes[0]
+        if index.isValid():
+            srcIndex = self.proxyModel.mapToSource(index)
+            path:str = self.sourceModel.filePath(srcIndex)
+            self.fileSelected.emit(path)

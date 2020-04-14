@@ -70,3 +70,7 @@ class CountTotals(QtWidgets.QWidget):
             self.requestDrawingUpdate.emit()
         else:
             self.totalsView.model().refresh()
+
+    @QtCore.Slot(str)
+    def selectFile(self, fp:str):
+        self.totalsView.selectFile(fp)

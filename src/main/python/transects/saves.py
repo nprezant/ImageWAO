@@ -145,7 +145,7 @@ class TransectSaveData(UserDict):
         Returns a list of unique images in this data set.
         '''
         imageNames = []
-        for imageName, countData in self.imageCounts():
+        for imageName, _ in self.imageCounts():
             if not imageName in imageNames:
                 imageNames.append(imageName)
         return imageNames
@@ -292,14 +292,6 @@ class TransectSaveDatas(UserList):
             ('GroupName2', TransectSaveDatas()),
         )
         '''
-
-        # # If all of the group names are None, group by image
-        # groupNames = [dataGroup.name for dataGroup in self.data]
-        # if groupNames.count(None) == len(groupNames):
-        #     useImageAsKey = True
-        # else:
-        #     useImageAsKey = False
-
         d = OrderedDict()
         for dataGroup in self.data:
             try:
@@ -322,3 +314,22 @@ class TransectSaveDatas(UserList):
         The number of discrete groups in this set of save data
         '''
         return len(self.groupedDict())
+
+    def indexOfGroupName(self, name):
+        '''
+        The index of the first SaveDataGroup with a matching `name`.
+        If the name cannot be found, `None` is returned.
+        '''
+        for i, groupName in enumerate(self.groupedDict().keys()):
+            if groupName == name:
+                return i
+        return None
+
+    def indexOfImageName(self, name):
+        '''
+        The index of the first image with a matching `name`.
+        '''
+        try:
+            return self.allImages().index(name)
+        except ValueError:
+            return None

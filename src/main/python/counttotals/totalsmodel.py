@@ -78,14 +78,6 @@ class TotalsModel(QtCore.QAbstractListModel):
             # | QtCore.Qt.ItemIsEditable
         )
 
-    # def loadTransectData(self, data:TransectSaveData):
-    #     ''' Populates model from JSON serialized string of transect counts '''
-    #     if not self.inTransect:
-    #         raise ValueError('You should not try to load transect data while not inside a transect!')
-
-    #     dataSet = data.countDataSet()
-    #     self._resetData(dataSet)
-
     def refresh(self):
         self.readDirectory(self._parentDir)
 
@@ -163,6 +155,17 @@ class TotalsModel(QtCore.QAbstractListModel):
             self.parent(), 'Copied!',
             'Count information copied to the clipboard!'
             '\nPaste into Excel or a notepad to view it.')
+
+    def indexOfName(self, name):
+        ''' Returns the first index matching the given name '''
+        if self.inTransect:
+            row = self._data.indexOfImageName(name)
+        else:
+            row = self._data.indexOfGroupName(name)
+
+        if row is not None:
+            return self.index(row, 0)
+        return None
 
 def fast_scandir(dirname):
     '''
