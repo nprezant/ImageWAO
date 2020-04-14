@@ -15,9 +15,9 @@ class TransectSaveData(UserDict):
     serialized.
     '''
 
-    def __init__(self, data={}, fp=None):
+    def __init__(self, data, fp):
         '''
-        A UserDict. Optionally include `fp` for traceability.
+        A UserDict. Include `fp` for traceability.
         '''
         super().__init__(data)
         self.fp = fp
@@ -171,7 +171,7 @@ class TransectSaveData(UserDict):
         return f'TransectSaveData({super().__repr__()}'
 
     def sorted(self):
-        return TransectSaveData(sorted(self.items(), key=lambda t: t[0]))
+        return TransectSaveData(sorted(self.items(), key=lambda t: t[0]), self.fp)
 
 
 class ReportLevel(Enum):
@@ -194,6 +194,12 @@ class TransectSaveDatas(UserList):
 
     `data` is a list of `TransectSaveData`
     '''
+
+    def __init__(self, initlist=[]):
+        super().__init__(initlist)
+
+        # Used for internal optimization
+        self._groupedDict = None
 
     def load(self, fp, groupName=None):
         '''
@@ -301,6 +307,10 @@ class TransectSaveDatas(UserList):
             ('GroupName2', TransectSaveDatas()),
         )
         '''
+        # For optimization purposes, only generate this dictionary once.
+        if self._groupedDict is not None:
+            return self._groupedDict
+
         d = OrderedDict()
         for dataGroup in self.data:
             try:

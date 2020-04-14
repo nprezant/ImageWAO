@@ -188,7 +188,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         if transectPath.exists():
             saveData = TransectSaveData.load(transectPath)
         else:
-            saveData = TransectSaveData()
+            saveData = TransectSaveData(fp=transectPath)
 
         # Only save files that have changed
         for index in self._changedIndexes:
