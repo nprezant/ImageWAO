@@ -250,10 +250,13 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         transectPath = self._folder() / Path(config.markedDataFile)
         transectPath.parent.mkdir(exist_ok=True)
-        transectPath.touch()
 
-        # Initialize save data from old data path
-        saveData = TransectSaveData.load(transectPath)
+        if transectPath.exists():
+            # Initialize save data from old data path
+            saveData = TransectSaveData.load(transectPath)
+        else:
+            transectPath.touch()
+            saveData = TransectSaveData(fp=transectPath)
 
         # List of images to be saved and the `save` arguments
         # [(image, ['C:/Photos/myFavoriteImage.jpg']), ]

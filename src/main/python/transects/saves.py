@@ -32,7 +32,7 @@ class TransectSaveData(UserDict):
             with open(fp, 'r') as f:
                 data = json.load(f)
         except json.decoder.JSONDecodeError:
-            print('Badly formed JSON file')
+            print(f'Badly formed JSON file: {fp}')
             data = {}
 
         return TransectSaveData(data, fp)
