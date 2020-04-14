@@ -140,6 +140,16 @@ class TransectSaveData(UserDict):
                 animals.extend([countData.species]*countData.number)
         return animals
 
+    def uniqueImages(self):
+        '''
+        Returns a list of unique images in this data set.
+        '''
+        imageNames = []
+        for imageName, countData in self.imageCounts():
+            if not imageName in imageNames:
+                imageNames.append(imageName)
+        return imageNames
+
     def countDataSet(self, topLevel=None):
         '''
         Computes the count data set from this save data.
@@ -208,19 +218,37 @@ class TransectSaveDatas(UserList):
                     f'\t{isDuplicate}\t{countData.notes}')
         return s
 
+    def allImages(self) -> list:
+        '''
+        Returns a list of all the image names.
+        '''
+        imageNames = []
+        for dataGroup in self.data:
+            imageNames.extend(dataGroup.saveData.uniqueImages())
+        return imageNames
+
     def animalsAt(self, idx:int) -> str:
         '''
-        Returns a string describing the animals found for each image
-        at the particular group index.
+        Returns a string describing ALL the animals found in
+        each image at the particular index.
         '''
-        # saveData = self.data[idx]
-        s = 'This is the Image'
-        for saveData in self.data:
-            for imageName, countData in saveData.imageCounts():
-                pass
-                # s += f'\n    - {uniqueSpeciesCounted} species'
-                # s += f'\n    - {uniqueAnimalsCounted} unique animals'
+        imageNames = self.allImages()
 
+        try:
+            targetImage = imageNames[idx]
+        except IndexError:
+            return f'Error: Image at index {idx} could not be found'
+
+        s = f'{targetImage}:'
+
+        for dataGroup in self.data:
+            for imageName, countData in dataGroup.saveData.imageCounts():
+                if imageName == targetImage:
+                    # This is the image, make the string to display!
+                    s += f'\n   - {countData.number} {countData.species}'
+                    if countData.isDuplicate:
+                        s += f' (already counted)'
+        
         return s
 
     def summaryAt(self, idx:int) -> str:
@@ -249,6 +277,13 @@ class TransectSaveDatas(UserList):
     def sorted(self):
         return self
 
+    def numImages(self):
+        ''' The number of images in the save data '''
+        num = 0
+        for dataGroup in self.data:
+            num += len(dataGroup.saveData.uniqueImages())
+        return num
+
     def groupedDict(self):
         '''
         Create an ordered dictionary of the save groups.
@@ -257,14 +292,22 @@ class TransectSaveDatas(UserList):
             ('GroupName2', TransectSaveDatas()),
         )
         '''
+
+        # # If all of the group names are None, group by image
+        # groupNames = [dataGroup.name for dataGroup in self.data]
+        # if groupNames.count(None) == len(groupNames):
+        #     useImageAsKey = True
+        # else:
+        #     useImageAsKey = False
+
         d = OrderedDict()
-        for saveGroup in self.data:
+        for dataGroup in self.data:
             try:
-                d[saveGroup.name]
+                d[dataGroup.name]
             except KeyError:
-                d[saveGroup.name] = TransectSaveDatas([saveGroup])
+                d[dataGroup.name] = TransectSaveDatas([dataGroup])
             else:
-                d[saveGroup.name].append(saveGroup)
+                d[dataGroup.name].append(dataGroup)
         return d
 
     def isGrouped(self):

@@ -30,7 +30,7 @@ class TotalsModel(QtCore.QAbstractListModel):
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
         if self.inTransect:
-            return len(self._data)
+            return self._data.numImages()
         else:
             return len(self._data.groupedDict())
 
@@ -47,13 +47,13 @@ class TotalsModel(QtCore.QAbstractListModel):
 
         if role == QtCore.Qt.DisplayRole:
             if self.inTransect:
-                return 'not implemented :(' # self._data.animalsAt(index.row())
+                return self._data.animalsAt(index.row())
             else:
                 return self._data.summaryAt(index.row())
 
         if role == UserRoles.AbsolutePath:
             if self.inTransect:
-                _folderName = self._data[index.row()].name
+                _folderName = self._data.allImages()[index.row()]
             else:
                 _folderName = list(self._data.groupedDict().keys())[index.row()]
 
