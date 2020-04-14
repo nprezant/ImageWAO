@@ -52,8 +52,12 @@ class TotalsModel(QtCore.QAbstractListModel):
                 return self._data.summaryAt(index.row())
 
         if role == UserRoles.AbsolutePath:
-            return str(Path(self._parentDir) / self._data[index.row()].name)
+            if self.inTransect:
+                _folderName = self._data[index.row()].name
+            else:
+                _folderName = list(self._data.groupedDict().keys())[index.row()]
 
+            return str(Path(self._parentDir) / _folderName)
         return None
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
