@@ -170,6 +170,9 @@ class TransectSaveData(UserDict):
     def __repr__(self):
         return f'TransectSaveData({super().__repr__()}'
 
+    def sorted(self):
+        return TransectSaveData(sorted(self.items(), key=lambda t: t[0]))
+
 
 class ReportLevel(Enum):
     PerImage = 1
@@ -276,7 +279,12 @@ class TransectSaveDatas(UserList):
         return num
 
     def sorted(self):
-        return self
+        # First sort each internal structure
+        for dataGroup in self.data:
+            dataGroup.saveData = dataGroup.saveData.sorted()
+
+        # Sort the overall list
+        return TransectSaveDatas(sorted(self, key=lambda dg: dg.name))
 
     def numImages(self):
         ''' The number of images in the save data '''
