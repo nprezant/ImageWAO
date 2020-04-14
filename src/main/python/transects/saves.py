@@ -260,6 +260,7 @@ class TransectSaveDatas(UserList):
         s = f'{groupName}:'
         s += f'\n   - {saveDatas.numSpecies()} species'
         s += f'\n   - {saveDatas.numUniqueAnimals()} unique animals'
+        s += f'\n   - {len(saveDatas.allImages())} images with animals'
         return s
 
     def numSpecies(self):
