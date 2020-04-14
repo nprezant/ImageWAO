@@ -320,8 +320,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
                     saveData.removeDrawings(originalPath.name)
 
         # Save & emit the transect data
-        self.transectDataChanged.emit(saveData)
         saveData.dump(transectPath)
+        self.transectDataChanged.emit(saveData)
 
         # Clear the changed index list
         self._changedIndexes = []
