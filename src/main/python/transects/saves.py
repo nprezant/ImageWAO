@@ -118,6 +118,18 @@ class TransectSaveData(UserDict):
                     if drawing['CountData'] is not None:
                         yield imageName, CountData.fromDict(drawing['CountData'])
 
+    def numSpecies(self):
+        '''
+        Computes the number of different species in this data set
+        '''
+        return 1
+
+    def numUniqueAnimals(self):
+        '''
+        Computes the number of unique animals in this data set.
+        '''
+        return 2
+
     def countDataSet(self, topLevel=None):
         '''
         Computes the count data set from this save data.
@@ -134,6 +146,9 @@ class TransectSaveData(UserDict):
             else:
                 countSet.addData(imageName, countData)
         return countSet
+
+    def __repr__(self):
+        return f'TransectSaveData({super().__repr__()}'
 
 
 class ReportLevel(Enum):
@@ -210,11 +225,16 @@ class TransectSaveDatas(UserList):
         return s
 
     def numSpecies(self):
-        
-        return 1
+        num = 0
+        for dataGroup in self.data:
+            num += dataGroup.saveData.numSpecies()
+        return num
 
     def numUniqueAnimals(self):
-        return 1
+        num = 0
+        for dataGroup in self.data:
+            num += dataGroup.saveData.numUniqueAnimals()
+        return num
 
     def sorted(self):
         return self
@@ -232,7 +252,7 @@ class TransectSaveDatas(UserList):
             try:
                 d[saveGroup.name]
             except KeyError:
-                d[saveGroup.name] = TransectSaveDatas(saveGroup.saveData)
+                d[saveGroup.name] = TransectSaveDatas([saveGroup])
             else:
                 d[saveGroup.name].append(saveGroup)
         return d
@@ -244,12 +264,8 @@ class TransectSaveDatas(UserList):
         else:
             return True
 
-    def __len__(self):
+    def numGroups(self):
         '''
-        If there is no grouping, the length is `len(super())`
-        If there is grouping, the length is the number of groups.
+        The number of discrete groups in this set of save data
         '''
-        if self.isGrouped():
-            return len(self.groupedDict())
-        else:
-            return super().__len__()
+        return len(self.groupedDict())

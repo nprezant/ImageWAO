@@ -29,7 +29,10 @@ class TotalsModel(QtCore.QAbstractListModel):
 
     def rowCount(self, index=QtCore.QModelIndex()):
         ''' Returns the number of rows the model holds. '''
-        return len(self._data)
+        if self.inTransect:
+            return len(self._data)
+        else:
+            return len(self._data.groupedDict())
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         '''
