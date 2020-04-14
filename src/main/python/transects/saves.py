@@ -1,7 +1,10 @@
 
 import json
-from collections import UserDict
+from enum import Enum
+from pathlib import Path
+from collections import UserDict, UserList, OrderedDict
 
+from base import config
 from base.primatives import CountData, CountDataSet
 
 
@@ -12,8 +15,12 @@ class TransectSaveData(UserDict):
     serialized.
     '''
 
-    def __init__(self, data={}):
+    def __init__(self, data={}, fp=None):
+        '''
+        A UserDict. Optionally include `fp` for traceability.
+        '''
         super().__init__(data)
+        self.fp = fp
 
     @staticmethod
     def load(fp):
@@ -25,17 +32,10 @@ class TransectSaveData(UserDict):
             with open(fp, 'r') as f:
                 data = json.load(f)
         except json.decoder.JSONDecodeError:
+            print('Badly formed JSON file')
             data = {}
 
-        return TransectSaveData(data)
-
-    @staticmethod
-    def loads(s):
-        '''
-        Loads a seriealized string.
-        '''
-        data = json.loads(s)
-        return TransectSaveData(data)
+        return TransectSaveData(data, fp)
 
     def dump(self, fp):
         '''
@@ -134,3 +134,122 @@ class TransectSaveData(UserDict):
             else:
                 countSet.addData(imageName, countData)
         return countSet
+
+
+class ReportLevel(Enum):
+    PerImage = 1
+    PerTransect = 2
+    PerFlight = 3
+
+
+class SaveDataGroup:
+    def __init__(self, name, saveData):
+        self.name = name
+        self.saveData = saveData
+
+
+class TransectSaveDatas(UserList):
+    '''
+    This class manages multiple transect save files and
+    provides easy access methods for displaying and 
+    summarizing the data.
+
+    `data` is a list of `TransectSaveData`
+    '''
+
+    def load(self, fp, groupName=None):
+        '''
+        Loads a save file into this collection of save files.
+        Specify the `groupName` if you want to group the save
+        data any particular way.
+        '''
+        self.data.append(
+            SaveDataGroup(groupName, TransectSaveData.load(fp)))
+
+    def clipboardText(self):
+        '''
+        Returns a string that can be copied and pasted into excel/notepad
+        '''
+        s = 'Flight\tTransect\tImage\tSpecies\tNumber\tIsDuplicate\tNotes'
+        for saveGroup in self.data:
+            rel = saveGroup.saveData.fp.relative_to(config.defaultLibraryDirectory)
+            flight = rel.parts[0]
+            transect= rel.parts[1]
+            for imageName, countData in saveGroup.saveData.imageCounts():
+                isDuplicate = 1 if countData.isDuplicate else 0
+                s += (
+                    f'\n{flight}\t{transect}\t{imageName}'
+                    f'\t{countData.species}\t{countData.number}'
+                    f'\t{isDuplicate}\t{countData.notes}')
+        return s
+
+    def animalsAt(self, idx:int) -> str:
+        '''
+        Returns a string describing the animals found for each image
+        at the particular group index.
+        '''
+        # saveData = self.data[idx]
+        s = 'This is the Image'
+        for saveData in self.data:
+            for imageName, countData in saveData.imageCounts():
+                pass
+                # s += f'\n    - {uniqueSpeciesCounted} species'
+                # s += f'\n    - {uniqueAnimalsCounted} unique animals'
+
+        return s
+
+    def summaryAt(self, idx:int) -> str:
+        '''
+        Returns a summary of the animals found at a particular item
+        in the `groupedDict()`
+        '''
+        groupName, saveDatas = list(self.groupedDict().items())[idx]
+        s = f'{groupName}:'
+        s += f'\n   - {saveDatas.numSpecies()} species'
+        s += f'\n   - {saveDatas.numUniqueAnimals()} unique animals'
+        return s
+
+    def numSpecies(self):
+        
+        return 1
+
+    def numUniqueAnimals(self):
+        return 1
+
+    def sorted(self):
+        return self
+
+    def groupedDict(self):
+        '''
+        Create an ordered dictionary of the save groups.
+        OrderedDict(
+            ('GroupName', TransectSaveDatas()),
+            ('GroupName2', TransectSaveDatas()),
+        )
+        '''
+        d = OrderedDict()
+        for saveGroup in self.data:
+            try:
+                d[saveGroup.name]
+            except KeyError:
+                d[saveGroup.name] = TransectSaveDatas(saveGroup.saveData)
+            else:
+                d[saveGroup.name].append(saveGroup)
+        return d
+
+    def isGrouped(self):
+        numGroups = len(self.groupedDict())
+        if numGroups == 1:
+            return False
+        else:
+            return True
+
+    def __len__(self):
+        '''
+        If there is no grouping, the length is `len(super())`
+        If there is grouping, the length is the number of groups.
+        '''
+        if self.isGrouped():
+            return len(self.groupedDict())
+        else:
+            return super().__len__()
