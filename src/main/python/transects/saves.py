@@ -313,6 +313,14 @@ class TransectSaveDatas(UserList):
 
         d = OrderedDict()
         for dataGroup in self.data:
+
+            # Only include save files that have at least one count,
+            # not just a drawing.
+            if len(dataGroup.saveData.uniqueImages()) == 0:
+                continue
+
+            # Create a dictionary of `TransectSaveDatas` that
+            # are keyed by the group name.
             try:
                 d[dataGroup.name]
             except KeyError:
