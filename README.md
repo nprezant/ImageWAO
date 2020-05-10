@@ -1,4 +1,4 @@
-![Python application](https://github.com/leftaltkey/ImageWAO/workflows/Python%20application/badge.svg)
+![Python application](https://github.com/leftaltkey/ImageWAO/workflows/Application/badge.svg)
 
 # ImageWAO
 An image processing and data management tool for the Namibia Wildlife Aerial Observatory (WAO) research program.
