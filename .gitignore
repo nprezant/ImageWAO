@@ -5,6 +5,7 @@
 # python folders
 __pycache__
 venv
+.pytest_cache
 
 # fbs folders
 target
