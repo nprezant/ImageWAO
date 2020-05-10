@@ -4,6 +4,7 @@
 
 # python folders
 __pycache__
+venv
 
 # fbs folders
 target
