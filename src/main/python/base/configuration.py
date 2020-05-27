@@ -61,7 +61,6 @@ class Config:
             'Jackal',
             'Kudu',
             'Ostrich',
-            'Oryx',
             'Rhino',
             'Springbok',
             'Steenbok',
