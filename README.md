@@ -6,7 +6,7 @@ An image processing and data management tool for the Namibia Wildlife Aerial Obs
 ## Build Instructions
 Create new environment with python 3.6, then install the following packages.
 ```
-pip install fbs pyside2 pillow
+pip install -r requirements.txt
 fbs run
 ```
 
