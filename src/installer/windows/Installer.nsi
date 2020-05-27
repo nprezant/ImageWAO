@@ -51,7 +51,7 @@ FunctionEnd
     !define MUI_FINISHPAGE_RUN_TEXT "Run ${app_name}"
     !define MUI_FINISHPAGE_RUN_FUNCTION "LaunchLink"
     !define MUI_FINISHPAGE_SHOWREADME ""
-    !define MUI_FINISHPAGE_SHOWREADME_NOTCHECKED
+    !define MUI_FINISHPAGE_SHOWREADME_CHECKED
     !define MUI_FINISHPAGE_SHOWREADME_TEXT "Create Desktop Shortcut"
     !define MUI_FINISHPAGE_SHOWREADME_FUNCTION finishpageaction
   !insertmacro MUI_PAGE_FINISH
