@@ -10,8 +10,9 @@ venv
 # fbs folders
 target
 
-# inkscape folder
+# personal resource folders
 inkscape
+PPT
 
 # misc reference code from internet and other project
 misccode
