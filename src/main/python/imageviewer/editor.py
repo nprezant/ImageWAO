@@ -428,3 +428,26 @@ class QImageEditor(QImageViewer):
                 self.clearZoom()
 
         super().mouseDoubleClickEvent(event)
+
+    def wheelEvent(self, event: QtGui.QWheelEvent):
+        numPixels: QtCore.QPoint = event.pixelDelta()
+        numDegrees: QtCore.QPoint = event.angleDelta() / 8
+
+        if not numPixels.isNull():
+            self.zoomWithPixels(numPixels)
+        elif not numDegrees.isNull():
+            numSteps: QtCore.QPoint = numDegrees / 15
+            self.zoomWithDegrees(numSteps)
+
+        event.accept()
+
+    def zoomWithPixels(self, numPixels: QtCore.QPoint):
+        self.zoomWithDegrees(numPixels)
+
+    def zoomWithDegrees(self, numDegrees: QtCore.QPoint):
+        zoomPercentage = numDegrees.y() / self.height()
+
+        if zoomPercentage < 0:
+            self.zoomOut(0.1)
+        else:
+            self.zoomIn(0.1)
