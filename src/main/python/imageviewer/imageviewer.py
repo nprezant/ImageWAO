@@ -154,7 +154,7 @@ class QImageViewer(QtWidgets.QGraphicsView):
         self.scene().setSelectionArea(QtGui.QPainterPath())
 
         # Execute zoom
-        if selectionBBox.isValid() and (selectionBBox != viewBBox):
+        if selectionBBox.isValid():
             self.zoomStack.append(selectionBBox)
             self.updateViewer()
 
