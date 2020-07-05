@@ -88,4 +88,14 @@ class Configuration:
         settings = QtCore.QSettings()
         settings.setValue('config/username', value)
 
+    @property
+    def libraryDirectory(self):
+        settings = QtCore.QSettings()
+        return settings.value('library/homeDirectory', self.defaultLibraryDirectory)
+
+    @libraryDirectory.setter
+    def libraryDirectory(self, value):
+        settings = QtCore.QSettings()
+        settings.setValue('library/homeDirectory', value)
+
 config = Configuration()

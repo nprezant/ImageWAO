@@ -71,21 +71,11 @@ class Library(QtWidgets.QWidget):
         # Handle selection changes and map to appropriate signals
         self.proxyView.selectionModel().selectionChanged.connect(self._handleSelectionChange)
 
-        # Default root path is $HOME$/Pictures/ImageWAO
-        self._defaultRoot = str(config.defaultLibraryDirectory)
+        # Allows different layouts based on whether or not the folder is empty
         self._nothingInRootLayout = None
 
-        # Root path.
-        settings = QtCore.QSettings()
-        rootPath:str = settings.value(
-            'library/homeDirectory',
-            self._defaultRoot
-        )
-
-        # Validate that this is a proper directory.
-        # If not, default to the _defaultRoot
-        if not Path(rootPath).is_dir():
-            rootPath = self._defaultRoot
+        # Root path. Defaults to $HOME$/Pictures/ImageWAO
+        rootPath:str = config.libraryDirectory
 
         # Re-base the model on the new root path.
         self.rebase(rootPath)
@@ -235,7 +225,7 @@ class Library(QtWidgets.QWidget):
             raise ValueError(f'Root path must be directory, not: {rootPath}')
 
         # Save this root path
-        QtCore.QSettings().setValue('library/homeDirectory', rootPath)
+        config.libraryDirectory = rootPath
 
         # file model and view
         self.sourceModel.setRootPath(self.rootPath)
