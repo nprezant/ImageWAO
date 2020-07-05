@@ -144,6 +144,7 @@ class ParametersPage(QtWidgets.QWizardPage):
         self.maxDelayBox = QtWidgets.QSpinBox()
         self.maxDelayBox.setRange(1,1000)
         self.maxDelayBox.setSuffix(' seconds')
+        self.maxDelayBox.setToolTip(self.maxDelayLabel.toolTip())
         self.registerField('maxDelay', self.maxDelayBox)
 
         # min transect photo count
@@ -155,6 +156,7 @@ class ParametersPage(QtWidgets.QWizardPage):
         self.minCountBox = QtWidgets.QSpinBox()
         self.minCountBox.setRange(1,1000)
         self.minCountBox.setSuffix(' photos')
+        self.minCountBox.setToolTip(self.minCountLabel.toolTip())
         self.registerField('minCount', self.minCountBox)
 
         layout = QtWidgets.QFormLayout()
@@ -313,7 +315,7 @@ class SetLibraryPage(QtWidgets.QWizardPage):
         self.pathLabel = QtWidgets.QLabel('Create folder in:')
         self.pathLabel.setToolTip('By default this is your library folder.')
         self.pathEdit = QtWidgets.QLineEdit(config.libraryDirectory)
-        self.pathEdit.setToolTip('By default this is your library folder.')
+        self.pathEdit.setToolTip(self.pathLabel.toolTip())
         self.pathEdit.setReadOnly(True)
         self.pathEdit.setStyleSheet(
             'QLineEdit { '
