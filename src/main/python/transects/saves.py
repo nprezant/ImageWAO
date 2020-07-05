@@ -43,7 +43,7 @@ class TransectSaveData(UserDict):
         Writes this data on top of already existing data.
         '''
         with open(fp, 'w') as f:
-            json.dump(self.data, f)
+            json.dump(self.data, f, indent=4)
 
     def addImage(self, imageName):
         '''
