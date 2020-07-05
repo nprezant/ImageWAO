@@ -31,6 +31,10 @@ class QImageViewer(QtWidgets.QGraphicsView):
         self.canZoom = True
         self.canPan = True
 
+        # Minimum bounding size for zoom
+        self.minimumZoomHeight = 8
+        self.minimumZoomWidth = 8
+
     def viewBoundingBox(self):
         '''
         Bounding box of the current view.
@@ -142,13 +146,20 @@ class QImageViewer(QtWidgets.QGraphicsView):
         selection rectangles
         '''
         
-        viewBBox = self.sceneRect()
+        sceneBBox = self.sceneRect()
         
         # The box that we want to zoom to is the one that
         # intersects with the view's bounding box.
         # (E.g. if the requested box is outside the scene,
         # clip the box to the scene's limits)
-        selectionBBox = rect.intersected(viewBBox)
+        selectionBBox = rect.intersected(sceneBBox)
+
+        # Enforce a minimum height and width
+        if selectionBBox.width() < self.minimumZoomWidth:
+            selectionBBox.setWidth(self.minimumZoomWidth)
+
+        if selectionBBox.height() < self.minimumZoomHeight:
+            selectionBBox.setHeight(self.minimumZoomHeight)
 
         # Clear current selection area.
         self.scene().setSelectionArea(QtGui.QPainterPath())
