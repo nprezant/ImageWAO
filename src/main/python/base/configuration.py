@@ -91,11 +91,41 @@ class Configuration:
     @property
     def libraryDirectory(self):
         settings = QtCore.QSettings()
-        return settings.value('library/homeDirectory', self.defaultLibraryDirectory)
+        return settings.value('library/homeDirectory', str(self.defaultLibraryDirectory))
 
     @libraryDirectory.setter
     def libraryDirectory(self, value):
         settings = QtCore.QSettings()
         settings.setValue('library/homeDirectory', value)
+
+    @property
+    def flightImportFolder(self):
+        settings = QtCore.QSettings()
+        return settings.value('import/flightImportDirectory', Path().home().anchor)
+
+    @flightImportFolder.setter
+    def flightImportFolder(self, value):
+        settings = QtCore.QSettings()
+        settings.setValue('import/flightImportDirectory', value)
+
+    @property
+    def maxPhotoDelay(self):
+        settings = QtCore.QSettings()
+        return settings.value('import/maxPhotoDelay', 5)
+
+    @maxPhotoDelay.setter
+    def maxPhotoDelay(self, value):
+        settings = QtCore.QSettings()
+        settings.setValue('import/maxPhotoDelay', value)
+
+    @property
+    def minPhotosPerTransect(self):
+        settings = QtCore.QSettings()
+        return settings.value('import/minPhotosPerTransect', 3)
+
+    @minPhotosPerTransect.setter
+    def minPhotosPerTransect(self, value):
+        settings = QtCore.QSettings()
+        settings.setValue('import/minPhotosPerTransect', value)
 
 config = Configuration()

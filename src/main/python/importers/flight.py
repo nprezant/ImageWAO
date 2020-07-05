@@ -97,21 +97,11 @@ class IntroPage(QtWidgets.QWizardPage):
 
     @property
     def _defaultImportFolder(self):
-        settings = QtCore.QSettings()
-        path = settings.value(
-            'import/flightImportDirectory',
-            Path().home().anchor
-        )
-        return path
+        return config.flightImportFolder
 
     def _saveDefaults(self):
-
         # save default import path
-        settings = QtCore.QSettings()
-        settings.setValue(
-            'import/flightImportDirectory', 
-            self.pathEdit.text()
-        )
+        config.flightImportFolder = self.pathEdit.text()
 
     def _chooseImportFolder(self):
 
@@ -177,28 +167,14 @@ class ParametersPage(QtWidgets.QWizardPage):
         self._setDefaults()
 
     def _setDefaults(self):
-        settings = QtCore.QSettings()
-        maxDelay = settings.value(
-            'import/maxDelay', 
-            5
-        )
-        minCount = settings.value(
-            'import/minCount', 
-            3
-        )
+        maxDelay = config.maxPhotoDelay
+        minCount = config.minPhotosPerTransect
         self.maxDelayBox.setValue(int(maxDelay))
         self.minCountBox.setValue(int(minCount))
 
     def _saveDefaults(self):
-        settings = QtCore.QSettings()
-        settings.setValue(
-            'import/maxDelay', 
-            self.maxDelayBox.value()
-        )
-        settings.setValue(
-            'import/minCount', 
-            self.minCountBox.value()
-        )
+        config.maxPhotoDelay = self.maxDelayBox.value()
+        config.minPhotosPerTransect = self.minCountBox.value()
     
     def nextId(self):
         return FlightImportWizard.Page_Review
@@ -336,7 +312,7 @@ class SetLibraryPage(QtWidgets.QWizardPage):
         # import to this path
         self.pathLabel = QtWidgets.QLabel('Create folder in:')
         self.pathLabel.setToolTip('By default this is your library folder.')
-        self.pathEdit = QtWidgets.QLineEdit(self._defaultLibraryFolder)
+        self.pathEdit = QtWidgets.QLineEdit(config.libraryDirectory)
         self.pathEdit.setToolTip('By default this is your library folder.')
         self.pathEdit.setReadOnly(True)
         self.pathEdit.setStyleSheet(
@@ -364,15 +340,6 @@ class SetLibraryPage(QtWidgets.QWizardPage):
         importFolderName = Path(self.field('importFolder')).name
         if importFolderName is not None:
             self.flightFolderBox.setText(importFolderName)
-
-    @property
-    def _defaultLibraryFolder(self):
-        settings = QtCore.QSettings()
-        path = settings.value(
-            'library/homeDirectory',
-            str(config.defaultLibraryDirectory)
-        )
-        return path
 
     def _chooseImportFolder(self):
 
