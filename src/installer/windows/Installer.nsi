@@ -1,6 +1,11 @@
 !include MUI2.nsh
 !include FileFunc.nsh
 
+!macro GetPathName path
+  push ${path}
+  call GetPathName
+!macroend
+
 ;--------------------------------
 ;Perform Machine-level install, if possible
 
@@ -70,6 +75,18 @@ FunctionEnd
 !define UNINST_KEY \
   "Software\Microsoft\Windows\CurrentVersion\Uninstall\${app_name}"
 Section
+
+  ; Ensure install folder is the app name
+  !insertMacro GetPathName $InstDir
+  pop $0
+  ${If} $0 == "${app_name}"
+      ; This is a good name
+  ${Else}
+      StrCpy $InstDir "$InstDir\${app_name}"
+  ${EndIf}
+
+  MessageBox MB_OK "Installing to $InstDir"
+
   SetOutPath "$InstDir"
   File /r "..\${app_name}\*"
   WriteRegStr SHCTX "Software\${app_name}" "" $InstDir
@@ -105,5 +122,29 @@ Function LaunchLink
 FunctionEnd
 
 Function finishpageaction
-CreateShortcut "$desktop\${app_name}.lnk" "$InstDir\${app_name}.exe"
+  CreateShortcut "$desktop\${app_name}.lnk" "$InstDir\${app_name}.exe"
+FunctionEnd
+
+Function GetPathName
+  exch $R0 ; Pushes what was in R0 to top of stack, retreives the input parameter
+  push $0 ; Push variables that we'll be overwriting to the stack
+  push $1 ; Same as above
+  push $2 ; Same as above
+
+  StrCpy $0 $R0
+  StrCpy $1 0
+  loop:
+      IntOp $1 $1 - 1 ; Character offset, from end of string
+      StrCpy $2 $0 1 $1 ; Read 1 character into $2, -$1 offset from end
+      StrCmp $2 '\' found
+      StrCmp $2 '' stop loop ; No more characters or try again
+  found:
+      IntOp $1 $1 + 1 ; Don't include \ in extracted string
+  stop:
+  StrCpy $R0 $0 "" $1 ; We know the length, extract final string part
+
+  pop $2
+  pop $1
+  pop $0
+  exch $R0
 FunctionEnd
