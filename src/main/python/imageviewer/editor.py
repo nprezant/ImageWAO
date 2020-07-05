@@ -141,6 +141,10 @@ class QImageEditor(QImageViewer):
         Open the context menu with the currently selected item.
         '''
 
+        def eraseItem(item):
+            self.scene().removeItem(item)
+            self._emitDrawnItems()
+
         # The context menu is only accessible from the main mouse tool
         if not self.mouseAction.tooltype == ToolType.HandTool:
             return
@@ -150,7 +154,7 @@ class QImageEditor(QImageViewer):
         item = self.itemAt(pos)
         if isinstance(item, sg.SceneCountsItemMixin):
             self.menu.addEditableItem(item, lambda *args: self._countForm.popup(item, pos), 'Edit counts')
-            self.menu.addDeletableItem(item, lambda *args: self.scene().removeItem(item), 'Erase')
+            self.menu.addDeletableItem(item, lambda *args: eraseItem(item), 'Erase')
 
             # Show the menu
             self.menu.popup(self.mapToGlobal(pos))
