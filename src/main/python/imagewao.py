@@ -1,7 +1,7 @@
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
-from base import ctx
+from base import ctx, config
 from importers import FlightImportWizard
 from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay, Notifier, Library
 from ui.messageboxes import DoYouWantToSave
@@ -116,13 +116,13 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def _clearMenus(self):
         self.fileMenu.clear()
-        self.helpMenu.clear()
+        self.infoMenu.clear()
 
     def _createMenus(self):
         if self._menusCreated == False:
             self.fileMenu = QtWidgets.QMenu('&File', self)
             self.expeMenu = QtWidgets.QMenu('&Exp.', self) # Experimental
-            self.helpMenu = QtWidgets.QMenu('&Help', self)
+            self.infoMenu = QtWidgets.QMenu('&Info', self)
             self._menusCreated = True
         
     def _populateMenus(self):
@@ -150,13 +150,34 @@ class QImageWAO(QtWidgets.QMainWindow):
             lambda: QtCore.QSettings().clear())
         self.expeMenu.addAction(a)
 
-        # Help Menu
-        self.helpMenu.addAction(QtWidgets.QAction(f'Version: {self.version}', self))
+        # Info Menu
+        self.infoMenu.addAction(QtWidgets.QAction(f'Version: {self.version}', self))
+
+        # Create text box for user name
+        widgetAction = QtWidgets.QWidgetAction(self.infoMenu)
+
+        userNameWidget = QtWidgets.QWidget()
+        userNameLayout = QtWidgets.QHBoxLayout()
+        userNameLayout.setContentsMargins(0,0,0,0)
+
+        nameLabel = QtWidgets.QLabel('User')
+        nameLabel.setToolTip('Username is exported to Excel along with animal counts')
+        nameEdit = QtWidgets.QLineEdit(config.username)
+        nameEdit.editingFinished.connect(lambda: setattr(config, 'username', nameEdit.text()))
+        nameEdit.setToolTip(nameLabel.toolTip())
+
+        userNameLayout.addWidget(nameLabel)
+        userNameLayout.addWidget(nameEdit)
+
+        userNameWidget.setLayout(userNameLayout)
+        widgetAction.setDefaultWidget(userNameWidget)
+
+        self.infoMenu.addAction(widgetAction)
 
     def _arrangeMenus(self):
         self.menuBar().addMenu(self.fileMenu)
         self.menuBar().addMenu(self.expeMenu)
-        self.menuBar().addMenu(self.helpMenu)
+        self.menuBar().addMenu(self.infoMenu)
 
     def _saveIfDirty(self):
         if self._dirty:

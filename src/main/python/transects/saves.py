@@ -214,7 +214,7 @@ class TransectSaveDatas(UserList):
         '''
         Returns a string that can be copied and pasted into excel/notepad
         '''
-        s = 'Flight\tTransect\tImage\tSpecies\tNumber\tIsDuplicate\tNotes'
+        s = 'Flight\tTransect\tImage\tSpecies\tNumber\tIsDuplicate\tNotes\tUser'
         for saveGroup in self.data:
             rel = saveGroup.saveData.fp.relative_to(config.defaultLibraryDirectory)
             flight = rel.parts[0]
@@ -224,7 +224,7 @@ class TransectSaveDatas(UserList):
                 s += (
                     f'\n{flight}\t{transect}\t{imageName}'
                     f'\t{countData.species}\t{countData.number}'
-                    f'\t{isDuplicate}\t{countData.notes}')
+                    f'\t{isDuplicate}\t{countData.notes}\t{config.username}')
         return s
 
     def allImages(self) -> list:

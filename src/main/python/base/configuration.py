@@ -1,7 +1,9 @@
 
 from pathlib import Path
 
-class Config:
+from PySide2 import QtCore
+
+class Configuration:
 
     def __init__(self):
 
@@ -76,4 +78,14 @@ class Config:
         # Button sizes
         self.toolbuttonSize = (20,20)
 
-config = Config()
+    @property
+    def username(self):
+        settings = QtCore.QSettings()
+        return settings.value('config/username', '')
+
+    @username.setter
+    def username(self, value):
+        settings = QtCore.QSettings()
+        settings.setValue('config/username', value)
+
+config = Configuration()
