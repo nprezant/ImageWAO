@@ -85,7 +85,8 @@ Section
       StrCpy $InstDir "$InstDir\${app_name}"
   ${EndIf}
 
-  MessageBox MB_OK "Installing to $InstDir"
+  ; Uncomment to display installation folder
+  ; MessageBox MB_OK "Installing to $InstDir"
 
   SetOutPath "$InstDir"
   File /r "..\${app_name}\*"
