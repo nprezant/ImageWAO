@@ -215,10 +215,10 @@ def copyTransectFiles(transects, toFolder, progress=None):
         tFolder.mkdir(exist_ok=True)
 
         # Make .marked/ folder
-        Path(tFolder / config.markedImageFolder).mkdir(exist_ok=True)
+        config.markedFolder(tFolder).mkdir(exist_ok=True)
 
         # Make migration log file, init logging variable
-        log = Path(tFolder / config.transectMigrationLog)
+        log = config.transectMigrationLog(tFolder)
         log.touch(exist_ok=True)
         copyLog = [] # (copyFrom, copyTo)
 

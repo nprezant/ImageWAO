@@ -293,6 +293,9 @@ class MetadataPage(QtWidgets.QWizardPage):
     def nextId(self):
         return FlightImportWizard.Page_SetLibrary
 
+    def save(self):
+        pass
+
 class SetLibraryPage(QtWidgets.QWizardPage):
 
     def __init__(self, *args, **kwargs):

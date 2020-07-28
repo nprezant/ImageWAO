@@ -9,14 +9,10 @@ class Configuration:
 
         # Files and folders in the "Flight" directory.
         # E.g. Flight01/.flight/meta.json
-        self.flightDataFolder = '.flight/'
-        self.flightMetaFile = '.flight/meta.json'
-        self.flightDistributionFile = '.flight/distribution.json'
+        self.flightDataFolderName = '.flight'
 
         # Files and folders in each transect directory
-        self.markedImageFolder = '.marked/'
-        self.markedDataFile = '.marked/data.transect'
-        self.transectMigrationLog = '.marked/migration.log'
+        self.markedImageFolderName = '.marked'
 
         # Default library directory
         self.defaultLibraryDirectory = Path.home() / 'Pictures/ImageWAO'
@@ -77,6 +73,28 @@ class Configuration:
 
         # Button sizes
         self.toolbuttonSize = (20,20)
+
+    # Flight Data Files
+
+    def flightDataFolder(self, flightFolder):
+        return Path(flightFolder) / self.flightDataFolderName
+
+    def flightMetaFile(self, flightFolder):
+        return self.flightDataFolder(flightFolder) / 'meta.json'
+
+    def flightDistributionFile(self, flightFolder):
+        return self.flightDataFolder(flightFolder) / 'distribution.json'
+
+    # Marked folder (within transect)
+
+    def markedFolder(self, transectFolder):
+        return Path(transectFolder) / self.markedImageFolderName
+
+    def markedDataFile(self, transectFolder):
+        return self.markedFolder(transectFolder) / 'data.transect'
+
+    def transectMigrationLog(self, transectFolder):
+        return self.markedFolder(transectFolder) / 'migration.log'
 
     @property
     def username(self):

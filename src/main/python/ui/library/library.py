@@ -48,7 +48,7 @@ class Library(QtWidgets.QWidget):
 
         self.proxyView.setModel(self.proxyModel)
         self.proxyModel.setSourceModel(self.sourceModel)
-        self.proxyModel.filterOut = Path(config.markedImageFolder).name
+        self.proxyModel.filterOut = config.markedImageFolderName
 
         self.address = AddressBar()
 

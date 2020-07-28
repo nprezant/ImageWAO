@@ -138,7 +138,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             
         # Generate the save path
         originalFolder = self._folder()
-        savePath = originalFolder / Path(config.markedDataFile)
+        savePath = config.markedDataFile(transectFolder=originalFolder)
 
         # If the path doesn't exist, don't try to load anything
         if not savePath.is_file():
@@ -184,7 +184,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             return
 
         # If the save file doesn't exist, initialize empty.
-        transectPath = self._folder() / Path(config.markedDataFile)
+        transectPath = config.markedDataFile(transectFolder=self._folder())
         if transectPath.exists():
             saveData = TransectSaveData.load(transectPath)
         else:
@@ -245,10 +245,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             return
 
         # Setup save directory files and folders
-        markedFolder = self._folder() / Path(config.markedImageFolder)
+        markedFolder = config.markedFolder(transectFolder=self._folder())
         markedFolder.mkdir(exist_ok=True)
 
-        transectPath = self._folder() / Path(config.markedDataFile)
+        transectPath = config.markedDataFile(transectFolder=self._folder())
         transectPath.parent.mkdir(exist_ok=True)
 
         if transectPath.exists():

@@ -93,13 +93,12 @@ class TotalsModel(QtCore.QAbstractListModel):
             raise ValueError(f'Can only read from dir, not file: {fp}')
         
         # If the .marked/ folder exists, this is a single transect
-        markedFolder = fp / config.markedImageFolder
-        if markedFolder.exists():
+        if config.markedFolder(transectFolder=fp).exists():
 
             self.inTransect = True
 
             # If the save file exists, read it
-            saveFile = fp / config.markedDataFile
+            saveFile = config.markedDataFile(transectFolder=fp)
             if saveFile.exists():
                 saveDatas = TransectSaveDatas()
                 saveDatas.load(saveFile)
@@ -112,14 +111,14 @@ class TotalsModel(QtCore.QAbstractListModel):
 
             self.inTransect = False
 
-            markedFolderMatchString = Path(config.markedImageFolder).name
+            markedFolderMatchString = config.markedImageFolderName
             subfolders = subfolders= [f for f in os.scandir(fp) if f.is_dir()]
             filesToLoad = []
             for dirname in list(subfolders):
                 allfolders = fast_scandir(dirname)
                 markedFolders = [d for d in allfolders if d.name == markedFolderMatchString]
                 for markedFolder in markedFolders:
-                    saveFile = Path(markedFolder) / Path(config.markedDataFile).name
+                    saveFile = config.markedDataFile(transectFolder=Path(markedFolder).parent)
                     if saveFile.exists():
                         filesToLoad.append((dirname.name, saveFile))
             if filesToLoad:
