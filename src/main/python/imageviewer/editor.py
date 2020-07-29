@@ -195,11 +195,6 @@ class QImageEditor(QImageViewer):
         if event.key() == QtCore.Qt.Key_Control:
             self._ctrlPressed = True
 
-            # If we are currently on the main mouse button, we should update the cursor
-            # to let the user know that we can pan around now.
-            if self.mouseAction.tooltype == ToolType.HandTool:
-                self.setCursor(QtCore.Qt.OpenHandCursor)
-
         # Plus and equal keys are often in the same button
         if event.key() in (QtCore.Qt.Key_Plus, QtCore.Qt.Key_Equal):
             self.zoomIn(0.1)
@@ -220,11 +215,6 @@ class QImageEditor(QImageViewer):
         '''
         if event.key() == QtCore.Qt.Key_Control:
             self._ctrlPressed = False
-
-            # If we just had the panning cursor up, we can't pan anymore and
-            # should update the cursor to match.
-            if self.cursor() == QtCore.Qt.OpenHandCursor:
-                self.setCursor(QtCore.Qt.ArrowCursor)
 
         return super().keyReleaseEvent(event)
 
@@ -248,9 +238,9 @@ class QImageEditor(QImageViewer):
         elif self.mouseAction.tooltype == ToolType.HandTool:
             if event.button() == QtCore.Qt.LeftButton:
                 if self._ctrlPressed:
-                    self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
-                else:
                     self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
+                else:
+                    self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
 
         # Zoom tool allows user to zoom in and out with 
         # a selection rubber band box. The release event takes
