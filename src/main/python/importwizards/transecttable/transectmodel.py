@@ -80,6 +80,10 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         if index.row() < 0 or index.row() > len(self.transects):
             return None
 
+        # Center align columns for #images and image range
+        if index.column() in (1,2) and role == QtCore.Qt.TextAlignmentRole:
+            return QtCore.Qt.AlignCenter
+
         if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
             name = self.transects[index.row()].name
             numFiles = self.transects[index.row()].numFiles
