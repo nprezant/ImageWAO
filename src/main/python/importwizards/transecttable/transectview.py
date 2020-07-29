@@ -3,6 +3,15 @@ from PySide2 import QtGui, QtWidgets
 
 class TransectTableView(QtWidgets.QTableView):
     
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+        # Alternate row colors
+        p = self.palette()
+        p.setColor(p.AlternateBase, QtGui.QColor('#ffe8c9'))
+        self.setPalette(p)
+        self.setAlternatingRowColors(True)
+
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         if event.matches(QtGui.QKeySequence.Paste):
             self._handlePaste()

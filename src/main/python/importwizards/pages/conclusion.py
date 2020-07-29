@@ -3,9 +3,7 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
-from transects import Transect, TransectTableModel, TransectTableView
-
-from .ids import PageIds
+from ..transecttable import TransectTableModel
 
 class ConclusionPage(QtWidgets.QWizardPage):
 

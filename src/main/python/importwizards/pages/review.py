@@ -1,7 +1,9 @@
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
-from transects import Transect, TransectTableModel, TransectTableView
+# TODO don't allow invalid path characters in the transect name
+# TODO button to toggle numeric or alpha bravo etc
+from ..transecttable import Transect, TransectTableModel, TransectTableView
 
 from .ids import PageIds
 
