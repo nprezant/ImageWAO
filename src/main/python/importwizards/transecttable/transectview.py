@@ -45,3 +45,6 @@ class TransectTableView(QtWidgets.QTableView):
                     ), 
                     columnContents[j]
                 )
+
+    def sizeHint(self):
+        return 1.25 * super().sizeHint()
