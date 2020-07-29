@@ -52,9 +52,6 @@ class ParametersPage(QtWidgets.QWizardPage):
         self.setLayout(layout)
 
     def initializePage(self):
-        self._setDefaults()
-
-    def _setDefaults(self):
         maxDelay = config.maxPhotoDelay
         minCount = config.minPhotosPerTransect
         self.maxDelayBox.setValue(int(maxDelay))
