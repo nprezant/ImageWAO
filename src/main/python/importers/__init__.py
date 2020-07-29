@@ -1,3 +1,0 @@
-
-from .flight import FlightImportWizard
-    

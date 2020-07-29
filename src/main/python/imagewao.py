@@ -2,7 +2,7 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx, config
-from importers import FlightImportWizard
+from importwizards import FlightImportWizard
 from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay, Notifier, Library
 from ui.messageboxes import DoYouWantToSave
 
