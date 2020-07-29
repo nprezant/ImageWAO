@@ -7,6 +7,9 @@ class Configuration:
 
     def __init__(self):
 
+        # Invalid path characters (windows allows more than this but better safe than sorry)
+        self.invalidPathCharacters = '/!@#$%^&*`\'\"\\\{\}[]?:;+=|<>'
+
         # Files and folders in the "Flight" directory.
         # E.g. Flight01/.flight/meta.json
         self.flightDataFolderName = '.flight'

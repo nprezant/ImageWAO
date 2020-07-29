@@ -1,7 +1,6 @@
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
-# TODO don't allow invalid path characters in the transect name
 # TODO button to toggle numeric or alpha bravo etc
 from ..transecttable import Transect, TransectTableModel, TransectTableView
 
@@ -16,8 +15,8 @@ class ReviewPage(QtWidgets.QWizardPage):
         self.setTitle('Review')
         self.topLabel = QtWidgets.QLabel(
             'These are the categorized transects, in chronological order.\n'
-            'Note that the geographical order, often given North to South as Alpha, Bravo, etc. '
-            'is not necessarily the same as the chronological order.\n\n'
+            'Note that the geographical order, often given North to South as Alfa, Bravo, etc. '
+            'is not necessarily the same as the chronological order as flown by the plane.\n\n'
             'Copy and paste the correct naming order from Excel, or enter the names manually.\n'
         )
         self.topLabel.setWordWrap(True)

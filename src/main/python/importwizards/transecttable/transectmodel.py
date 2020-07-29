@@ -144,7 +144,18 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         if index.isValid() and 0 <= index.row() < len(self.transects):
             transect = self.transects[index.row()]
             if index.column() == 0:
-                transect.name = value
+
+                # Remove invalid characters from the input
+                requestedString = str(value)
+                validCharacters = [s for s in requestedString if s not in config.invalidPathCharacters]
+                validatedString = ''.join(validCharacters)
+
+                # If the string only contained invalid characters, don't update the background model
+                if len(validatedString) == 0:
+                    return False
+
+                # set the background model's value to the validated string
+                transect.name = validatedString
             else:
                 return False
 
