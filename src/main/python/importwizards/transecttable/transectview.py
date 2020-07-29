@@ -12,6 +12,9 @@ class TransectTableView(QtWidgets.QTableView):
         self.setPalette(p)
         self.setAlternatingRowColors(True)
 
+        # Underline header text
+        self.horizontalHeader().setStyleSheet('QHeaderView { text-decoration: underline; }')
+
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         if event.matches(QtGui.QKeySequence.Paste):
             self._handlePaste()
