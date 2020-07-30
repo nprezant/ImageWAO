@@ -3,6 +3,11 @@ from PySide2 import QtCore, QtWidgets, QtGui
 
 from .ids import PageIds
 
+# TODO save to file and allow user to view/edit later (right click on folder name?)
+# TODO right click on flight folder for a few options:
+#   view distribution
+#   view migration report
+#   view meta data
 class MetadataPage(QtWidgets.QWizardPage):
 
     def __init__(self, *args, **kwargs):
