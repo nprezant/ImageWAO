@@ -8,6 +8,8 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtGui
 
+from base import config
+
 def showInFolder(path, select=True):
     '''
     Show a file or folder with explorer/finder.
@@ -61,6 +63,23 @@ class DirectoryValidator(QtGui.QValidator):
             return QtGui.QValidator.Acceptable
         else:
             return QtGui.QValidator.Intermediate
+
+class FileNameValidator(QtGui.QValidator):
+    '''
+    Ensures that the file or folder name does not have any
+    illegal characters in it.
+    '''
+
+    def validate(self, userInput:str, pos:int):
+        
+        # Indices of invalid characters
+        invalids = [1 if s in config.invalidPathCharacters else 0 for s in userInput]
+
+        # Valid if there are no invalid characters
+        if sum(invalids) == 0:
+            return QtGui.QValidator.Acceptable
+        else:
+            return QtGui.QValidator.Invalid
 
 
 if __name__ == '__main__':

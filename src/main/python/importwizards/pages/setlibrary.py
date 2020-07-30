@@ -4,6 +4,7 @@ from pathlib import Path
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from base import config
+from tools import FileNameValidator
 
 from .ids import PageIds
 
@@ -20,6 +21,7 @@ class SetLibraryPage(QtWidgets.QWizardPage):
             self.flightFolderLabel.fontMetrics().boundingRect('Name ').width()
         )
         self.flightFolderBox = QtWidgets.QLineEdit('Flight XX')
+        self.flightFolderBox.setValidator(FileNameValidator())
         self.registerField('flightFolder', self.flightFolderBox)
         
         # import to this path
