@@ -19,6 +19,8 @@ class TransectTableModel(QtCore.QAbstractTableModel):
 
     categorizeProgress = QtCore.Signal(int)
     categorizeComplete = QtCore.Signal()
+    categorizeSuccess = QtCore.Signal()
+    categorizeError = QtCore.Signal(tuple)
 
     def __init__(self):
         super().__init__()
@@ -48,7 +50,9 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         self._categorizeWorker.includeProgress()
         self._categorizeWorker.signals.progress.connect(self.categorizeProgress.emit)
         self._categorizeWorker.signals.finished.connect(self.categorizeComplete.emit)
+        self._categorizeWorker.signals.success.connect(self.categorizeSuccess.emit)
         self._categorizeWorker.signals.result.connect(self.setTransects)
+        self._categorizeWorker.signals.error.connect(self.categorizeError.emit)
         self._threadpool.start(self._categorizeWorker)
 
     @QtCore.Slot(list)

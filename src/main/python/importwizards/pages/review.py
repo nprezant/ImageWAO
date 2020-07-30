@@ -28,7 +28,8 @@ class ReviewPage(QtWidgets.QWizardPage):
         self.view = TransectTableView()
         self.model = TransectTableModel()
         self.model.categorizeProgress.connect(self.progressBar.setValue)
-        self.model.categorizeComplete.connect(self._categorizeComplete)
+        self.model.categorizeSuccess.connect(self._categorizationSuccess)
+        self.model.categorizeError.connect(self._categorizationError)
 
         self.view.setModel(self.model)
 
@@ -43,7 +44,7 @@ class ReviewPage(QtWidgets.QWizardPage):
         self._categorizationFinished = False
 
     @QtCore.Slot()
-    def _categorizeComplete(self):
+    def _categorizationSuccess(self):
         self.loadingLabel.setText('Categorizing images... Complete')
 
         # Tell the page that it is complete so it can update the correct buttons.
@@ -57,6 +58,16 @@ class ReviewPage(QtWidgets.QWizardPage):
         # Adjust the size of the wizard to fit in the new data
         self.wizard().adjustSize()
         self.view.resizeColumnsToContents()
+
+    @QtCore.Slot(tuple)
+    def _categorizationError(self, e):
+        self.loadingLabel.setText('Categorizing images... Error')
+
+        QtWidgets.QMessageBox.warning(
+            self.parent(),
+            'Sorry, I encountered an error while categorizing!',
+            str(e[1])
+        )
 
     def isComplete(self):
         return self._categorizationFinished

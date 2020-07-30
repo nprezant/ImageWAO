@@ -4,6 +4,8 @@ Functions for dealing with files and folders.
 
 import os
 import sys
+from pathlib import Path
+
 from PySide2 import QtCore, QtGui
 
 def showInFolder(path, select=True):
@@ -41,6 +43,24 @@ def showInFolder(path, select=True):
         #    return
     # Fallback.
     QtGui.QDesktopServices.openUrl(QtCore.QUrl(dirPath))
+
+
+class DirectoryValidator(QtGui.QValidator):
+    
+    def validate(self, userInput:str, pos:int):
+
+        # Invalid volume names will cause this to fail.
+        # Intermediate allows user to try it and keep typing
+        try:
+            isDir = Path(userInput).is_dir()
+        except OSError:
+            return QtGui.QValidator.Intermediate
+
+        # Acceptable if path is a directory, otherwise we might get there
+        if isDir:
+            return QtGui.QValidator.Acceptable
+        else:
+            return QtGui.QValidator.Intermediate
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 
 from .layout import clearLayout
-from .files import showInFolder
+from .files import showInFolder, DirectoryValidator
 from .saving import saveManyImages
 from .geometry import distanceToRect
 from .sizing import setPlainTextEditHeight

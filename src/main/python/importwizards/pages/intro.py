@@ -2,6 +2,7 @@
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from base import config
+from tools import DirectoryValidator
 
 from .ids import PageIds
 
@@ -20,6 +21,8 @@ class IntroPage(QtWidgets.QWizardPage):
 
         self.pathLabel = QtWidgets.QLabel('Import from:')
         self.pathEdit = QtWidgets.QLineEdit()
+        self.pathEdit.setValidator(DirectoryValidator())
+        self.pathEdit.textChanged.connect(lambda text: self.completeChanged.emit())
         self.browse = QtWidgets.QPushButton('...')
         self.browse.setMaximumWidth(
             self.browse.fontMetrics().boundingRect('...').width() + 20
@@ -57,6 +60,9 @@ class IntroPage(QtWidgets.QWizardPage):
 
         if not folder == '':
             self.pathEdit.setText(folder)
+
+    def isComplete(self):
+        return self.pathEdit.hasAcceptableInput()
 
     def nextId(self):
         return PageIds.Page_Parameters

@@ -12,7 +12,9 @@ class WorkerSignals(QtCore.QObject):
     Supported signals are:
 
     finished
-        No data
+        No data. Emitted regardless of errors.
+    success
+        No data. Only emitted if worker executes without error
     error
         `tuple` (exctype, value, traceback.format_exc() )
     result
@@ -22,6 +24,7 @@ class WorkerSignals(QtCore.QObject):
     '''
 
     finished = QtCore.Signal()
+    success = QtCore.Signal()
     error = QtCore.Signal(tuple)
     result = QtCore.Signal(object)
     progress = QtCore.Signal(int)
@@ -71,6 +74,7 @@ class QWorker(QtCore.QRunnable):
             self.signals.error.emit((exctype, value, traceback.format_exc()))
         else:
             self.signals.result.emit(result)
+            self.signals.success.emit()
         finally:
             self.signals.finished.emit()
 
