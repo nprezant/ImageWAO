@@ -19,7 +19,7 @@ class ConclusionPage(QtWidgets.QWizardPage):
         # Initialize model that gets passed from the review page
         self._model = None
 
-        # Initally the copying has not finished
+        # Flag to determine when copying has completed
         self._copyFinished = False
 
     @QtCore.Slot()
@@ -38,6 +38,9 @@ class ConclusionPage(QtWidgets.QWizardPage):
             self._model.copyComplete.connect(self._copyComplete)
 
     def initializePage(self):
+
+        # Initally the copying has not finished
+        self._copyFinished = False
 
         # ensure model is here
         model = self._model

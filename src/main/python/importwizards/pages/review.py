@@ -40,7 +40,7 @@ class ReviewPage(QtWidgets.QWizardPage):
         layout.addWidget(self.view)
         self.setLayout(layout)
 
-        # Initally the categorization has not finished
+        # Flag to note whether categorization has finished
         self._categorizationFinished = False
 
     @QtCore.Slot()
@@ -73,6 +73,9 @@ class ReviewPage(QtWidgets.QWizardPage):
         return self._categorizationFinished
 
     def initializePage(self):
+
+        # Initally the categorization has not finished
+        self._categorizationFinished = False
 
         # read data from previous fields
         folder = self.field('importFolder')
