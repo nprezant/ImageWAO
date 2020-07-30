@@ -8,12 +8,10 @@ class MetadataPage(QtWidgets.QWizardPage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Metadata')
-
-        topLabel = QtWidgets.QLabel(
+        self.setSubTitle(
             'Include metadata about the flight. '
             'This will be saved alongside the transect images.'
         )
-        topLabel.setWordWrap(True)
 
         # airframe
         self.airframeLabel = QtWidgets.QLabel('Airframe')
@@ -36,7 +34,6 @@ class MetadataPage(QtWidgets.QWizardPage):
         self.registerField('flightNotesBox', self.flightNotesBox)
 
         layout = QtWidgets.QFormLayout()
-        layout.addRow(topLabel)
         layout.addRow(self.airframeLabel, self.airframeBox)
         layout.addRow(self.flightDateLabel, self.flightDateBox)
         layout.addRow(self.flightTimeLabel, self.flightTimeBox)

@@ -10,14 +10,12 @@ class ParametersPage(QtWidgets.QWizardPage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Sorting Algorithm Parameters')
-
-        topLabel = QtWidgets.QLabel(
+        self.setSubTitle(
             '<b>You probably don\'t need to change these.</b><br/>'
             'These parameters govern the algorithm that categorizes '
             'flight photos into transects. '
             'Hover over the descriptions for more information. '
         )
-        topLabel.setWordWrap(True)
 
         # photo delay
         self.maxDelayLabel = QtWidgets.QLabel('Max time between photos')
@@ -46,7 +44,6 @@ class ParametersPage(QtWidgets.QWizardPage):
         self.registerField('minCount', self.minCountBox)
 
         layout = QtWidgets.QFormLayout()
-        layout.addRow(topLabel)
         layout.addRow(self.maxDelayLabel, self.maxDelayBox)
         layout.addRow(self.minCountLabel, self.minCountBox)
         self.setLayout(layout)

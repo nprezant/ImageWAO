@@ -12,10 +12,7 @@ class SetLibraryPage(QtWidgets.QWizardPage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Copy Images')
-
-        topLabel = QtWidgets.QLabel(
-            'What do you want your folder of transects to be called?.'
-        )
+        self.setSubTitle('What do you want your folder of transects to be called?.')
 
         # import to this folder name
         self.flightFolderLabel = QtWidgets.QLabel('Name')
@@ -43,12 +40,11 @@ class SetLibraryPage(QtWidgets.QWizardPage):
         self.registerField('libFolder', self.pathEdit)
 
         layout = QtWidgets.QGridLayout()
-        layout.addWidget(topLabel, 0, 0, 1, 3)
-        layout.addWidget(self.flightFolderLabel, 1, 0 ,1, 3)
-        layout.addWidget(self.flightFolderBox, 1, 1, 1, 2)
-        layout.addWidget(self.pathLabel, 2, 0)
-        layout.addWidget(self.pathEdit, 2, 1)
-        layout.addWidget(self.browse, 2, 2)
+        layout.addWidget(self.flightFolderLabel, 0, 0 ,1, 3)
+        layout.addWidget(self.flightFolderBox, 0, 1, 1, 2)
+        layout.addWidget(self.pathLabel, 1, 0)
+        layout.addWidget(self.pathEdit, 1, 1)
+        layout.addWidget(self.browse, 1, 2)
         layout.setColumnMinimumWidth(0, self.flightFolderLabel.minimumWidth())
         self.setLayout(layout)
 

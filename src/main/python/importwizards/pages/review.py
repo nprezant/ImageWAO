@@ -13,13 +13,13 @@ class ReviewPage(QtWidgets.QWizardPage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.setTitle('Review')
-        self.topLabel = QtWidgets.QLabel(
+        self.mainLabel = QtWidgets.QLabel(
             'These are the categorized transects, in chronological order.\n'
             'Note that the geographical order, often given North to South as Alfa, Bravo, etc. '
             'is not necessarily the same as the chronological order as flown by the plane.\n\n'
             'Copy and paste the correct naming order from Excel, or enter the names manually.\n'
         )
-        self.topLabel.setWordWrap(True)
+        self.mainLabel.setWordWrap(True)
 
         # Loading widgets
         self.loadingLabel = QtWidgets.QLabel('Categorizing images...')
@@ -36,7 +36,7 @@ class ReviewPage(QtWidgets.QWizardPage):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.loadingLabel)
         layout.addWidget(self.progressBar)
-        layout.addWidget(self.topLabel)
+        layout.addWidget(self.mainLabel)
         layout.addWidget(self.view)
         self.setLayout(layout)
 
