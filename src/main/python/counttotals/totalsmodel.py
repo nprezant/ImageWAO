@@ -1,4 +1,3 @@
-
 import os
 from pathlib import Path
 
@@ -28,17 +27,17 @@ class TotalsModel(QtCore.QAbstractListModel):
         self._threadpool = QtCore.QThreadPool()
 
     def rowCount(self, index=QtCore.QModelIndex()):
-        ''' Returns the number of rows the model holds. '''
+        """ Returns the number of rows the model holds. """
         if self.inTransect:
             return self._data.numImages()
         else:
             return len(self._data.groupedDict())
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
-        '''
+        """
         Depending on the index and role given, return data.
         If not returning data, return None (equv. to Qt's QVariant)
-        '''
+        """
         if not index.isValid():
             return None
 
@@ -61,16 +60,16 @@ class TotalsModel(QtCore.QAbstractListModel):
         return None
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
-        '''
+        """
         No headers are displayed.
-        '''
-        if (role == QtCore.Qt.SizeHintRole):
+        """
+        if role == QtCore.Qt.SizeHintRole:
             return QtCore.QSize(1, 1)
 
         return None
 
     def flags(self, index):
-        ''' Set the item flag at the given index. '''
+        """ Set the item flag at the given index. """
         if not index.isValid():
             return QtCore.Qt.ItemIsEnabled
         return QtCore.Qt.ItemFlags(
@@ -82,16 +81,16 @@ class TotalsModel(QtCore.QAbstractListModel):
         self.readDirectory(self._parentDir)
 
     def readDirectory(self, fp):
-        ''' Populates model from directory. `fp`: any Path()-able type'''
+        """ Populates model from directory. `fp`: any Path()-able type"""
         self._parentDir = str(fp)
         fp = Path(fp)
 
         # Error checks
         if not fp.exists():
-            raise ValueError(f'Cannot read data from path that does not exist: {fp}')
+            raise ValueError(f"Cannot read data from path that does not exist: {fp}")
         if not fp.is_dir():
-            raise ValueError(f'Can only read from dir, not file: {fp}')
-        
+            raise ValueError(f"Can only read from dir, not file: {fp}")
+
         # If the .marked/ folder exists, this is a single transect
         if config.markedFolder(transectFolder=fp).exists():
 
@@ -112,13 +111,17 @@ class TotalsModel(QtCore.QAbstractListModel):
             self.inTransect = False
 
             markedFolderMatchString = config.markedImageFolderName
-            subfolders = subfolders= [f for f in os.scandir(fp) if f.is_dir()]
+            subfolders = subfolders = [f for f in os.scandir(fp) if f.is_dir()]
             filesToLoad = []
             for dirname in list(subfolders):
                 allfolders = fast_scandir(dirname)
-                markedFolders = [d for d in allfolders if d.name == markedFolderMatchString]
+                markedFolders = [
+                    d for d in allfolders if d.name == markedFolderMatchString
+                ]
                 for markedFolder in markedFolders:
-                    saveFile = config.markedDataFile(transectFolder=Path(markedFolder).parent)
+                    saveFile = config.markedDataFile(
+                        transectFolder=Path(markedFolder).parent
+                    )
                     if saveFile.exists():
                         filesToLoad.append((dirname.name, saveFile))
             if filesToLoad:
@@ -127,9 +130,9 @@ class TotalsModel(QtCore.QAbstractListModel):
                 self._resetData(TransectSaveDatas())
 
     def _loadFiles(self, filesToLoad):
-        '''
+        """
         Loads files from `filesToLoad` list of (topLevelGroup, fp)
-        '''
+        """
         saveDatas = TransectSaveDatas()
         for topLevel, saveFile in filesToLoad:
             saveDatas.load(saveFile, groupName=topLevel)
@@ -141,17 +144,19 @@ class TotalsModel(QtCore.QAbstractListModel):
         self.endResetModel()
 
     def export(self):
-        ''' Exports all data. Rn just copies data to clipboard. '''
+        """ Exports all data. Rn just copies data to clipboard. """
         clipboard = QtWidgets.QApplication.instance().clipboard()
         txt = self._data.clipboardText()
         clipboard.setText(txt)
         QtWidgets.QMessageBox.information(
-            self.parent(), 'Copied!',
-            'Count information copied to the clipboard!'
-            '\nPaste into Excel or a notepad to view it.')
+            self.parent(),
+            "Copied!",
+            "Count information copied to the clipboard!"
+            "\nPaste into Excel or a notepad to view it.",
+        )
 
     def indexOfName(self, name):
-        ''' Returns the first index matching the given name '''
+        """ Returns the first index matching the given name """
         if self.inTransect:
             row = self._data.indexOfImageName(name)
         else:
@@ -161,15 +166,14 @@ class TotalsModel(QtCore.QAbstractListModel):
             return self.index(row, 0)
         return None
 
+
 def fast_scandir(dirname):
-    '''
+    """
     Quickly scans all subfolders recursively.
     Faster than `os.walk` and much faster than `glob`.
     Returns list of os.DirEntry() objects.
-    '''
-    subfolders= [f for f in os.scandir(dirname) if f.is_dir()]
+    """
+    subfolders = [f for f in os.scandir(dirname) if f.is_dir()]
     for dirname in list(subfolders):
         subfolders.extend(fast_scandir(dirname))
     return subfolders
-
-

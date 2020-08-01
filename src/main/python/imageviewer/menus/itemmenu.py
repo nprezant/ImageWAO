@@ -1,36 +1,34 @@
-'''
+"""
 The menu for the popup that displays on graphic items.
-'''
+"""
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
 
 class ItemMenu(QtWidgets.QMenu):
-
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.editAction:QtWidgets.QAction = None
-        self.deleteAction:QtWidgets.QAction = None
-        
+        self.editAction: QtWidgets.QAction = None
+        self.deleteAction: QtWidgets.QAction = None
+
     def reset(self):
         self.editAction = None
         self.deleteAction = None
 
-    def addEditableItem(self, item, editSlot, text='Edit'):
+    def addEditableItem(self, item, editSlot, text="Edit"):
         self.editAction = QtWidgets.QAction(text, self.parent())
         self.editAction.triggered.connect(editSlot)
 
-    def addDeletableItem(self, item, deleteSlot, text='Delete'):
+    def addDeletableItem(self, item, deleteSlot, text="Delete"):
         self.deleteAction = QtWidgets.QAction(text, self.parent())
         self.deleteAction.triggered.connect(deleteSlot)
 
     def popup(self, *args):
-        '''
+        """
         Re-implemented to show popup menu.
         Menu actions populate based on which actions have been set.
-        '''
+        """
 
         self.clear()
 
@@ -44,5 +42,3 @@ class ItemMenu(QtWidgets.QMenu):
 
         self.reset()
         return super().popup(*args)
-
-

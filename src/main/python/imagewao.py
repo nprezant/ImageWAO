@@ -1,4 +1,3 @@
-
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx, config
@@ -10,23 +9,23 @@ from gridviewer import QImageGridView
 from imageviewer import QImageEditor
 from counttotals import CountTotals
 
-QtCore.QCoreApplication.setOrganizationName('Namibia WAO')
-QtCore.QCoreApplication.setOrganizationDomain('imagewao.com')
-QtCore.QCoreApplication.setApplicationName('ImageWAO')
+QtCore.QCoreApplication.setOrganizationName("Namibia WAO")
+QtCore.QCoreApplication.setOrganizationDomain("imagewao.com")
+QtCore.QCoreApplication.setApplicationName("ImageWAO")
+
 
 class QImageWAO(QtWidgets.QMainWindow):
-
     def __init__(self):
         super().__init__()
 
         # Read build settings
-        self.version = ctx.build_settings['version']
+        self.version = ctx.build_settings["version"]
 
         # Whether or not the application has changes
         self._dirty = False
 
         # Window icon
-        self.setWindowIcon(ctx.icon('icons/winIcon.png'))
+        self.setWindowIcon(ctx.icon("icons/winIcon.png"))
 
         # Title bar text is managed
         self.titleBarText = TitleBarText(ctx.app.applicationName())
@@ -46,16 +45,31 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Dock widget creation
         # Access dock widgets like so: self._dockWidgets['Flight Explorer']
-        self._addDockWidget(self.library, ctx.explorerIcon, 'Flight Explorer', startArea=QtCore.Qt.LeftDockWidgetArea)
-        self._addDockWidget(self.grid, ctx.defaultDockIcon, 'Image Grids', startArea=QtCore.Qt.RightDockWidgetArea)
-        self._addDockWidget(self.countTotals, ctx.defaultDockIcon, 'Count Totals', startArea=QtCore.Qt.LeftDockWidgetArea)
+        self._addDockWidget(
+            self.library,
+            ctx.explorerIcon,
+            "Flight Explorer",
+            startArea=QtCore.Qt.LeftDockWidgetArea,
+        )
+        self._addDockWidget(
+            self.grid,
+            ctx.defaultDockIcon,
+            "Image Grids",
+            startArea=QtCore.Qt.RightDockWidgetArea,
+        )
+        self._addDockWidget(
+            self.countTotals,
+            ctx.defaultDockIcon,
+            "Count Totals",
+            startArea=QtCore.Qt.LeftDockWidgetArea,
+        )
 
         # Event filters
         self.library.installEventFilter(self)
 
         # Notifications
         self.notifier = Notifier(self)
-        
+
         # Status bar
         self.setStatusBar(StatusBar(self))
 
@@ -89,7 +103,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Count totals form connections
         self.countTotals.fileActivated.connect(self.grid.selectFile)
         self.countTotals.selectedFilesChanged.connect(self.library.selectFiles)
-        self.countTotals.requestDrawingUpdate.connect(self.grid.save) # Hacky. Ideally you could request the data without saving.
+        self.countTotals.requestDrawingUpdate.connect(
+            self.grid.save
+        )  # Hacky. Ideally you could request the data without saving.
 
         # File | Etc. Menus
         self._menusCreated = False
@@ -102,7 +118,9 @@ class QImageWAO(QtWidgets.QMainWindow):
     def showStatusMessage(self, args):
         self.statusBar().showMessage(*args)
 
-    def _addDockWidget(self, w, icon, name:str, startArea=QtCore.Qt.LeftDockWidgetArea):
+    def _addDockWidget(
+        self, w, icon, name: str, startArea=QtCore.Qt.LeftDockWidgetArea
+    ):
         dock = DockWidget(name, icon, parent=self)
         dock.setWidget(w)
         self.addDockWidget(startArea, dock)
@@ -120,50 +138,49 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def _createMenus(self):
         if self._menusCreated == False:
-            self.fileMenu = QtWidgets.QMenu('&File', self)
-            self.expeMenu = QtWidgets.QMenu('&Exp.', self) # Experimental
-            self.infoMenu = QtWidgets.QMenu('&Info', self)
+            self.fileMenu = QtWidgets.QMenu("&File", self)
+            self.expeMenu = QtWidgets.QMenu("&Exp.", self)  # Experimental
+            self.infoMenu = QtWidgets.QMenu("&Info", self)
             self._menusCreated = True
-        
+
     def _populateMenus(self):
 
         # File Menu
-        a = QtWidgets.QAction('Save', self)
-        a.setShortcut('Ctrl+S')
+        a = QtWidgets.QAction("Save", self)
+        a.setShortcut("Ctrl+S")
         a.triggered.connect(self._saveIfDirty)
         self.fileMenu.addAction(a)
 
-        a = QtWidgets.QAction('Import Flight Images', self)
+        a = QtWidgets.QAction("Import Flight Images", self)
         a.triggered.connect(FlightImportWizard().openNew)
         self.fileMenu.addAction(a)
 
         # Experimental Menu
-        a = QtWidgets.QAction('Test notification', self)
-        a.setShortcut('Ctrl+N')
-        a.triggered.connect(
-            lambda:
-            self.notifier.notify(''))
+        a = QtWidgets.QAction("Test notification", self)
+        a.setShortcut("Ctrl+N")
+        a.triggered.connect(lambda: self.notifier.notify(""))
         self.expeMenu.addAction(a)
 
-        a = QtWidgets.QAction('Reset settings', self)
-        a.triggered.connect(
-            lambda: QtCore.QSettings().clear())
+        a = QtWidgets.QAction("Reset settings", self)
+        a.triggered.connect(lambda: QtCore.QSettings().clear())
         self.expeMenu.addAction(a)
 
         # Info Menu
-        self.infoMenu.addAction(QtWidgets.QAction(f'Version: {self.version}', self))
+        self.infoMenu.addAction(QtWidgets.QAction(f"Version: {self.version}", self))
 
         # Create text box for user name
         widgetAction = QtWidgets.QWidgetAction(self.infoMenu)
 
         userNameWidget = QtWidgets.QWidget()
         userNameLayout = QtWidgets.QHBoxLayout()
-        userNameLayout.setContentsMargins(0,0,0,0)
+        userNameLayout.setContentsMargins(0, 0, 0, 0)
 
-        nameLabel = QtWidgets.QLabel('User')
-        nameLabel.setToolTip('Username is exported to Excel along with animal counts')
+        nameLabel = QtWidgets.QLabel("User")
+        nameLabel.setToolTip("Username is exported to Excel along with animal counts")
         nameEdit = QtWidgets.QLineEdit(config.username)
-        nameEdit.editingFinished.connect(lambda: setattr(config, 'username', nameEdit.text()))
+        nameEdit.editingFinished.connect(
+            lambda: setattr(config, "username", nameEdit.text())
+        )
         nameEdit.setToolTip(nameLabel.toolTip())
 
         userNameLayout.addWidget(nameLabel)
@@ -184,36 +201,36 @@ class QImageWAO(QtWidgets.QMainWindow):
             self.save()
 
     def save(self):
-        '''
+        """
         All save operations. Once saving is completed,
         The application will be marked clean.
-        '''
+        """
         self.grid.save()
         self._markAsClean()
 
     def _markAsDirty(self, *args):
-        '''
+        """
         Any signals that signify save-able changes were made
         should also connect to this slot, which will mark the 
         application as "dirty" such that the user will
         be prompted to save before exiting the application.
-        '''
+        """
         self._dirty = True
         self.titleBarText.setDirty(True)
 
     def _markAsClean(self):
-        '''
+        """
         This operation resets the _dirty flag and also updates the
         title bar to the clean state.
-        '''
+        """
         self._dirty = False
         self.titleBarText.setDirty(False)
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
-        '''
+        """
         Catch library change events and see if the application needs to save
         before accepting them.
-        '''
+        """
         if obj == self.library:
             if event.type() == Library.Events.DirectoryChange:
                 self._exitDirectoryEvent(event)
@@ -223,23 +240,23 @@ class QImageWAO(QtWidgets.QMainWindow):
                 if event.isAccepted():
                     self.grid.clear()
                     self.viewer.clear()
-                    return False # Don't filter it, allow to progate
+                    return False  # Don't filter it, allow to progate
                 else:
-                    return True # Filter this one! Don't let the dir change
+                    return True  # Filter this one! Don't let the dir change
 
         return super().eventFilter(obj, event)
 
     def _exitDirectoryEvent(self, event: QtCore.QEvent):
-        '''
+        """
         Ensures that changes are saved (or intentionally ignored)
         when a directory changes.
-        '''
+        """
         # If there are no changes,
         # simply accept the event.
         if not self._dirty:
             event.accept()
             return
-        
+
         # Based on user response, either save, don't save,
         # or quit.
         ret = DoYouWantToSave().exec_()
@@ -255,9 +272,9 @@ class QImageWAO(QtWidgets.QMainWindow):
             # Should never be reached
             event.ignore()
 
-    def closeEvent(self, event:QtGui.QCloseEvent):
-        '''
+    def closeEvent(self, event: QtGui.QCloseEvent):
+        """
         Check to ensure that changes are saved if 
         the user wants to save them.
-        '''
+        """
         self._exitDirectoryEvent(event)

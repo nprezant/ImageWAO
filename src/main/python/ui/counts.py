@@ -1,6 +1,6 @@
-'''
+"""
 Form used to add counts of animals.
-'''
+"""
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
@@ -9,6 +9,7 @@ from base.primatives import CountData
 from tools import setPlainTextEditHeight
 
 from .popup import PopupFrame
+
 
 class CountForm(PopupFrame):
 
@@ -28,30 +29,39 @@ class CountForm(PopupFrame):
         self.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
 
         # Form labels and controls
-        self.speciesLabel = QtWidgets.QLabel('Species', self)
+        self.speciesLabel = QtWidgets.QLabel("Species", self)
         self.speciesLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.speciesText = QtWidgets.QComboBox(self)
-        self.speciesText.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.speciesText.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
         self.speciesText.setEditable(True)
-        self.speciesText.addItem('') # Seems to be required for placeholder text to work.
+        self.speciesText.addItem(
+            ""
+        )  # Seems to be required for placeholder text to work.
         for animal in config.searchableAnimals:
             self.speciesText.addItem(animal)
-        self.speciesText.lineEdit().setPlaceholderText('Type to search...')
-        
-        self.numberLabel = QtWidgets.QLabel('Number', self)
+        self.speciesText.lineEdit().setPlaceholderText("Type to search...")
+
+        self.numberLabel = QtWidgets.QLabel("Number", self)
         self.numberLabel.setAlignment(QtCore.Qt.AlignCenter)
         self.numberBox = QtWidgets.QSpinBox(self)
-        self.numberBox.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.numberBox.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
         self.numberBox.setRange(0, 1000)
 
-        self.duplicateLabel = QtWidgets.QLabel('Already Counted?', self)
-        self.duplicateLabel.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.duplicateLabel = QtWidgets.QLabel("Already Counted?", self)
+        self.duplicateLabel.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred
+        )
         self.duplicateLabel.setToolTip(
-            'If this animal (or these animals) have already been counted\n'
-            'somewhere else, making this count a duplicate, check this box.')
+            "If this animal (or these animals) have already been counted\n"
+            "somewhere else, making this count a duplicate, check this box."
+        )
         self.duplicateBox = QtWidgets.QCheckBox(self)
 
-        self.notesLabel = QtWidgets.QLabel('Notes', self)
+        self.notesLabel = QtWidgets.QLabel("Notes", self)
         self.notesText = QtWidgets.QPlainTextEdit(self)
         self.notesText.setTabChangesFocus(True)
         setPlainTextEditHeight(self.notesText, 3)
@@ -74,35 +84,35 @@ class CountForm(PopupFrame):
         self.adjustSize()
 
     def resetForm(self):
-        '''
+        """
         Resets the form to their default values.
-        '''
+        """
         self._item = None
         self.setCountData(CountData())
 
     def setCountData(self, countData):
-        '''
+        """
         Set the count data and update the form values to match.
-        '''
+        """
         self._countData = countData
         self.speciesText.setEditText(self._countData.species)
         self.numberBox.setValue(self._countData.number)
         self.duplicateBox.setChecked(self._countData.isDuplicate)
         self.notesText.setPlainText(self._countData.notes)
 
-    def keyPressEvent(self, event:QtGui.QKeyEvent):
-        '''
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        """
         Close the form if enter is pressed
-        '''
+        """
         if event.key() in (int(QtCore.Qt.Key_Enter), int(QtCore.Qt.Key_Return)):
             self.hidePopup()
         super().keyPressEvent(event)
 
     def popup(self, item, pos):
-        '''
+        """
         Re-implement to allow the count form to track which item
         the counts belong to.
-        '''
+        """
         self._item = item
         countData = self._item.countData()
         if countData is not None:
@@ -113,9 +123,9 @@ class CountForm(PopupFrame):
         self.speciesText.setFocus(QtCore.Qt.PopupFocusReason)
 
     def countData(self):
-        '''
+        """
         Returns the count data as displayed in the form.
-        '''
+        """
         return CountData(
             self.speciesText.currentText(),
             self.numberBox.value(),
@@ -124,20 +134,19 @@ class CountForm(PopupFrame):
         )
 
     def hidePopup(self):
-        '''
+        """
         Re-implement to emit a value changed signal if necessary and reset the form.
-        '''
+        """
         self.checkChanged()
         self.resetForm()
         return super().hidePopup()
 
     def checkChanged(self):
-        '''
+        """
         Checks to see if this form has changed since it's launch, and if so,
         emits the `countChanged` signal after updating the relevant item.
-        '''
+        """
         countData = self.countData()
         if not self._countData == countData:
             self._item.setCountData(countData)
             self.countChanged.emit()
-

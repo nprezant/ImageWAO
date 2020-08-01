@@ -1,4 +1,3 @@
-
 import json
 
 from PySide2 import QtWidgets, QtCore, QtGui
@@ -9,7 +8,7 @@ import scenegraphics as sg
 
 
 class JSONDrawnItems:
-    '''
+    """
     Contains methods useful for encoding and
     decoding drawn items on a graphics scene.
 
@@ -19,10 +18,10 @@ class JSONDrawnItems:
 
     This happens most commonly when imaged are
     "merged" before they are displayed in the viewer.
-    '''
+    """
 
     def __init__(self, drawings: DrawingData):
-        '''
+        """
         The __init__ method loads drawing data directly.
         Other static methods are available to initialize the class:
 
@@ -31,7 +30,7 @@ class JSONDrawnItems:
         * loads, for loading via an encoded JSON string
 
         Item type, geometry, and pen color/width are tracked.
-        '''
+        """
 
         # Internally store the graphical representation
         # of these scene objects. Contains nough information
@@ -44,13 +43,13 @@ class JSONDrawnItems:
 
     @staticmethod
     def loadDrawingData(items: QtWidgets.QGraphicsItem):
-        '''
+        """
         Initialize serializable data with a list of QGraphicsItems.
         Supported items:
         QGraphicsRectItem
         QGrahpicsEllipseItem
         QGraphicsLineItem
-        '''
+        """
 
         drawingData = []
 
@@ -59,19 +58,19 @@ class JSONDrawnItems:
             # Encoded data differs depending on item type
             # Need to save as much data as necessary to re-create item
             if isinstance(item, QtWidgets.QGraphicsRectItem):
-                name = 'Rect'
+                name = "Rect"
                 geom = item.rect()
 
             elif isinstance(item, QtWidgets.QGraphicsEllipseItem):
-                name = 'Ellipse'
+                name = "Ellipse"
                 geom = item.rect()
 
             elif isinstance(item, QtWidgets.QGraphicsLineItem):
-                name = 'Line'
+                name = "Line"
                 geom = item.line()
 
             else:
-                raise TypeError(f'Unable to serialize item type: {type(item)}')
+                raise TypeError(f"Unable to serialize item type: {type(item)}")
 
             # All graphics items have associated pens
             # All graphics items derived from the counts mixin have count data
@@ -79,22 +78,22 @@ class JSONDrawnItems:
                 pen = item.pen()
                 countData = item.countData()
             else:
-                raise TypeError(f'Unable to serialize item type: {type(item)}')
+                raise TypeError(f"Unable to serialize item type: {type(item)}")
 
             drawingData.append(DrawingData(name, geom, pen, countData))
-        
+
         return JSONDrawnItems(drawingData)
 
     @staticmethod
     def loads(s):
-        '''
+        """
         Load an encoded JSON formatted string of drawing items
         as their geometric representation (QRectF, QLine, QEllipse)
-        '''
+        """
 
         if s is None:
             return JSONDrawnItems([])
-            
+
         drawings = []
         data = json.loads(s)
 
@@ -104,13 +103,13 @@ class JSONDrawnItems:
 
             if drawing is not None:
                 drawings.append(drawing)
-        
+
         return JSONDrawnItems(drawings)
 
     def dumps(self):
-        '''
+        """
         Return the encoded drawing items as a JSON formatted string
-        '''
+        """
         if len(self._drawingData) == 0:
             return None
 
@@ -120,18 +119,18 @@ class JSONDrawnItems:
 
         return json.dumps(encoded)
 
-    def addToScene(self, scene:QtWidgets.QGraphicsScene):
-        '''
+    def addToScene(self, scene: QtWidgets.QGraphicsScene):
+        """
         Adds the internal geometries to a scene,
         returning the list of items
-        '''
+        """
         items = []
         for drawing in self._drawingData:
-            if drawing.name == 'Rect':
+            if drawing.name == "Rect":
                 item = sg.SceneCountDataRect.create(drawing.geom, drawing.pen)
-            elif drawing.name == 'Ellipse':
+            elif drawing.name == "Ellipse":
                 item = sg.SceneCountDataEllipse.create(drawing.geom, drawing.pen)
-            elif drawing.name == 'Line':
+            elif drawing.name == "Line":
                 item = sg.SceneCountDataLine.create(drawing.geom, drawing.pen)
             else:
                 item = None
@@ -144,24 +143,24 @@ class JSONDrawnItems:
         return items
 
     def paintToDevice(self, device, sf=1):
-        '''
+        """
         Paint the internal geometries to a
         paint device (QImage, QPixmap, etc.)
 
         Optionally include a scaling factor if
         you are painting to a different size than what
         the drawing was originally drawn on.
-        '''
+        """
         painter = QtGui.QPainter(device)
         for drawing in self._drawingData:
             painter.setPen(drawing.pen)
             drawing.scale(sf)
             painter.setPen(drawing.pen)
-            if drawing.name == 'Rect':
+            if drawing.name == "Rect":
                 painter.drawRect(drawing.geom)
-            elif drawing.name == 'Ellipse':
+            elif drawing.name == "Ellipse":
                 painter.drawEllipse(drawing.geom)
-            elif drawing.name == 'Line':
+            elif drawing.name == "Line":
                 painter.drawLine(drawing.geom)
         painter.end()
 
@@ -175,4 +174,3 @@ class JSONDrawnItems:
         data = self._drawingData[self._index]
         self._index += 1
         return data
-

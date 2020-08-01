@@ -1,2 +1,1 @@
-
 from .editor import QImageEditor

@@ -1,4 +1,3 @@
-
 from .layout import clearLayout
 from .files import showInFolder, DirectoryValidator, FileNameValidator
 from .saving import saveManyImages

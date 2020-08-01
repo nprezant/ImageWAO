@@ -1,4 +1,3 @@
-
 import sys
 import traceback
 from enum import Enum
@@ -6,8 +5,9 @@ from multiprocessing import Process, Queue
 
 from PySide2 import QtCore
 
+
 class WorkerSignals(QtCore.QObject):
-    '''
+    """
     Defines the signals available from a running worker thread.
     Supported signals are:
 
@@ -21,7 +21,7 @@ class WorkerSignals(QtCore.QObject):
         `object` data returned from processing, anything
     progress
         `int` indicating % progress
-    '''
+    """
 
     finished = QtCore.Signal()
     success = QtCore.Signal()
@@ -29,8 +29,9 @@ class WorkerSignals(QtCore.QObject):
     result = QtCore.Signal(object)
     progress = QtCore.Signal(int)
 
+
 class QWorker(QtCore.QRunnable):
-    '''
+    """
     Worker thread
 
     Inherits from QRunnable to handler worker thread setup, signals and wrap-up.
@@ -40,12 +41,12 @@ class QWorker(QtCore.QRunnable):
     :type callback: function
     :param args: Arguments to pass to the callback function
     :param kwargs: Keywords to pass to the callback function
-    '''
+    """
 
-    def __init__(self, fn, args:list):
-        '''
+    def __init__(self, fn, args: list):
+        """
         If you want progress updates, call the `includeProgess` method.
-        '''
+        """
         super().__init__()
 
         self.fn = fn
@@ -54,17 +55,17 @@ class QWorker(QtCore.QRunnable):
         self.signals = WorkerSignals()
 
     def includeProgress(self):
-        '''
+        """
         The progress signal will be passed to the `fn`
         as a keyword argument.
-        '''
+        """
         self.kwargs.update(progress=self.signals.progress)
 
     @QtCore.Slot()
     def run(self):
-        '''
+        """
         Initialise the runner function with passed args, kwargs.
-        '''
+        """
 
         try:
             result = self.fn(*self.args, **self.kwargs)
@@ -81,10 +82,12 @@ class QWorker(QtCore.QRunnable):
 
 # Runner lives on the runner thread
 
+
 class SignalType(Enum):
     Progress = 1
     Finished = 2
     Result = 3
+
 
 class RunnerMessage:
 
@@ -92,12 +95,13 @@ class RunnerMessage:
     Progress = SignalType.Progress
     Finished = SignalType.Finished
 
-    def __init__(self, t:SignalType, data):
+    def __init__(self, t: SignalType, data):
         self.t = t
         self.data = data
 
+
 class Runner(QtCore.QObject):
-    '''
+    """
     Runs a job in a separate process and forwards messages from the job to the
     main thread through a Signal.
 
@@ -107,16 +111,16 @@ class Runner(QtCore.QObject):
 
     The job must post a message to the Queue noting when it is finished
     with the Result or Finished.
-    '''
+    """
 
     finished = QtCore.Signal()
     progress = QtCore.Signal(int)
     result = QtCore.Signal(object)
 
     def __init__(self, jobFunction, startSignal, *inputs):
-        '''
+        """
         :param start_signal: the Signal that starts the job
-        '''
+        """
         super().__init__()
         self.jobFunction = jobFunction
         self.jobInputs = inputs
@@ -134,7 +138,7 @@ class Runner(QtCore.QObject):
             msg = q.get()
 
             if not isinstance(msg, RunnerMessage):
-                print('Could not decipher runner message!')
+                print("Could not decipher runner message!")
                 break
 
             if msg.t == SignalType.Progress:

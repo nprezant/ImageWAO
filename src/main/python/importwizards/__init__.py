@@ -1,2 +1,1 @@
-
 from .flightimportwizard import FlightImportWizard

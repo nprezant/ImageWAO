@@ -1,4 +1,3 @@
-
 import glob
 import shutil
 from pathlib import Path
@@ -11,6 +10,7 @@ from PySide2 import QtGui, QtCore, QtWidgets
 from base import config, QWorker
 
 from .transect import Transect
+
 
 class TransectTableModel(QtCore.QAbstractTableModel):
 
@@ -26,7 +26,7 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         super().__init__()
 
         self.transects: Transect = []
-        self.sections = ['Name', '# Images', 'Range']
+        self.sections = ["Name", "# Images", "Range"]
 
         # For multithreaded copying and categorizing
         self._copyWorker = None
@@ -34,19 +34,21 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         self._threadpool = QtCore.QThreadPool()
 
     def renameByOrder(self):
-        for i,t in enumerate(self.transects):
-            t.name = f'Transect{str(i).zfill(2)}'
+        for i, t in enumerate(self.transects):
+            t.name = f"Transect{str(i).zfill(2)}"
 
     def readFolder(self, folder, maxDelay, minCount):
-        '''
+        """
         Reads the image files from a given `folder` into the internal model.
         This process executes on a seperate thread. Use `categorizeProgess` and
         `categorizeComplete` to monitor progress.
-        '''
+        """
 
-        searchFolder = Path(folder)/'**'
+        searchFolder = Path(folder) / "**"
 
-        self._categorizeWorker = QWorker(categorizeFlightImages, [searchFolder, maxDelay, minCount])
+        self._categorizeWorker = QWorker(
+            categorizeFlightImages, [searchFolder, maxDelay, minCount]
+        )
         self._categorizeWorker.includeProgress()
         self._categorizeWorker.signals.progress.connect(self.categorizeProgress.emit)
         self._categorizeWorker.signals.finished.connect(self.categorizeComplete.emit)
@@ -63,21 +65,21 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         self.endResetModel()
 
     def rowCount(self, index=QtCore.QModelIndex()):
-        ''' Returns the number of rows the model holds. '''
+        """ Returns the number of rows the model holds. """
         return len(self.transects)
 
     def columnCount(self, index=QtCore.QModelIndex()):
-        ''' Returns the number of columns the model holds. '''
+        """ Returns the number of columns the model holds. """
         return len(self.sections)
 
     def clearData(self):
-        ''' Clears the internal data structure '''
+        """ Clears the internal data structure """
         self.setTransects([])
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
-        ''' Depending on the index and role given, return data.
+        """ Depending on the index and role given, return data.
             If not returning data, return None (equv. to Qt's QVariant)
-        '''
+        """
         if not index.isValid():
             return None
 
@@ -85,7 +87,7 @@ class TransectTableModel(QtCore.QAbstractTableModel):
             return None
 
         # Center align columns for #images and image range
-        if index.column() in (1,2) and role == QtCore.Qt.TextAlignmentRole:
+        if index.column() in (1, 2) and role == QtCore.Qt.TextAlignmentRole:
             return QtCore.Qt.AlignCenter
 
         if role in (QtCore.Qt.DisplayRole, QtCore.Qt.EditRole):
@@ -103,7 +105,7 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         return None
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
-        ''' Set the headers to be displayed. '''
+        """ Set the headers to be displayed. """
         if role != QtCore.Qt.DisplayRole:
             return None
 
@@ -116,32 +118,29 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         return None
 
     def insertRows(self, position, rows=1, index=QtCore.QModelIndex()):
-        ''' Insert a row into the model. '''
+        """ Insert a row into the model. """
         self.beginInsertRows(QtCore.QModelIndex(), position, position + rows - 1)
 
         for row in range(rows):
-            self.transects.insert(
-                position + row,
-                Transect()
-            )
+            self.transects.insert(position + row, Transect())
 
         self.endInsertRows()
         return True
 
     def removeRows(self, position, rows=1, index=QtCore.QModelIndex()):
-        ''' Remove a row into the model. '''
+        """ Remove a row into the model. """
         self.beginRemoveRows(QtCore.QModelIndex(), position, position + rows - 1)
 
-        del self.transects[position:position+rows]
+        del self.transects[position : position + rows]
 
         self.endRemoveRows()
         return True
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
-        '''
+        """
         Adjust the data (set it to <value>) depending on the
         given index and role.
-        '''
+        """
         if role != QtCore.Qt.EditRole:
             return False
 
@@ -151,8 +150,10 @@ class TransectTableModel(QtCore.QAbstractTableModel):
 
                 # Remove invalid characters from the input
                 requestedString = str(value)
-                validCharacters = [s for s in requestedString if s not in config.invalidPathCharacters]
-                validatedString = ''.join(validCharacters)
+                validCharacters = [
+                    s for s in requestedString if s not in config.invalidPathCharacters
+                ]
+                validatedString = "".join(validCharacters)
 
                 # If the string only contained invalid characters, don't update the background model
                 if len(validatedString) == 0:
@@ -165,38 +166,40 @@ class TransectTableModel(QtCore.QAbstractTableModel):
 
             self.dataChanged.emit(index, index)
             return True
-        
+
         return False
 
     def flags(self, index):
-        ''' Set the item flag at the given index. '''
+        """ Set the item flag at the given index. """
         if not index.isValid():
             return QtCore.Qt.ItemIsEnabled
 
         if index.column() == 0:
             return QtCore.Qt.ItemFlags(
-                QtCore.QAbstractTableModel.flags(self, index)
-                | QtCore.Qt.ItemIsEditable)
+                QtCore.QAbstractTableModel.flags(self, index) | QtCore.Qt.ItemIsEditable
+            )
         else:
             return QtCore.QAbstractTableModel.flags(self, index)
 
     def copyTransects(self, toFolder):
-        '''
+        """
         Copys all internal transect files to another folder, `toFolder`
         on another thread. Use `copyProgress` and `copyComplete` to observe progress.
-        '''
+        """
         self._copyWorker = QWorker(copyTransectFiles, [self.transects, toFolder])
         self._copyWorker.includeProgress()
-        self._copyWorker.signals.progress.connect(self.copyProgress.emit) # bubble up progress
+        self._copyWorker.signals.progress.connect(
+            self.copyProgress.emit
+        )  # bubble up progress
         self._copyWorker.signals.finished.connect(self.copyComplete.emit)
         self._threadpool.start(self._copyWorker)
 
 
 def copyTransectFiles(transects, toFolder, progress=None):
-    '''
+    """
     Copies all transect files to another folder
     If `progress` is passed in, emit progress along the way.
-    '''
+    """
 
     # Ensure the base folder exists
     toFolder.mkdir(exist_ok=True)
@@ -217,12 +220,12 @@ def copyTransectFiles(transects, toFolder, progress=None):
         # Make migration log file, init logging variable
         log = config.transectMigrationLog(tFolder)
         log.touch(exist_ok=True)
-        copyLog = [] # (copyFrom, copyTo)
+        copyLog = []  # (copyFrom, copyTo)
 
         for i, fp in enumerate(t.files):
 
             # Destination file name
-            name = t.name + '_' + str(i).zfill(3) + fp.suffix
+            name = t.name + "_" + str(i).zfill(3) + fp.suffix
             dst = tFolder / name
 
             # Copy files
@@ -235,19 +238,20 @@ def copyTransectFiles(transects, toFolder, progress=None):
                 progress.emit(int(numFilesCopied / numFiles * 100))
 
         # Write log
-        with open(log, 'w') as f:
+        with open(log, "w") as f:
             for fromPath, toPath in copyLog:
-                f.write(f'{fromPath.name}\t-->\t{toPath.name}\n')
+                f.write(f"{fromPath.name}\t-->\t{toPath.name}\n")
+
 
 def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
-    '''
+    """
     Categorizes the images in the searchFolder into transects
     based on `maxDelay` and `minCount`.
     
     glob.iglob is applied to str(searchFolder) to loop through image files.
     with the recursive flag set to true.
-    '''
-        
+    """
+
     lastdt = None
     transects = []
     currentTransect = Transect()
@@ -259,11 +263,11 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
     # Find the total number of files to go through.
     numFiles = len([1 for f in glob.iglob(str(searchFolder), recursive=True)])
 
-    for i,filename in enumerate(glob.iglob(str(searchFolder), recursive=True)):
+    for i, filename in enumerate(glob.iglob(str(searchFolder), recursive=True)):
 
         # If we have a progress indicater, use it
         if progress is not None:
-            progress.emit(int(i/numFiles*100))
+            progress.emit(int(i / numFiles * 100))
 
         # rule out non-image files
         fp = Path(filename)
@@ -278,10 +282,12 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
         try:
             t = img._getexif()[36867]
         except:
-            raise RuntimeError(f'The following image has no time data and cannot be categorized: {fp.name}')
+            raise RuntimeError(
+                f"The following image has no time data and cannot be categorized: {fp.name}"
+            )
         else:
-            dt = datetime.strptime(t, '%Y:%m:%d %H:%M:%S')
-        
+            dt = datetime.strptime(t, "%Y:%m:%d %H:%M:%S")
+
         # add the file if this is the first one in a transect
         if lastdt is None:
             currentTransect.addFile(fp)
@@ -299,14 +305,14 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
             # if the time is large, conclude this transect
             # and add the file to the next one
             else:
-                
+
                 # only record transect if it has enough images
                 if currentTransect.numFiles >= minCount:
                     transects.append(currentTransect)
-                
+
                 # make a new transect instance
                 currentTransect = Transect(files=[fp])
-        
+
         # record time of this image
         lastdt = dt
 
@@ -321,5 +327,5 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
     return transects
 
 
-if __name__ == '__main__':
-    TransectTableModel().readFolder(r'C:/FlightsRaw/Flight2', 5 ,4)
+if __name__ == "__main__":
+    TransectTableModel().readFolder(r"C:/FlightsRaw/Flight2", 5, 4)

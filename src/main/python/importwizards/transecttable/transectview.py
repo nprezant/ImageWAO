@@ -1,19 +1,20 @@
-
 from PySide2 import QtGui, QtWidgets
 
+
 class TransectTableView(QtWidgets.QTableView):
-    
     def __init__(self, parent=None):
         super().__init__(parent)
 
         # Alternate row colors
         p = self.palette()
-        p.setColor(p.AlternateBase, QtGui.QColor('#ffe8c9'))
+        p.setColor(p.AlternateBase, QtGui.QColor("#ffe8c9"))
         self.setPalette(p)
         self.setAlternatingRowColors(True)
 
         # Underline header text
-        self.horizontalHeader().setStyleSheet('QHeaderView { text-decoration: underline; }')
+        self.horizontalHeader().setStyleSheet(
+            "QHeaderView { text-decoration: underline; }"
+        )
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         if event.matches(QtGui.QKeySequence.Paste):
@@ -26,7 +27,7 @@ class TransectTableView(QtWidgets.QTableView):
 
     def _handlePaste(self):
         clipboard_text = self.clipboard.text()
-        rowContents = clipboard_text.strip('\n').split('\n')
+        rowContents = clipboard_text.strip("\n").split("\n")
 
         if len(self.selectedIndexes()) == 0:
             return
@@ -36,14 +37,10 @@ class TransectTableView(QtWidgets.QTableView):
         initCol = initIndex.column()
 
         for i in range(len(rowContents)):
-            columnContents = rowContents[i].strip('\t').split('\t')
+            columnContents = rowContents[i].strip("\t").split("\t")
             for j in range(len(columnContents)):
                 self.model().setData(
-                    self.model().index(
-                        initRow + i,
-                        initCol + j
-                    ), 
-                    columnContents[j]
+                    self.model().index(initRow + i, initCol + j), columnContents[j]
                 )
 
     def sizeHint(self):

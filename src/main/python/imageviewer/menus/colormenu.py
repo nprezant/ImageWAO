@@ -1,5 +1,5 @@
-
 from PySide2 import QtCore, QtGui, QtWidgets
+
 
 class ColorMenu(QtWidgets.QMenu):
 
@@ -8,10 +8,10 @@ class ColorMenu(QtWidgets.QMenu):
     colorChanged = QtCore.Signal(QtGui.QColor)
 
     def __init__(self, colors):
-        '''
+        """
         Create and assign menu actions with icons corresponding
         to the input list of colors
-        '''
+        """
         super().__init__()
         self.actions = []
         self._activeIndex = 0
@@ -36,37 +36,39 @@ class ColorMenu(QtWidgets.QMenu):
         return self.actions[self._activeIndex].qcolor
 
     def emitActiveColor(self):
-        '''
+        """
         Trigger an emit for the active index.
         This method is used internally, but can also be called externally
         to manually emit the colorChanged signal on the active index.
         This can be helpful when initializing the class after setting up
         the proper slots.
-        '''
+        """
         self.colorChanged.emit(self.activeColor)
 
     @staticmethod
     def circularColorIcon(qcolor, w=100, h=100):
-        '''
+        """
         Creates a circular icon with transparent background
         and solid color of a given width w and height h
-        '''
+        """
         img = QtGui.QImage(w, h, QtGui.QImage.Format_ARGB32)
         img.fill(QtGui.qRgba(0, 0, 0, 0))
         painter = QtGui.QPainter(img)
         painter.setBrush(qcolor)
-        painter.drawEllipse(5,5,w-10,h-10)
+        painter.drawEllipse(5, 5, w - 10, h - 10)
         painter.end()
         icon = QtGui.QIcon(QtGui.QPixmap.fromImage(img))
         return icon
 
     @staticmethod
-    def maskedIcon(qcolor, maskImg:QtGui.QPixmap):
-        '''
+    def maskedIcon(qcolor, maskImg: QtGui.QPixmap):
+        """
         Creates an icon of a given color from the given mask
-        '''
+        """
         img = QtGui.QPixmap(maskImg.size())
-        mask = maskImg.createMaskFromColor(QtGui.QColor('black'), QtCore.Qt.MaskOutColor)
+        mask = maskImg.createMaskFromColor(
+            QtGui.QColor("black"), QtCore.Qt.MaskOutColor
+        )
         img.fill(qcolor)
         img.setMask(mask)
         return img
@@ -83,7 +85,7 @@ class ColorMenu(QtWidgets.QMenu):
 
         # Find the new active action, change the active index,
         # and emit the color
-        for i,a in enumerate(self.actions):
+        for i, a in enumerate(self.actions):
             if a.isChecked():
                 self._activeIndex = i
                 self.emitActiveColor()
@@ -91,11 +93,12 @@ class ColorMenu(QtWidgets.QMenu):
 
 
 class ColorableAction(QtWidgets.QAction):
-    '''
+    """
     An action whose icon can be re-colored with a mask.
     Instance also contains information about what kind of drawing
     it might perform
-    '''
+    """
+
     def __init__(self, mask: QtGui.QPixmap, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.mask = mask

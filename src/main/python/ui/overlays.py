@@ -1,7 +1,7 @@
-'''
+"""
 This file contains widgets that can be easily overlaid on top
 of other widgets, such as loading widgets that block user input.
-'''
+"""
 
 from PySide2 import QtWidgets, QtCore, QtGui
 
@@ -10,7 +10,6 @@ from tools import clearLayout
 
 
 class OverlayWidget(QtWidgets.QWidget):
-
     def __init__(self, parent):
         super().__init__(parent)
         self.setAttribute(QtCore.Qt.WA_NoSystemBackground)
@@ -18,15 +17,16 @@ class OverlayWidget(QtWidgets.QWidget):
         self.newParent()
 
     def newParent(self):
-        if not self.parent(): return
+        if not self.parent():
+            return
         self.parent().installEventFilter(self)
         self.resize(self.parent().size())
         self.raise_()
 
     def eventFilter(self, obj: QtCore.QObject, event: QtCore.QEvent):
-        '''
+        """
         Catches resize and child events from the parent widget.
-        '''
+        """
         if obj == self.parent():
             if event.type() == QtCore.QEvent.Resize:
                 self.resize(self.parent().size())
@@ -35,9 +35,9 @@ class OverlayWidget(QtWidgets.QWidget):
         return super().eventFilter(obj, event)
 
     def event(self, event: QtCore.QEvent):
-        '''
+        """
         Tracks when the parent widget changes.
-        '''
+        """
         if event.type() == QtCore.QEvent.ParentAboutToChange:
             if self.parent():
                 self.parent().removeEventFilter(self)
@@ -45,13 +45,13 @@ class OverlayWidget(QtWidgets.QWidget):
                 self.newParent()
         return super().event(event)
 
-class LoadingOverlay(OverlayWidget):
 
+class LoadingOverlay(OverlayWidget):
     def __init__(self, parent):
-        '''
+        """
         A loading overlay screen that blocks user input and displays load progress
         over it's parent widget.
-        '''
+        """
         super().__init__(parent)
         self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
         self.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, False)
@@ -59,21 +59,23 @@ class LoadingOverlay(OverlayWidget):
         # Opacity effect / animation
         self.opacityEffect = QtWidgets.QGraphicsOpacityEffect()
         self.setGraphicsEffect(self.opacityEffect)
-        self.opacityAni = QtCore.QPropertyAnimation(self.opacityEffect, b'opacity')
-        self.opacityAni.setStartValue(0.)
-        self.opacityAni.setEndValue(1.)
+        self.opacityAni = QtCore.QPropertyAnimation(self.opacityEffect, b"opacity")
+        self.opacityAni.setStartValue(0.0)
+        self.opacityAni.setEndValue(1.0)
         self.opacityAni.setDuration(350)
         self.opacityAni.finished.connect(self._hideIfFadedOut)
 
         # Loading label
-        self.label = QtWidgets.QLabel('Loading...') # TODO: Come up with better system of setting loading text. Or add a progress bar
+        self.label = QtWidgets.QLabel(
+            "Loading..."
+        )  # TODO: Come up with better system of setting loading text. Or add a progress bar
         self.label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
         self.label.setStyleSheet(
-            '''
+            """
             color: rgb(80, 90, 90);
             font-size: 48px;
             font-family: arial, helvetica;
-            '''
+            """
         )
 
         # Animal images
@@ -92,18 +94,18 @@ class LoadingOverlay(OverlayWidget):
 
     @QtCore.Slot()
     def _hideIfFadedOut(self):
-        '''
+        """
         Hides this widget if it has just been fading out.
         Connected to the `finished` signal of the opacity animation.
-        '''
+        """
         if self.opacityAni.direction() == self.opacityAni.Backward:
             self.hide()
 
     @QtCore.Slot()
     def fadeOut(self):
-        '''
+        """
         Fades out this overlay and hides itself when fade out is complete.
-        '''
+        """
         # Propogate to each extra overlay attached
         for extra in self.extraOverlays:
             extra.fadeOut()
@@ -113,20 +115,22 @@ class LoadingOverlay(OverlayWidget):
 
     @QtCore.Slot()
     def activate(self):
-        '''
+        """
         Fades in the overlay and begins blocking user input.
-        '''
+        """
 
         if self.isHidden():
 
             # If this is a main window, we should also overlay dock widgets
             if isinstance(self.parent(), QtWidgets.QMainWindow):
 
-                docks:QtWidgets.QDockWidget = self.parent().findChildren(QtWidgets.QDockWidget)
+                docks: QtWidgets.QDockWidget = self.parent().findChildren(
+                    QtWidgets.QDockWidget
+                )
                 for dock in docks:
                     if dock.isFloating():
                         extra = LoadingOverlay(dock.widget())
-                        clearLayout(extra.layout()) # All we want is the color
+                        clearLayout(extra.layout())  # All we want is the color
                         extra.activate()
                         self.extraOverlays.append(extra)
 
@@ -142,16 +146,16 @@ class LoadingOverlay(OverlayWidget):
 
     @QtCore.Slot(int)
     def setProgress(self, value):
-        '''
+        """
         Activates this overlay if not already active and sets the progress bar value.
-        '''
-        self.label.setText(f'Loading... {value}%')
+        """
+        self.label.setText(f"Loading... {value}%")
         self.activate()
 
     def hide(self):
-        '''
+        """
         Hides the overlay and releases the user input block.
-        '''
+        """
         self.releaseKeyboard()
         # self.releaseMouse()
 
@@ -169,4 +173,3 @@ class LoadingOverlay(OverlayWidget):
         # p.drawText(self.rect(), 'Loading...', QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         p.end()
         return super().paintEvent(event)
-

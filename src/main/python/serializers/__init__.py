@@ -1,2 +1,1 @@
-
 from .drawings import JSONDrawnItems

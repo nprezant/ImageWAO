@@ -1,6 +1,7 @@
-'''
+"""
 Helpful functions for managing layouts
-'''
+"""
+
 
 def clearLayout(layout):
     while layout.count() > 0:

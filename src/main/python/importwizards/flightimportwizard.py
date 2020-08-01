@@ -1,4 +1,3 @@
-
 import os
 from pathlib import Path
 
@@ -14,8 +13,8 @@ from .pages import (
     ConclusionPage,
 )
 
-class FlightImportWizard(QtWidgets.QWizard):
 
+class FlightImportWizard(QtWidgets.QWizard):
     def __init__(self):
         super().__init__()
 
@@ -42,12 +41,10 @@ class FlightImportWizard(QtWidgets.QWizard):
         self.setPage(PageIds.Page_SetLibrary, setLibraryPage)
         self.setPage(PageIds.Page_Conclusion, conclusionPage)
 
-        self.setWindowTitle('Flight Import Wizard')
+        self.setWindowTitle("Flight Import Wizard")
 
         # connect next button to save page defaults if applicable
-        self.button(self.NextButton).clicked.connect(
-            self._saveCurrentPageDefaults
-        )
+        self.button(self.NextButton).clicked.connect(self._saveCurrentPageDefaults)
 
     def _saveCurrentPageDefaults(self):
         try:
@@ -58,12 +55,7 @@ class FlightImportWizard(QtWidgets.QWizard):
 
     @staticmethod
     def openNew():
-        '''
+        """
         Creates and opens a new FlightImportWizard using the `exec_` method.
-        '''
+        """
         FlightImportWizard().exec_()
-
-
-
-
-    
