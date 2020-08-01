@@ -10,7 +10,7 @@ class DrawingData:
         drawn in a scene.
 
         Need name of item (Rect, Ellipse, Line)
-        Need geometry of item (QRectF, QLine), 
+        Need geometry of item (QRectF, QLine),
         and the pen used to draw the item.
 
         The count data is also included.
@@ -108,7 +108,7 @@ class DrawingData:
 
     def offset(self, x, y):
         """
-        Offset the geometry of this point by a given 
+        Offset the geometry of this point by a given
         x and y value.
         """
         self.geom.translate(QtCore.QPointF(x, y))
