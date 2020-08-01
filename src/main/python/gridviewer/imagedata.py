@@ -1,14 +1,13 @@
 from pathlib import Path
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtGui
 
-from base import config
 from serializers import JSONDrawnItems
 
 
 class FullImage:
     """
-    Contains all image data necessary to draw in grid form or 
+    Contains all image data necessary to draw in grid form or
     as a full resolution image. Caches the gridded images so
     the computation only happens once.
     Provides convenient access to the images.
@@ -70,14 +69,14 @@ class FullImage:
     def drawnItems(self, r, c):
         """
         Gets the serialized string
-        of the drawn items at the given 
+        of the drawn items at the given
         row, column
         """
         return self._drawnItems[r][c]
 
     def setDrawings(self, r, c, drawings):
         """
-        Sets the serialized string of the 
+        Sets the serialized string of the
         drawn items at the given row, column to
         the given value.
         """
@@ -137,11 +136,11 @@ class FullImage:
         count = len(files)
 
         for i, fp in enumerate(files):
-            if not progress is None:
+            if progress is not None:
                 progress.emit(int((i / count) * 100))
             images.append(FullImage(QtGui.QImage(str(fp)), Path(fp), *args))
 
-        if not progress is None:
+        if progress is not None:
             progress.emit(100)
 
         return images

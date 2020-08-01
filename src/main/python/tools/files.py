@@ -17,7 +17,7 @@ def showInFolder(path, select=True):
     Source: https://stackoverflow.com/a/46019091/3388962
 
     If `select` is `True`, the file or folder will be selected.
-    If `select` is `False`, 
+    If `select` is `False`,
     """
     path = os.path.abspath(path)
     dirPath = path if os.path.isdir(path) else os.path.dirname(path)

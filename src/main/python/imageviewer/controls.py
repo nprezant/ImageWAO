@@ -1,10 +1,8 @@
 from enum import Enum
-from collections import namedtuple
 
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from base import config, ctx
-from ui import SingleUseAction
 
 from .menus import ColorMenu, ColorableAction, WidthMenu
 
@@ -297,7 +295,7 @@ class SingleSelectionGroup(QtCore.QObject):
     """
     Manages a group of checkable objects of which only one can
     be checked at a time. Only tested with QActions so far.
-    
+
     Items must have property `checked` and `checkable`.
     Items must have signal `triggered`.
     """

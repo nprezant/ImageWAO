@@ -1,4 +1,4 @@
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtWidgets
 
 from .ids import PageIds
 
@@ -7,6 +7,8 @@ from .ids import PageIds
 #   view distribution
 #   view migration report
 #   view meta data
+
+
 class MetadataPage(QtWidgets.QWizardPage):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

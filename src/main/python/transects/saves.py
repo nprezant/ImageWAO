@@ -1,6 +1,5 @@
 import json
 from enum import Enum
-from pathlib import Path
 from collections import UserDict, UserList, OrderedDict
 
 from base import config
@@ -10,7 +9,7 @@ from base.primatives import CountData, CountDataSet
 class TransectSaveData(UserDict):
     """
     Manages transect save data in a primitive
-    data state, such that it can be easily 
+    data state, such that it can be easily
     serialized.
     """
 
@@ -49,7 +48,7 @@ class TransectSaveData(UserDict):
         Ensure that an image with the name
         imageName is in this save data.
         """
-        if not imageName in self.data.keys():
+        if imageName not in self.data.keys():
             self.data[imageName] = {}
 
     def addDrawings(self, imageName, drawings: str):
@@ -123,7 +122,7 @@ class TransectSaveData(UserDict):
         """
         species = []
         for _, countData in self.imageCounts():
-            if not countData.species in species:
+            if countData.species not in species:
                 species.append(countData.species)
         return species
 
@@ -145,7 +144,7 @@ class TransectSaveData(UserDict):
         """
         imageNames = []
         for imageName, _ in self.imageCounts():
-            if not imageName in imageNames:
+            if imageName not in imageNames:
                 imageNames.append(imageName)
         return imageNames
 
@@ -188,7 +187,7 @@ class SaveDataGroup:
 class TransectSaveDatas(UserList):
     """
     This class manages multiple transect save files and
-    provides easy access methods for displaying and 
+    provides easy access methods for displaying and
     summarizing the data.
 
     `data` is a list of `TransectSaveData`
@@ -255,7 +254,7 @@ class TransectSaveDatas(UserList):
                     # This is the image, make the string to display!
                     s += f"\n   - {countData.number} {countData.species}"
                     if countData.isDuplicate:
-                        s += f" (already counted)"
+                        s += " (already counted)"
 
         return s
 

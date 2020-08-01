@@ -1,7 +1,5 @@
 from fbs_runtime.application_context import cached_property
 
-from PySide2 import QtCore, QtGui, QtWidgets
-
 from imagewao import QImageWAO
 
 

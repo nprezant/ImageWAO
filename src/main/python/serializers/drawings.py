@@ -1,10 +1,9 @@
 import json
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide2 import QtWidgets, QtGui
 
 import scenegraphics as sg
-from base.primatives import DrawingData, CountData
-import scenegraphics as sg
+from base.primatives import DrawingData
 
 
 class JSONDrawnItems:

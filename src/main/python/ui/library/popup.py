@@ -3,7 +3,7 @@ Popup menu for the library and address bars.
 """
 
 import sys
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2 import QtWidgets
 
 from importwizards import FlightImportWizard
 from tools import showInFolder

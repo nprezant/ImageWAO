@@ -1,5 +1,5 @@
 """
-Python program to implement Cohen Sutherland algorithm 
+Python program to implement Cohen Sutherland algorithm
 for line clipping.
 """
 
@@ -31,7 +31,7 @@ def computeCode(x, y, xmax, ymax, xmin, ymin):
 
 def cohenSutherlandClip(x1, y1, x2, y2, xmax, ymax, xmin, ymin):
     """
-    Implementing Cohen-Sutherland algorithm 
+    Implementing Cohen-Sutherland algorithm
     Clipping a line from P1 = (x1, y1) to P2 = (x2, y2)
     """
 

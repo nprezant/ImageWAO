@@ -137,7 +137,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.infoMenu.clear()
 
     def _createMenus(self):
-        if self._menusCreated == False:
+        if self._menusCreated is False:
             self.fileMenu = QtWidgets.QMenu("&File", self)
             self.expeMenu = QtWidgets.QMenu("&Exp.", self)  # Experimental
             self.infoMenu = QtWidgets.QMenu("&Info", self)
@@ -211,7 +211,7 @@ class QImageWAO(QtWidgets.QMainWindow):
     def _markAsDirty(self, *args):
         """
         Any signals that signify save-able changes were made
-        should also connect to this slot, which will mark the 
+        should also connect to this slot, which will mark the
         application as "dirty" such that the user will
         be prompted to save before exiting the application.
         """
@@ -274,7 +274,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def closeEvent(self, event: QtGui.QCloseEvent):
         """
-        Check to ensure that changes are saved if 
+        Check to ensure that changes are saved if
         the user wants to save them.
         """
         self._exitDirectoryEvent(event)

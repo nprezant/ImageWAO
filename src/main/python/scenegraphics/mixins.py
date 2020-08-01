@@ -4,7 +4,7 @@ about the animal counts associated, and to be able to
 display this information.
 """
 
-from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2 import QtWidgets
 
 from base.primatives import CountData
 

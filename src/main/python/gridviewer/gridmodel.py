@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtGui
 
 from serializers import JSONDrawnItems
 from transects import TransectSaveData
@@ -89,7 +89,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             if not fp.is_file():
                 continue
 
-            if not fp.suffix in config.supportedImageExtensions:
+            if fp.suffix not in config.supportedImageExtensions:
                 continue
 
             imgFiles.append(fp)

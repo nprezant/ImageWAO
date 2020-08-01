@@ -1,7 +1,4 @@
-import os
-from pathlib import Path
-
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtWidgets
 
 from .pages import (
     PageIds,

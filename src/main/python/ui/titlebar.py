@@ -1,4 +1,4 @@
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore
 
 
 class TitleBarText(QtCore.QObject):

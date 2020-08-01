@@ -1,6 +1,6 @@
 from enum import Enum
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtWidgets
 
 from .toaster import QToaster
 

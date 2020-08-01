@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtWidgets
 
 from ..transecttable import TransectTableModel
 
@@ -31,7 +31,7 @@ class ConclusionPage(QtWidgets.QWizardPage):
 
     @QtCore.Slot(TransectTableModel)
     def updateModel(self, model):
-        if not model is self._model:
+        if model is not self._model:
             self._model = model
             self._model.copyProgress.connect(self.progressBar.setValue)
             self._model.copyComplete.connect(self._copyComplete)

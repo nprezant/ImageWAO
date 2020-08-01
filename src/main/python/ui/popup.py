@@ -3,7 +3,7 @@ Custom popup implementation with opacity tied into
 the mouse cursor distance from it.
 """
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtWidgets
 
 from tools import distanceToRect
 
@@ -66,7 +66,7 @@ class PopupFrame(QtWidgets.QFrame):
 
     def _autoPosition(self, pos: QtCore.QPointF):
         """
-        Automatically positions the widget. Sets position just outside of 
+        Automatically positions the widget. Sets position just outside of
         the fullOpacityMargin so the widget initializes as semi-transparent.
         Tries to place widget to the lower right of the position.
         """
@@ -188,7 +188,7 @@ class PopupFrame(QtWidgets.QFrame):
         elif event.type() == QtCore.QEvent.MouseMove:
 
             # If we are not visible, no need to compute anything
-            if self.isVisible() == False:
+            if self.isVisible() is False:
                 pass
 
             else:

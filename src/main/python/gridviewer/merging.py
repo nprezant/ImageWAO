@@ -1,4 +1,4 @@
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtGui
 
 from serializers import JSONDrawnItems
 
@@ -15,7 +15,7 @@ class PositionedIndexes:
 
     def __init__(self, indexes):
         """
-        Creates a 2D list of of 
+        Creates a 2D list of of
         the indexes
         """
 
@@ -245,7 +245,7 @@ class MergedIndexes:
     """
     Class for merging the images at various
     indexes together.
-    
+
     This class also includes helpful
     tools such as indexAt() which returns
     the index that a given QPoint is at.
@@ -253,11 +253,11 @@ class MergedIndexes:
 
     def __init__(self, indexes: QtCore.QModelIndex):
         """
-        Finds the selected images and, if there are any, 
+        Finds the selected images and, if there are any,
         generates a QImage of them stitched together.
         This image can be retreived through the resultantImage
         method.
-        
+
         Returns None if nothing is selected.
         Assumes consistent sizes.
         (More precisely: assumes that all images are the

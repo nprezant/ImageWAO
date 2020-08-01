@@ -5,7 +5,7 @@ from datetime import datetime
 
 from PIL import Image
 
-from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2 import QtCore
 
 from base import config, QWorker
 
@@ -247,7 +247,7 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
     """
     Categorizes the images in the searchFolder into transects
     based on `maxDelay` and `minCount`.
-    
+
     glob.iglob is applied to str(searchFolder) to loop through image files.
     with the recursive flag set to true.
     """
@@ -274,7 +274,7 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
         if not fp.is_file():
             continue
 
-        if not fp.suffix in config.supportedImageExtensions:
+        if fp.suffix not in config.supportedImageExtensions:
             continue
 
         # retrieve date and time image was taken

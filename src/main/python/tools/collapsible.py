@@ -48,7 +48,7 @@ class CollapsibleDialog(QDialog):
         self.add_sections()
 
     def add_sections(self):
-        """adds a collapsible sections for every 
+        """adds a collapsible sections for every
         (title, widget) tuple in self.sections
         """
         for (title, widget) in self.sections:
@@ -68,7 +68,7 @@ class CollapsibleDialog(QDialog):
         self.sections.append((title, widget))
 
     def add_button(self, title):
-        """creates a QTreeWidgetItem containing a button 
+        """creates a QTreeWidgetItem containing a button
         to expand or collapse its section
         """
         item = QTreeWidgetItem()

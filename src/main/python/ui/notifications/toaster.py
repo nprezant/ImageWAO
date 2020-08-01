@@ -1,4 +1,3 @@
-import sys
 from PySide2 import QtCore, QtWidgets, QtGui
 
 
@@ -17,7 +16,7 @@ class QToaster(QtWidgets.QFrame):
             """
             QToaster {
                 border: 1px solid black;
-                border-radius: 4px; 
+                border-radius: 4px;
                 background: palette(window);
             }
         """

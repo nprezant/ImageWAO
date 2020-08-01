@@ -6,7 +6,7 @@ from ui import CountForm
 import scenegraphics as sg
 
 from .imageviewer import QImageViewer
-from .controls import ImageController, ColorableAction, ctx, ToolType
+from .controls import ImageController, ToolType
 from .cursors import Cursors
 from .menus import ItemMenu
 
@@ -86,7 +86,7 @@ class QImageEditor(QImageViewer):
     @QtCore.Slot(QtGui.QImage, str)
     def setImage(self, image: QtGui.QImage, drawings: str):
         """
-        Re-implement to ensure that drawn items are 
+        Re-implement to ensure that drawn items are
         cleared when a new image is set, and to save
         the old image if necessary
         """
@@ -95,7 +95,7 @@ class QImageEditor(QImageViewer):
         super().setImage(image)
 
         # If we have drawings, redraw them
-        if not drawings in (None, ""):
+        if drawings not in (None, ""):
             self.readSerializedDrawnItems(drawings)
 
     @QtCore.Slot(QtGui.QColor)

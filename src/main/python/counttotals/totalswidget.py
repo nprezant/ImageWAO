@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtWidgets
 
 from base import ctx, config
 from transects import TransectSaveData
