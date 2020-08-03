@@ -1,13 +1,12 @@
-import os
 from pathlib import Path
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtWidgets
 
-from transects import TransectSaveData, TransectSaveDatas
-from base import QWorker, config
-from base.primatives import CountDataSet
+from transects import TransectSaveDatas
+from base import config
 
 from .enums import UserRoles
+from transects import GetSaveFiles
 
 
 class TotalsModel(QtCore.QAbstractListModel):
@@ -110,20 +109,7 @@ class TotalsModel(QtCore.QAbstractListModel):
 
             self.inTransect = False
 
-            markedFolderMatchString = config.markedImageFolderName
-            subfolders = subfolders = [f for f in os.scandir(fp) if f.is_dir()]
-            filesToLoad = []
-            for dirname in list(subfolders):
-                allfolders = fast_scandir(dirname)
-                markedFolders = [
-                    d for d in allfolders if d.name == markedFolderMatchString
-                ]
-                for markedFolder in markedFolders:
-                    saveFile = config.markedDataFile(
-                        transectFolder=Path(markedFolder).parent
-                    )
-                    if saveFile.exists():
-                        filesToLoad.append((dirname.name, saveFile))
+            filesToLoad = GetSaveFiles(fp)
             if filesToLoad:
                 self._loadFiles(filesToLoad)
             else:
@@ -165,15 +151,3 @@ class TotalsModel(QtCore.QAbstractListModel):
         if row is not None:
             return self.index(row, 0)
         return None
-
-
-def fast_scandir(dirname):
-    """
-    Quickly scans all subfolders recursively.
-    Faster than `os.walk` and much faster than `glob`.
-    Returns list of os.DirEntry() objects.
-    """
-    subfolders = [f for f in os.scandir(dirname) if f.is_dir()]
-    for dirname in list(subfolders):
-        subfolders.extend(fast_scandir(dirname))
-    return subfolders

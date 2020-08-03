@@ -1,4 +1,5 @@
 import json
+from typing import List
 
 from PySide2 import QtWidgets, QtGui
 
@@ -19,7 +20,7 @@ class JSONDrawnItems:
     "merged" before they are displayed in the viewer.
     """
 
-    def __init__(self, drawings: DrawingData):
+    def __init__(self, drawings: List[DrawingData]):
         """
         The __init__ method loads drawing data directly.
         Other static methods are available to initialize the class:
@@ -32,9 +33,9 @@ class JSONDrawnItems:
         """
 
         # Internally store the graphical representation
-        # of these scene objects. Contains nough information
+        # of these scene objects. Contains enough information
         # to recreate from primitive objects
-        self._drawingData: DrawingData = drawings
+        self._drawingData: List[DrawingData] = drawings
 
         # To iterate over this instance, we need an
         # iterater tracking variable
@@ -162,6 +163,9 @@ class JSONDrawnItems:
             elif drawing.name == "Line":
                 painter.drawLine(drawing.geom)
         painter.end()
+
+    def isEmpty(self):
+        return self._drawingData == []
 
     def __iter__(self):
         self._index = 0

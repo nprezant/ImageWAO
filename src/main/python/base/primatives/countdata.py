@@ -31,11 +31,11 @@ class CountData:
     def fromDict(d: dict):
         """
         Initializes object from a dict. Ideally created with `toDict` method.
-        If the input dict is None, returns None.
+        If the input dict is empty, return a blank initialized CountData.
         """
 
-        if d is None:
-            return None
+        if d in ({}, None):  # None included for legacy compatibility
+            return CountData()
 
         # Retreive values
         species = d["Species"]
@@ -56,6 +56,13 @@ class CountData:
         if self.notes:
             s += f"\n{self.notes}"
         return s
+
+    def isEmpty(self):
+        """
+        Tests whether this count data contains any information
+        that differs from the default.
+        """
+        return self == CountData()
 
     def __eq__(self, other):
         return (

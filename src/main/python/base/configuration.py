@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PySide2 import QtCore
 
+from .version import Version
+
 
 class Configuration:
     def __init__(self):
@@ -75,6 +77,40 @@ class Configuration:
 
         # Button sizes
         self.toolbuttonSize = (20, 20)
+
+    # ImageWAO data files
+
+    def _imageWaoMetaFolder(self):
+        folder = Path(self.libraryDirectory) / ".imagewao"
+        folder.mkdir(parents=True, exist_ok=True)
+        return folder
+
+    def _versionFile(self):
+        return self._imageWaoMetaFolder() / "version.txt"
+
+    def projectVersion(self) -> Version:
+        """Gets the project version as defined in the library folder"""
+
+        # If the version file doesn't exist, assume 0.0.0
+        if not self._versionFile().exists():
+            self.setProjectVersion(Version(0, 0, 0))
+            return Version(0, 0, 0)
+
+        # The version file does exist, read it
+        with open(self._versionFile(), "r") as f:
+            versionString = f.readline()
+        return Version.fromString(versionString)
+
+    def setProjectVersion(self, version: Version):
+        """Writes the project version to the library folder"""
+        self._versionFile().touch(exist_ok=True)
+        with open(self._versionFile(), "w") as f:
+            f.write(version.toString())
+
+    def logFolder(self):
+        folder = self._imageWaoMetaFolder / "logs"
+        folder.mkdir(parents=True, exist_ok=True)
+        return folder
 
     # Flight Data Files
 

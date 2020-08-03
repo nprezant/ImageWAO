@@ -13,6 +13,9 @@ class AppContext(ApplicationContext):
     a cached_property in this class.
     """
 
+    def version(self):
+        return self.build_settings["version"]
+
     def icon(self, fp):
         """
         Convenience method for returning an icon

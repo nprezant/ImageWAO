@@ -34,23 +34,20 @@ class SceneCountsItemMixin:
     def countData(self) -> CountData:
         """
         Returns the count data if it has been set.
-        Otherwise, this return None.
+        If nothing has been set, this will return the default count data.
         """
         try:
             return self._countData
         except AttributeError:
-            return None
+            self.setCountData(CountData())
+            return CountData()
 
     def hoverEnterEvent(self, event: QtWidgets.QGraphicsSceneHoverEvent):
         """
         Upon beginning to hover, the tool tip with animal counts will be
         displayed and the drop shadow effect will be enabled.
         """
-        if isinstance(self.countData(), CountData):
-            tip = self.countData().toToolTip()
-        else:
-            tip = None
-        self.setToolTip(tip)
+        self.setToolTip(self.countData().toToolTip())
 
         self._shadowEffect.setEnabled(True)
 

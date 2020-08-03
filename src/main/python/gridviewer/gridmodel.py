@@ -180,7 +180,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         return self.data(self.createIndex(r, c), UserRoles.ImagePath).parent
 
     def transectData(self):
-        """ Computes the transect save data and returns it. """
+        """ Computes the transect save data and returns it. **Unused** """
         if len(self._changedIndexes) == 0:
             return
 
@@ -296,8 +296,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             markedPath = markedFolder / originalPath.name
 
             # Merge drawn items and draw them onto the image
-            drawings = mergedIndexes.drawnItems()
-            if drawings is not None:
+            drawings: JSONDrawnItems = mergedIndexes.drawnItems()
+            if drawings.isEmpty():
 
                 # We should only save these drawings if they aren't
                 # already saved.
@@ -305,7 +305,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
                     # Add this image to the list of images
                     # to save and add the drawn item string to the save data
-                    JSONDrawnItems.loads(drawings).paintToDevice(preview)
+                    drawings.paintToDevice(preview)
                     markedImages.append((preview, [str(markedPath)]))
                     saveData.addDrawings(originalPath.name, drawings)
 

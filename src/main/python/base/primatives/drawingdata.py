@@ -4,7 +4,7 @@ from .countdata import CountData
 
 
 class DrawingData:
-    def __init__(self, name, geom, pen, countData: CountData = None):
+    def __init__(self, name: str, geom, pen: QtGui.QPen, countData=CountData()):
         """
         Minimum objects required to re-create an item
         drawn in a scene.
@@ -65,17 +65,13 @@ class DrawingData:
         """
         Returns this drawing data as a serializable dict
         """
-        if self.countData is None:
-            countData = None
-        else:
-            countData = self.countData.toDict()
 
         return {
             "Name": self.name,
             "Args": self.args,
             "PenColor": self.penColor,
             "PenWidth": self.penWidth,
-            "CountData": countData,
+            "CountData": self.countData.toDict(),
         }
 
     @staticmethod

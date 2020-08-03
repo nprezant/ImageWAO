@@ -337,10 +337,10 @@ class MergedIndexes:
 
         return stringAssignments
 
-    def drawnItems(self):
+    def drawnItems(self) -> JSONDrawnItems:
         """
         Merge the drawn items for this combined image
-        into one nice string of serialized items.
+        into one nice JSONDrawnItems.
         """
 
         # Tracks the graphical representations
@@ -372,6 +372,5 @@ class MergedIndexes:
                 rep.offset(left, top)
                 reps.append(rep)
 
-        # Return the whole set of drawn items as a serialized
-        # string
-        return JSONDrawnItems(reps).dumps()
+        # Return the whole set of drawn items
+        return JSONDrawnItems(reps)
