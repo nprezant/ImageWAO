@@ -71,7 +71,7 @@ class FullImage:
         Gets the drawn items at the given
         row, column
         """
-        return self._drawnItems[r][c]
+        return JSONDrawnItems.loads(self._drawnItems[r][c])
 
     def setDrawings(self, r, c, drawings: JSONDrawnItems):
         """
@@ -79,7 +79,12 @@ class FullImage:
         drawn items at the given row, column to
         the given value.
         """
-        self._drawnItems[r][c] = drawings
+        # It's kind of stupid but the drawn items seems to only be able to
+        # handle the string version of the drawings
+        if drawings is None:
+            self._drawnItems[r][c] = None
+        else:
+            self._drawnItems[r][c] = drawings.dumps()
 
     def computeScalings(self, width: int):
         """
