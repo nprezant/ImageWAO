@@ -56,25 +56,24 @@ class FullImage:
         img = self.part(r, c, scaledWidth).copy()
 
         # Add drawing items if present
-        sItems = self.drawnItems(r, c)
-        if sItems is not None:
+        items = self.drawnItems(r, c)
+        if items is not None:
 
             # Since we are drawing on a scaled part of the image,
             # we need to use the scale factor
             sf = scaledWidth / self.part(r, c, None).width()
-            JSONDrawnItems.loads(sItems).paintToDevice(img, sf)
+            items.paintToDevice(img, sf)
 
         return img
 
-    def drawnItems(self, r, c):
+    def drawnItems(self, r, c) -> JSONDrawnItems:
         """
-        Gets the serialized string
-        of the drawn items at the given
+        Gets the drawn items at the given
         row, column
         """
         return self._drawnItems[r][c]
 
-    def setDrawings(self, r, c, drawings):
+    def setDrawings(self, r, c, drawings: JSONDrawnItems):
         """
         Sets the serialized string of the
         drawn items at the given row, column to

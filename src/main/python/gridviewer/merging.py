@@ -275,7 +275,7 @@ class MergedIndexes:
         """
         return self.positions.toImage(UserRoles.FullResImage)
 
-    def setModelDrawings(self, model, items):
+    def setModelDrawings(self, model, items: JSONDrawnItems):
         """
         Set the drawings on the model, given the list
         of items currently drawn on the merged indexes.
@@ -287,18 +287,15 @@ class MergedIndexes:
         # For each index and drawing pairing, we need to set it on the
         # model. However, if the index is None, that means the drawing
         # was over a null space on the merged image.
-        for idx, drawingString in assignments.items():
+        for idx, drawnItems in assignments.items():
             if idx is not None:
-                model.setDrawings(idx, drawingString)
+                model.setDrawings(idx, drawnItems)
 
-    def assignDrawnItems(self, itemstring):
+    def assignDrawnItems(self, items: JSONDrawnItems):
         """
         Assign the items passed in to their proper
         corresponding index.
         """
-
-        # Read items into a workable object
-        items = JSONDrawnItems.loads(itemstring)
 
         # Dict:
         # {index1: [rep1, rep2, rep3],
@@ -333,7 +330,7 @@ class MergedIndexes:
 
         # For item in the, dump to a string
         for idx, reps in assignments.items():
-            stringAssignments[idx] = JSONDrawnItems(reps).dumps()
+            stringAssignments[idx] = JSONDrawnItems(reps)
 
         return stringAssignments
 
@@ -354,11 +351,11 @@ class MergedIndexes:
                 continue
 
             # Retreive the drawn item string
-            sItems = idx.data(role=UserRoles.DrawnItems)
+            items = idx.data(role=UserRoles.DrawnItems)
 
             # If there are no drawn items, go to the next
             # position.
-            if sItems is None:
+            if items is None:
                 continue
 
             # Find the top and left coordinates of this index
@@ -367,7 +364,6 @@ class MergedIndexes:
 
             # Offset each item to it's proper location within
             # the merged image.
-            items = JSONDrawnItems.loads(sItems)
             for rep in items:
                 rep.offset(left, top)
                 reps.append(rep)

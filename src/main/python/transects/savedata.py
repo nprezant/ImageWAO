@@ -101,11 +101,11 @@ class TransectSaveData(UserDict):
         """
         Generator yielding a tuple of images
         with corresponding drawings.
-        (imageName:str, drawings:str)
+        (imageName:str, drawings:JSONDrawnItems)
         """
         for imageName, imageData in self.data.items():
             if "drawings" in imageData.keys():
-                yield imageName, imageData["drawings"]
+                yield imageName, JSONDrawnItems.load(imageData["drawings"])
 
     def imageCounts(self):
         """

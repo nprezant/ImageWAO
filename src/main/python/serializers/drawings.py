@@ -42,7 +42,7 @@ class JSONDrawnItems:
         self._index = 0
 
     @staticmethod
-    def loadDrawingData(items: QtWidgets.QGraphicsItem):
+    def loadGraphicsItems(items: List[QtWidgets.QGraphicsItem]):
         """
         Initialize serializable data with a list of QGraphicsItems.
         Supported items:
@@ -85,18 +85,25 @@ class JSONDrawnItems:
         return JSONDrawnItems(drawingData)
 
     @staticmethod
-    def loads(s):
+    def loads(s: str):
         """
-        Load an encoded JSON formatted string of drawing items
+        Load an encoded JSON formatted string list of drawing items
         as their geometric representation (QRectF, QLine, QEllipse)
         """
 
         if s is None:
             return JSONDrawnItems([])
 
-        drawings = []
         data = json.loads(s)
 
+        return JSONDrawnItems.load(data)
+
+    @staticmethod
+    def load(data: List[dict]):
+        """
+        Loads JSON drawing data from a list of dicts
+        """
+        drawings = []
         for dataItem in data:
 
             drawing = DrawingData.fromDict(dataItem)
@@ -153,7 +160,6 @@ class JSONDrawnItems:
         """
         painter = QtGui.QPainter(device)
         for drawing in self._drawingData:
-            painter.setPen(drawing.pen)
             drawing.scale(sf)
             painter.setPen(drawing.pen)
             if drawing.name == "Rect":

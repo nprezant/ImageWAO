@@ -15,7 +15,7 @@ class QImageEditor(QImageViewer):
 
     # Emits signal with a list of encoded items
     # When a new item is drawn or removed
-    drawnItemsChanged = QtCore.Signal(list)
+    drawnItemsChanged = QtCore.Signal(JSONDrawnItems)
 
     def __init__(self):
         super().__init__()
@@ -83,8 +83,8 @@ class QImageEditor(QImageViewer):
         """
         self.scene().clear()
 
-    @QtCore.Slot(QtGui.QImage, str)
-    def setImage(self, image: QtGui.QImage, drawings: str):
+    @QtCore.Slot(QtGui.QImage, JSONDrawnItems)
+    def setImage(self, image: QtGui.QImage, drawings: JSONDrawnItems):
         """
         Re-implement to ensure that drawn items are
         cleared when a new image is set, and to save
@@ -94,9 +94,12 @@ class QImageEditor(QImageViewer):
         self._countForm.hidePopup()  # Ensure popup is hidden
         super().setImage(image)
 
+        if isinstance(drawings, str):
+            raise ValueError(JSONDrawnItems)
+
         # If we have drawings, redraw them
-        if drawings not in (None, ""):
-            self.readSerializedDrawnItems(drawings)
+        if drawings is not None:
+            self.addJSONDrawnItemsToScene(drawings)
 
     @QtCore.Slot(QtGui.QColor)
     def _updatePenColor(self, qcolor):
@@ -171,16 +174,15 @@ class QImageEditor(QImageViewer):
             if isinstance(item, sg.SceneCountsItemMixin):
                 drawnItems.append(item)
 
-        serializer = JSONDrawnItems.loadDrawingData(drawnItems)
-        self.drawnItemsChanged.emit(serializer.dumps())
+        serializer = JSONDrawnItems.loadGraphicsItems(drawnItems)
+        self.drawnItemsChanged.emit(serializer)
 
-    def readSerializedDrawnItems(self, serialized):
+    def addJSONDrawnItemsToScene(self, drawnItems: JSONDrawnItems):
         """
         Reads serialized data about drawn items into
         itself the current scene.
         """
-        serializer = JSONDrawnItems.loads(serialized)
-        serializer.addToScene(self.scene())
+        drawnItems.addToScene(self.scene())
 
     def _removeDrawnItemsUnderPoint(self, point: QtCore.QPointF):
         items = self.scene().items(point)
