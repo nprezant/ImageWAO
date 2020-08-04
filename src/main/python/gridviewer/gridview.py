@@ -177,7 +177,7 @@ class QImageGridView(QtWidgets.QTableView):
             self._handlePreviewRequest()
 
     @QtCore.Slot(JSONDrawnItems)
-    def setDrawings(self, drawings):
+    def setDrawings(self, drawings: JSONDrawnItems):
         """
         Set the drawn items passed in to the currently active
         model index.

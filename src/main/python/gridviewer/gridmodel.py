@@ -374,7 +374,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
     def data(self, index, role=QtCore.Qt.DecorationRole):
         """
         Depending on the index and role given, return data.
-        If not returning data, return None (equv. to Qt's QVariant)
+        If not returning data, return None (equiv. to Qt's QVariant)
         """
         if not index.isValid():
             return None
