@@ -1,4 +1,3 @@
-
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from serializers import JSONDrawnItems
@@ -7,7 +6,7 @@ from ui import CountForm
 import scenegraphics as sg
 
 from .imageviewer import QImageViewer
-from .controls import ImageController, ColorableAction, ctx, ToolType
+from .controls import ImageController, ToolType
 from .cursors import Cursors
 from .menus import ItemMenu
 
@@ -16,7 +15,7 @@ class QImageEditor(QImageViewer):
 
     # Emits signal with a list of encoded items
     # When a new item is drawn or removed
-    drawnItemsChanged = QtCore.Signal(list)
+    drawnItemsChanged = QtCore.Signal(JSONDrawnItems)
 
     def __init__(self):
         super().__init__()
@@ -62,63 +61,66 @@ class QImageEditor(QImageViewer):
         self.menu = ItemMenu(self)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._customMenuRequested)
-        
+
     @property
     def toolbar(self):
-        '''
+        """
         Alias for self.controller.toolbar
-        '''
+        """
         return self.controller.toolbar
 
     @property
     def mouseAction(self):
-        '''
+        """
         Alias for self.controller.activeMouseAction
-        '''
+        """
         return self.controller.activeMouseAction
 
     @QtCore.Slot()
     def clear(self):
-        '''
+        """
         Clears the image and the current drawings.
-        '''
+        """
         self.scene().clear()
 
-    @QtCore.Slot(QtGui.QImage, str)
-    def setImage(self, image:QtGui.QImage, drawings:str):
-        '''
-        Re-implement to ensure that drawn items are 
+    @QtCore.Slot(QtGui.QImage, JSONDrawnItems)
+    def setImage(self, image: QtGui.QImage, drawings: JSONDrawnItems):
+        """
+        Re-implement to ensure that drawn items are
         cleared when a new image is set, and to save
         the old image if necessary
-        '''
-        self.scene().clear() # We'll be redrawing the whole scene
-        self._countForm.hidePopup() # Ensure popup is hidden
+        """
+        self.scene().clear()  # We'll be redrawing the whole scene
+        self._countForm.hidePopup()  # Ensure popup is hidden
         super().setImage(image)
 
+        if isinstance(drawings, str):
+            raise ValueError(JSONDrawnItems)
+
         # If we have drawings, redraw them
-        if not drawings in (None, ''):
-            self.readSerializedDrawnItems(drawings)
+        if drawings is not None:
+            self.addJSONDrawnItemsToScene(drawings)
 
     @QtCore.Slot(QtGui.QColor)
     def _updatePenColor(self, qcolor):
-        '''
+        """
         Set internal pen color, used for new drawings
-        '''
+        """
         self._pen.setColor(qcolor)
 
     @QtCore.Slot(int)
     def _updatePenWidth(self, width):
-        '''
+        """
         Set internal pen width, used for new drawings
-        '''
+        """
         self._pen.setWidth(width)
 
     @QtCore.Slot(QtWidgets.QAction)
     def _updateCursor(self, action=None):
-        '''
+        """
         Update the mouse cursor based on the currently
         active mouse action
-        '''
+        """
         if self.mouseAction.isShapeTool:
             self.setCursor(QtCore.Qt.CrossCursor)
         elif self.mouseAction.tooltype == ToolType.Eraser:
@@ -130,16 +132,16 @@ class QImageEditor(QImageViewer):
 
     @QtCore.Slot()
     def itemCountsUpdated(self):
-        '''
+        """
         Since an item's counts were updated, emit the items.
-        '''
+        """
         self._emitDrawnItems()
 
     @QtCore.Slot(QtCore.QPoint)
-    def _customMenuRequested(self, pos:QtCore.QPoint):
-        '''
+    def _customMenuRequested(self, pos: QtCore.QPoint):
+        """
         Open the context menu with the currently selected item.
-        '''
+        """
 
         def eraseItem(item):
             self.scene().removeItem(item)
@@ -149,56 +151,52 @@ class QImageEditor(QImageViewer):
         if not self.mouseAction.tooltype == ToolType.HandTool:
             return
 
-        # Get the topmost item at this point and let the context 
+        # Get the topmost item at this point and let the context
         # menu know (if it is a scene counts item)
         item = self.itemAt(pos)
         if isinstance(item, sg.SceneCountsItemMixin):
-            self.menu.addEditableItem(item, lambda *args: self._countForm.popup(item, pos), 'Edit counts')
-            self.menu.addDeletableItem(item, lambda *args: eraseItem(item), 'Erase')
+            self.menu.addEditableItem(
+                item, lambda *args: self._countForm.popup(item, pos), "Edit counts"
+            )
+            self.menu.addDeletableItem(item, lambda *args: eraseItem(item), "Erase")
 
             # Show the menu
             self.menu.popup(self.mapToGlobal(pos))
 
     def _emitDrawnItems(self):
-        '''
+        """
         Serialize drawn items into JSON format and
         emit via the drawnItemsChanged signal
-        '''
+        """
         # Get each of the drawn items
         drawnItems = []
         for item in self.scene().items():
-            if isinstance(item ,sg.SceneCountsItemMixin):
+            if isinstance(item, sg.SceneCountsItemMixin):
                 drawnItems.append(item)
 
-        serializer = JSONDrawnItems.loadDrawingData(drawnItems)
-        self.drawnItemsChanged.emit(serializer.dumps())
+        serializer = JSONDrawnItems.loadGraphicsItems(drawnItems)
+        self.drawnItemsChanged.emit(serializer)
 
-    def readSerializedDrawnItems(self, serialized):
-        '''
+    def addJSONDrawnItemsToScene(self, drawnItems: JSONDrawnItems):
+        """
         Reads serialized data about drawn items into
         itself the current scene.
-        '''
-        serializer = JSONDrawnItems.loads(serialized)
-        serializer.addToScene(self.scene())
+        """
+        drawnItems.addToScene(self.scene())
 
-    def _removeDrawnItemsUnderPoint(self, point:QtCore.QPointF):
+    def _removeDrawnItemsUnderPoint(self, point: QtCore.QPointF):
         items = self.scene().items(point)
         for item in items:
             if isinstance(item, sg.SceneCountsItemMixin):
                 self.scene().removeItem(item)
 
-    def keyPressEvent(self, event:QtGui.QKeyEvent):
-        '''
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        """
         Some keys are necessary to track for navigating the view
         with the mouse and keyboard.
-        '''
+        """
         if event.key() == QtCore.Qt.Key_Control:
             self._ctrlPressed = True
-
-            # If we are currently on the main mouse button, we should update the cursor
-            # to let the user know that we can pan around now.
-            if self.mouseAction.tooltype == ToolType.HandTool:
-                self.setCursor(QtCore.Qt.OpenHandCursor)
 
         # Plus and equal keys are often in the same button
         if event.key() in (QtCore.Qt.Key_Plus, QtCore.Qt.Key_Equal):
@@ -213,25 +211,20 @@ class QImageEditor(QImageViewer):
 
         return super().keyPressEvent(event)
 
-    def keyReleaseEvent(self, event:QtGui.QKeyEvent):
-        '''
+    def keyReleaseEvent(self, event: QtGui.QKeyEvent):
+        """
         Some keys are necessary to track for navigating the view
         with the mouse and keyboard.
-        '''
+        """
         if event.key() == QtCore.Qt.Key_Control:
             self._ctrlPressed = False
 
-            # If we just had the panning cursor up, we can't pan anymore and
-            # should update the cursor to match.
-            if self.cursor() == QtCore.Qt.OpenHandCursor:
-                self.setCursor(QtCore.Qt.ArrowCursor)
-
         return super().keyReleaseEvent(event)
 
-    def leaveEvent(self, event:QtCore.QEvent):
-        '''
+    def leaveEvent(self, event: QtCore.QEvent):
+        """
         When the mouse leaves the widget we reset modulator keys
-        '''
+        """
         self._ctrlPressed = False
 
     def mousePressEvent(self, event):
@@ -248,11 +241,11 @@ class QImageEditor(QImageViewer):
         elif self.mouseAction.tooltype == ToolType.HandTool:
             if event.button() == QtCore.Qt.LeftButton:
                 if self._ctrlPressed:
-                    self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
-                else:
                     self.setDragMode(QtWidgets.QGraphicsView.RubberBandDrag)
+                else:
+                    self.setDragMode(QtWidgets.QGraphicsView.ScrollHandDrag)
 
-        # Zoom tool allows user to zoom in and out with 
+        # Zoom tool allows user to zoom in and out with
         # a selection rubber band box. The release event takes
         # care of whether it is a zoom in or zoom out.
         elif self.mouseAction.tooltype == ToolType.ZoomTool:
@@ -272,16 +265,20 @@ class QImageEditor(QImageViewer):
                 else:
                     pos = self.mapToScene(event.pos())
                     initialRect = QtCore.QRectF(pos.x(), pos.y(), 1, 1)
-                    
+
                 if self.mouseAction.tooltype == ToolType.OvalShape:
-                    self._dynamicallyDrawnItem = sg.SceneCountDataEllipse.create(initialRect, self._pen)
+                    self._dynamicallyDrawnItem = sg.SceneCountDataEllipse.create(
+                        initialRect, self._pen
+                    )
                 elif self.mouseAction.tooltype == ToolType.RectangleShape:
-                    self._dynamicallyDrawnItem = sg.SceneCountDataRect.create(initialRect, self._pen)
+                    self._dynamicallyDrawnItem = sg.SceneCountDataRect.create(
+                        initialRect, self._pen
+                    )
                 elif self.mouseAction.tooltype == ToolType.LineShape:
-                    line = QtCore.QLineF(
-                        pos.x(), pos.y(),
-                        pos.x()+1, pos.y()+1)
-                    self._dynamicallyDrawnItem = sg.SceneCountDataLine.create(line, self._pen)
+                    line = QtCore.QLineF(pos.x(), pos.y(), pos.x() + 1, pos.y() + 1)
+                    self._dynamicallyDrawnItem = sg.SceneCountDataLine.create(
+                        line, self._pen
+                    )
                 else:
                     self._dynamicallyDrawnItem = None
 
@@ -299,7 +296,7 @@ class QImageEditor(QImageViewer):
             # we need to know that we are still erasing
             self._erasing = True
             self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
-        
+
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event):
@@ -314,7 +311,10 @@ class QImageEditor(QImageViewer):
             pos = self.mapToScene(event.pos())
 
             # Some shapes use rectangles
-            if self.mouseAction.tooltype in (ToolType.OvalShape, ToolType.RectangleShape):
+            if self.mouseAction.tooltype in (
+                ToolType.OvalShape,
+                ToolType.RectangleShape,
+            ):
                 rect = self._dynamicallyDrawnItem.rect()
                 rect.setBottomRight(QtCore.QPointF(pos.x(), pos.y()))
                 self._dynamicallyDrawnItem.setRect(rect)
@@ -328,7 +328,7 @@ class QImageEditor(QImageViewer):
         # If we are erasing currently, we need to remove items
         elif self._erasing:
             self._removeDrawnItemsUnderPoint(self.mapToScene(event.pos()))
-        
+
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event):
@@ -343,7 +343,10 @@ class QImageEditor(QImageViewer):
             minLength = self._pen.width()
 
             # Some shapes use rectangles
-            if self.mouseAction.tooltype in (ToolType.OvalShape, ToolType.RectangleShape):
+            if self.mouseAction.tooltype in (
+                ToolType.OvalShape,
+                ToolType.RectangleShape,
+            ):
                 rect = self._dynamicallyDrawnItem.rect()
 
                 # Absolute value required because items have negative
@@ -374,7 +377,7 @@ class QImageEditor(QImageViewer):
             # Reset object handle
             self._dynamicallyDrawnItem = None
 
-            # We just used the mouse action -- let the controller know so it can go 
+            # We just used the mouse action -- let the controller know so it can go
             # go back to the default action
 
         # If we just erased something, let the world know
@@ -414,20 +417,20 @@ class QImageEditor(QImageViewer):
             # Regardless of the reason we were in scroll hand
             # drag mode, we don't want to be in that mode anymore
             self.setDragMode(QtWidgets.QGraphicsView.NoDrag)
-        
+
         # Let the controller know that we used a mouse action
         self.controller.mouseActionUsed()
 
     def mouseDoubleClickEvent(self, event):
-        '''
+        """
         For the standard, hand tool:
         * Zoom in with the left button,
         * Zoom out with the right button
-        '''
+        """
         if self.mouseAction.tooltype in (ToolType.HandTool, ToolType.ZoomTool):
             if event.button() == QtCore.Qt.LeftButton:
                 self.zoomIn(0.10)
-                
+
             elif event.button() == QtCore.Qt.RightButton:
                 self.clearZoom()
 

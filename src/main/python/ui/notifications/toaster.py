@@ -1,5 +1,5 @@
-import sys
 from PySide2 import QtCore, QtWidgets, QtGui
+
 
 class QToaster(QtWidgets.QFrame):
     closed = QtCore.Signal()
@@ -10,16 +10,17 @@ class QToaster(QtWidgets.QFrame):
         # Assign a grid layout
         QtWidgets.QGridLayout(self)
 
-        self.setSizePolicy(QtWidgets.QSizePolicy.Maximum, 
-                           QtWidgets.QSizePolicy.Maximum)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Maximum)
 
-        self.setStyleSheet('''
+        self.setStyleSheet(
+            """
             QToaster {
                 border: 1px solid black;
-                border-radius: 4px; 
+                border-radius: 4px;
                 background: palette(window);
             }
-        ''')
+        """
+        )
         # alternatively:
         # self.setAutoFillBackground(True)
         # self.setFrameShape(self.Box)
@@ -29,7 +30,7 @@ class QToaster(QtWidgets.QFrame):
         if self.parent():
             self.opacityEffect = QtWidgets.QGraphicsOpacityEffect(opacity=0)
             self.setGraphicsEffect(self.opacityEffect)
-            self.opacityAni = QtCore.QPropertyAnimation(self.opacityEffect, b'opacity')
+            self.opacityAni = QtCore.QPropertyAnimation(self.opacityEffect, b"opacity")
             # we have a parent, install an eventFilter so that when it's resized
             # the notification will be correctly moved to the right corner
             self.parent().installEventFilter(self)
@@ -37,13 +38,13 @@ class QToaster(QtWidgets.QFrame):
             # there's no parent, use the window opacity property, assuming that
             # the window manager supports it; if it doesn't, this won'd do
             # anything (besides making the hiding a bit longer by half a second)
-            self.opacityAni = QtCore.QPropertyAnimation(self, b'windowOpacity')
-        self.opacityAni.setStartValue(0.)
-        self.opacityAni.setEndValue(1.)
+            self.opacityAni = QtCore.QPropertyAnimation(self, b"windowOpacity")
+        self.opacityAni.setStartValue(0.0)
+        self.opacityAni.setEndValue(1.0)
         self.opacityAni.setDuration(750)
         self.opacityAni.finished.connect(self.checkClosed)
 
-        self.geometryAni = QtCore.QPropertyAnimation(self, b'geometry')
+        self.geometryAni = QtCore.QPropertyAnimation(self, b"geometry")
 
         self.setMinimumWidth(100)
         self.setMaximumWidth(500)
@@ -96,16 +97,20 @@ class QToaster(QtWidgets.QFrame):
             geo = self.geometry()
             if self.corner == QtCore.Qt.TopLeftCorner:
                 geo.moveTopLeft(
-                    parentRect.topLeft() + QtCore.QPoint(self.margin, self.margin))
+                    parentRect.topLeft() + QtCore.QPoint(self.margin, self.margin)
+                )
             elif self.corner == QtCore.Qt.TopRightCorner:
                 geo.moveTopRight(
-                    parentRect.topRight() + QtCore.QPoint(-self.margin, self.margin))
+                    parentRect.topRight() + QtCore.QPoint(-self.margin, self.margin)
+                )
             elif self.corner == QtCore.Qt.BottomRightCorner:
                 geo.moveBottomRight(
-                    parentRect.bottomRight() + QtCore.QPoint(-self.margin, -self.margin))
+                    parentRect.bottomRight() + QtCore.QPoint(-self.margin, -self.margin)
+                )
             else:
                 geo.moveBottomLeft(
-                    parentRect.bottomLeft() + QtCore.QPoint(self.margin, -self.margin))
+                    parentRect.bottomLeft() + QtCore.QPoint(self.margin, -self.margin)
+                )
             self.setGeometry(geo)
             self.restore()
             self.timer.start()
@@ -127,16 +132,17 @@ class QToaster(QtWidgets.QFrame):
         if not self.parent():
             # there's no parent, so we need to update the mask
             path = QtGui.QPainterPath()
-            path.addRoundedRect(QtCore.QRectF(self.rect()).translated(-.5, -.5), 4, 4)
-            self.setMask(QtGui.QRegion(path.toFillPolygon(QtGui.QTransform()).toPolygon()))
+            path.addRoundedRect(QtCore.QRectF(self.rect()).translated(-0.5, -0.5), 4, 4)
+            self.setMask(
+                QtGui.QRegion(path.toFillPolygon(QtGui.QTransform()).toPolygon())
+            )
         else:
             self.clearMask()
 
     def _addCloseButton(self):
         self.closeButton = QtWidgets.QToolButton()
         self.layout().addWidget(self.closeButton, 0, 2, QtCore.Qt.AlignTop)
-        closeIcon = self.style().standardIcon(
-            QtWidgets.QStyle.SP_TitleBarCloseButton)
+        closeIcon = self.style().standardIcon(QtWidgets.QStyle.SP_TitleBarCloseButton)
         self.closeButton.setIcon(closeIcon)
         self.closeButton.setAutoRaise(True)
         self.closeButton.clicked.connect(self.close)
@@ -146,8 +152,12 @@ class QToaster(QtWidgets.QFrame):
         self,
         message=None,
         icon=None,
-        corner=QtCore.Qt.BottomRightCorner, margin=10, closable=True, 
-        desktop=False, parentWindow=True):
+        corner=QtCore.Qt.BottomRightCorner,
+        margin=10,
+        closable=True,
+        desktop=False,
+        parentWindow=True,
+    ):
 
         parent = self.parent()
         parentRect = parent.rect()
@@ -164,7 +174,7 @@ class QToaster(QtWidgets.QFrame):
             # With line breaks, it should align top.
             if message is None:
                 iconAlignment = QtCore.Qt.AlignTop
-            elif '\n' in message:
+            elif "\n" in message:
                 iconAlignment = QtCore.Qt.AlignTop
             else:
                 iconAlignment = QtCore.Qt.AlignVCenter
@@ -191,17 +201,15 @@ class QToaster(QtWidgets.QFrame):
         # now the widget should have the correct size hints, let's move it to the
         # right place
         if corner == QtCore.Qt.TopLeftCorner:
-            geo.moveTopLeft(
-                parentRect.topLeft() + QtCore.QPoint(margin, margin))
+            geo.moveTopLeft(parentRect.topLeft() + QtCore.QPoint(margin, margin))
         elif corner == QtCore.Qt.TopRightCorner:
-            geo.moveTopRight(
-                parentRect.topRight() + QtCore.QPoint(-margin, margin))
+            geo.moveTopRight(parentRect.topRight() + QtCore.QPoint(-margin, margin))
         elif corner == QtCore.Qt.BottomRightCorner:
             geo.moveBottomRight(
-                parentRect.bottomRight() + QtCore.QPoint(-margin, -margin))
+                parentRect.bottomRight() + QtCore.QPoint(-margin, -margin)
+            )
         else:
-            geo.moveBottomLeft(
-                parentRect.bottomLeft() + QtCore.QPoint(margin, -margin))
+            geo.moveBottomLeft(parentRect.bottomLeft() + QtCore.QPoint(margin, -margin))
 
         self.setGeometry(geo)
 
@@ -213,4 +221,3 @@ class QToaster(QtWidgets.QFrame):
             self.show()
             self.opacityAni.start()
             self.isShown = True
-

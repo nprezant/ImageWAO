@@ -1,11 +1,12 @@
-
 from collections import OrderedDict
 
 from .countdata import CountData
 
+# TODO thid might be entirely obsolete
+
 
 class CountDataSet(OrderedDict):
-    '''
+    """
     This class handles a set of count data.
     `CountData` can be added using `addData(key, data)`,
     and if the `key` already exists, the count data will
@@ -14,12 +15,12 @@ class CountDataSet(OrderedDict):
     This is useful for summing the total number of animals
     in a single image, a single transect, a set of transects,
     etc.
-    '''
+    """
 
-    _duplicationNote = ' (duplicate)'
+    _duplicationNote = " (duplicate)"
 
-    def addData(self, key:str, data:CountData):
-        ''' Adds count data to this set. '''
+    def addData(self, key: str, data: CountData):
+        """ Adds count data to this set. """
 
         speciesKey = data.species
         if data.isDuplicate:
@@ -38,22 +39,22 @@ class CountDataSet(OrderedDict):
             else:
                 dataSet[speciesKey] += data
 
-    def animalsAt(self, idx:int) -> str:
-        '''
+    def animalsAt(self, idx: int) -> str:
+        """
         Displays a list of the animals and their counts
         at the given index in a nice, printable `str` format.
-        '''
+        """
         key, dataSet = list(self.items())[idx]
         s = key
         for speciesKey, data in dataSet.items():
-            s += f'\n    - {data.number} {speciesKey}'
+            s += f"\n    - {data.number} {speciesKey}"
         return s
 
-    def summaryAt(self, idx:int) -> str:
-        '''
+    def summaryAt(self, idx: int) -> str:
+        """
         Displays a summary of the animals counted at this index
         in a printable `str` format
-        '''
+        """
         key, dataSet = list(self.items())[idx]
         uniqueAnimalsCounted = 0
         uniqueSpeciesCounted = 0
@@ -63,22 +64,22 @@ class CountDataSet(OrderedDict):
                 uniqueSpeciesCounted += 1
 
         s = key
-        s += f'\n    - {uniqueSpeciesCounted} species'
-        s += f'\n    - {uniqueAnimalsCounted} unique animals'
+        s += f"\n    - {uniqueSpeciesCounted} species"
+        s += f"\n    - {uniqueAnimalsCounted} unique animals"
         return s
 
     def clipboardText(self):
-        '''
+        """
         Returns text containing all identifying data, copyable to the clipboard.
-        '''
-        s = 'Top Level\tSpecies\tNumber\tIs Duplicate\tNotes'
+        """
+        s = "Top Level\tSpecies\tNumber\tIs Duplicate\tNotes"
         for topLevel, dataSet in self.items():
             for speciesKey, countData in dataSet.items():
-                s += f'\n{topLevel}\t{speciesKey}\t{countData.number}\t{countData.isDuplicate}\t{countData.notes}'
+                s += f"\n{topLevel}\t{speciesKey}\t{countData.number}\t{countData.isDuplicate}\t{countData.notes}"
         return s
 
     def sorted(self):
-        ''' Returns `CountDataSet` sorted based by `Keys` '''
+        """ Returns `CountDataSet` sorted based by `Keys` """
         return CountDataSet(sorted(self.items(), key=lambda t: t[0]))
 
     def __iadd__(self, other):
@@ -86,4 +87,3 @@ class CountDataSet(OrderedDict):
             for countData in dataSet.values():
                 self.addData(key, countData)
         return self
-

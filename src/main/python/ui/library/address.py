@@ -1,7 +1,6 @@
-
 from pathlib import Path
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtWidgets
 
 from tools import clearLayout
 from base import ctx
@@ -62,9 +61,9 @@ class AddressBar(QtWidgets.QWidget):
         actions = []
 
         # add home action
-        act = QtWidgets.QAction(ctx.icon('icons/home.png'), 'Home')
+        act = QtWidgets.QAction(ctx.icon("icons/home.png"), "Home")
         act.triggered.connect(self.emitHomePath)
-        act.setToolTip(f'Home: {self.home_path.absolutePath()}')
+        act.setToolTip(f"Home: {self.home_path.absolutePath()}")
         actions.append(act)
 
         # home path
@@ -73,7 +72,7 @@ class AddressBar(QtWidgets.QWidget):
 
         # make actions for each path part
         for part in Path(rel).parts:
-            act = QtWidgets.QAction(part + ' /')
+            act = QtWidgets.QAction(part + " /")
             full = full / part
             act.triggered.connect(
                 lambda _=False, p=str(full): self.emitArbitraryPath(p)

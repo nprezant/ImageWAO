@@ -1,7 +1,6 @@
-
 from pathlib import Path
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtWidgets
 
 from tools import clearLayout
 from base import config
@@ -9,6 +8,7 @@ from base import config
 from .address import AddressBar
 from .popup import LibraryMenu
 from .events import DirectoryChangeEvent, EventTypes
+
 
 class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
 
@@ -18,7 +18,7 @@ class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
         # Fetch datetime value.
         index = self.sourceModel().index(sourceRow, 0, sourceParent)
         data = self.sourceModel().data(index)
-        
+
         # Filter OUT matching files
         if self.filterOut is None:
             return super().filterAcceptsRow(sourceRow, sourceParent)
@@ -26,7 +26,7 @@ class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
             return False
         else:
             return True
-        
+
 
 class Library(QtWidgets.QWidget):
 
@@ -69,22 +69,24 @@ class Library(QtWidgets.QWidget):
         self._rootDirPreviouslyBlank = None
 
         # Handle selection changes and map to appropriate signals
-        self.proxyView.selectionModel().selectionChanged.connect(self._handleSelectionChange)
+        self.proxyView.selectionModel().selectionChanged.connect(
+            self._handleSelectionChange
+        )
 
         # Allows different layouts based on whether or not the folder is empty
         self._nothingInRootLayout = None
 
         # Root path. Defaults to $HOME$/Pictures/ImageWAO
-        rootPath:str = config.libraryDirectory
+        rootPath: str = config.libraryDirectory
 
         # Re-base the model on the new root path.
         self.rebase(rootPath)
 
     @QtCore.Slot(str)
     def _changeWatchedPath(self, fp):
-        '''
+        """
         Change the watched path to `fp`. Removes all other paths.
-        '''
+        """
         files = self.watcher.files()
         dirs = self.watcher.directories()
         if files:
@@ -94,18 +96,18 @@ class Library(QtWidgets.QWidget):
         self.watcher.addPath(fp)
 
     def setNothingInRootLayout(self, layout):
-        '''
+        """
         This layout will be used when there are no folders in the root layout.
-        '''
+        """
         self._noFoldersInRootLayout = layout
 
     def nothingInRootLayout(self):
-        '''
+        """
         This layout will be shown when no folders are found in the root directory.
         The default layout simply informs the user that there are no folders.
 
         To set a custom layout, set one with `setNothingInRootLayout()`
-        '''
+        """
 
         # If a custom layout has been set, use that.
         if self._nothingInRootLayout is not None:
@@ -113,7 +115,9 @@ class Library(QtWidgets.QWidget):
 
         # No custom layout set, so return the default
         # prompt user to choose a flights folder
-        label = QtWidgets.QLabel('  There is nothing here :(  \n  Right click to import flight images  ')
+        label = QtWidgets.QLabel(
+            "  There is nothing here :(  \n  Right click to import flight images  "
+        )
         label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
 
         # add to layout
@@ -122,18 +126,18 @@ class Library(QtWidgets.QWidget):
         return layout
 
     @QtCore.Slot(str)
-    def setConditionalLayout(self, path:str=None):
-        '''
+    def setConditionalLayout(self, path: str = None):
+        """
         Sets the layout based on whether or not anything is found in the root directory.
-        '''
+        """
 
         # If we are not currently in the root, nothing to do.
         if not self._inRootIndex():
             return
 
         # If things in root dir
-        rootDirBlank = len([1 for _ in Path(self.rootPath).glob('**/*')]) == 0
-        
+        rootDirBlank = len([1 for _ in Path(self.rootPath).glob("**/*")]) == 0
+
         # If this is the same situation as last time we checked, nothing to do
         if self._rootDirPreviouslyBlank is None:
             pass
@@ -145,10 +149,10 @@ class Library(QtWidgets.QWidget):
 
         # Reparent current layout so we can use a new one
         if self.layout() is not None:
-            
+
             # Get a reference to the layout's items so we don't lose them to the garbage collector
             # There should be two items: address bar, main item
-            keepIndexes = [] # Track which indexes to keep references to
+            keepIndexes = []  # Track which indexes to keep references to
             for i in range(self.layout().count()):
                 item = self.layout().itemAt(i)
                 if not item:
@@ -161,7 +165,7 @@ class Library(QtWidgets.QWidget):
                     else:
                         pass
 
-            # Taking the items that we want to keep out of the 
+            # Taking the items that we want to keep out of the
             # layout will maintain their references, because otherwise they'll
             # be deleted when we re-parent the layout.
             keepIndexes.sort(reverse=True)
@@ -172,7 +176,7 @@ class Library(QtWidgets.QWidget):
             QtWidgets.QWidget().setLayout(self.layout())
 
         layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(0,0,0,0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.setLayout(layout)
 
@@ -194,12 +198,12 @@ class Library(QtWidgets.QWidget):
         # prompt user to choose folder
         folder = QtWidgets.QFileDialog().getExistingDirectory(
             self,
-            'Choose Flight Folder',
+            "Choose Flight Folder",
             Path().home().anchor,
-            QtWidgets.QFileDialog().ShowDirsOnly
+            QtWidgets.QFileDialog().ShowDirsOnly,
         )
 
-        if not folder == '':
+        if not folder == "":
 
             # remove old layout
             clearLayout(self.layout())
@@ -207,22 +211,22 @@ class Library(QtWidgets.QWidget):
             # rebase view on new folder
             self.rebase(folder)
 
-    def rebase(self, rootPath:str):
-        '''
+    def rebase(self, rootPath: str):
+        """
         Re-base the file system model off of `rootPath`.
         Raises ValueError if the path is not a directory.
-        '''
+        """
 
         # Ensure root path exists
         self.rootPath = rootPath
         try:
             Path(self.rootPath).mkdir(exist_ok=True)
         except:
-            raise ValueError(f'Invalid root directory: {rootPath}')
+            raise ValueError(f"Invalid root directory: {rootPath}")
 
         # Ensure root path is directory
         if not Path(self.rootPath).is_dir():
-            raise ValueError(f'Root path must be directory, not: {rootPath}')
+            raise ValueError(f"Root path must be directory, not: {rootPath}")
 
         # Save this root path
         config.libraryDirectory = rootPath
@@ -248,15 +252,17 @@ class Library(QtWidgets.QWidget):
         return self.proxyModel.mapFromSource(self.sourceModel.index(self.rootPath))
 
     def _inRootIndex(self):
-        '''True if the current view index is the model root index'''
+        """True if the current view index is the model root index"""
         return self._rootProxyIndex() == self.proxyView.rootIndex()
 
     @QtCore.Slot()
     def viewActivated(self, index):
         sourceIndex = self.proxyModel.mapToSource(index)
         if self.sourceModel.fileInfo(sourceIndex).isDir():
-            QtCore.QCoreApplication.postEvent(self, DirectoryChangeEvent(index, sourceIndex))
-            self.proxyView.clearSelection() # Clear selection on directory change
+            QtCore.QCoreApplication.postEvent(
+                self, DirectoryChangeEvent(index, sourceIndex)
+            )
+            self.proxyView.clearSelection()  # Clear selection on directory change
         else:
             # Bubble up the path signal
             self.fileActivated.emit(self.sourceModel.filePath(sourceIndex))
@@ -267,9 +273,9 @@ class Library(QtWidgets.QWidget):
         self.viewActivated(index)
 
     def customEvent(self, event):
-        '''
+        """
         Handle the custom events. Namely, if the directory is changed.
-        '''
+        """
         if event.type() == EventTypes.DirectoryChange:
             # If the directory change event was accepted, then by all means change the directory.
             index = event.proxyIndex
@@ -280,7 +286,7 @@ class Library(QtWidgets.QWidget):
 
     @QtCore.Slot(list)
     def selectFiles(self, files):
-        ''' Try to select all matching files in the library. '''
+        """ Try to select all matching files in the library. """
 
         # No files passed in
         if len(files) == 0:
@@ -295,22 +301,24 @@ class Library(QtWidgets.QWidget):
 
         # Select each index
         for idx in proxyIndexes:
-            self.proxyView.selectionModel().select(idx, QtCore.QItemSelectionModel.Select)
+            self.proxyView.selectionModel().select(
+                idx, QtCore.QItemSelectionModel.Select
+            )
 
         # Scroll to the first of the selected files
         self.proxyView.scrollTo(proxyIndexes[0])
 
     @QtCore.Slot(QtCore.QPoint)
-    def _customMenuRequested(self, pos:QtCore.QPoint):
-        '''
+    def _customMenuRequested(self, pos: QtCore.QPoint):
+        """
         Open the context menu with the currently selected item.
-        '''
+        """
 
         # The position given is with respect to the parent widget.
         # Need to convert it to the local viewport position.
         gp = self.mapToGlobal(pos)
         lp = self.proxyView.viewport().mapFromGlobal(gp)
-        
+
         # Find the file under the mouse
         idx = self.proxyView.indexAt(lp)
         srcIndex = self.proxyModel.mapToSource(idx)
@@ -340,5 +348,5 @@ class Library(QtWidgets.QWidget):
         index = indexes[0]
         if index.isValid():
             srcIndex = self.proxyModel.mapToSource(index)
-            path:str = self.sourceModel.filePath(srcIndex)
+            path: str = self.sourceModel.filePath(srcIndex)
             self.fileSelected.emit(path)

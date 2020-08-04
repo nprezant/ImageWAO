@@ -1,4 +1,3 @@
-
 from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets, QtGui
@@ -6,8 +5,9 @@ from PySide2 import QtCore, QtWidgets, QtGui
 from .totalsmodel import TotalsModel
 from .enums import UserRoles
 
+
 class TotalsView(QtWidgets.QListView):
-    
+
     fileActivated = QtCore.Signal(str)
     selectedFilesChanged = QtCore.Signal(Path)
 
@@ -18,7 +18,7 @@ class TotalsView(QtWidgets.QListView):
 
         # Alternate row colors
         p = self.palette()
-        p.setColor(p.AlternateBase, QtGui.QColor('#ffe8c9'))
+        p.setColor(p.AlternateBase, QtGui.QColor("#ffe8c9"))
         self.setPalette(p)
         self.setAlternatingRowColors(True)
 
@@ -31,7 +31,7 @@ class TotalsView(QtWidgets.QListView):
         self.emitNextSelectionSignal = True
 
     @QtCore.Slot(QtCore.QModelIndex)
-    def indexActivated(self, index:QtCore.QModelIndex) -> str:
+    def indexActivated(self, index: QtCore.QModelIndex) -> str:
         if self.model().inTransect:
             fp = index.data(UserRoles.AbsolutePath)
             self.fileActivated.emit(fp)
@@ -61,12 +61,12 @@ class TotalsView(QtWidgets.QListView):
     def export(self):
         self.model().export()
 
-    def selectFile(self, fp:str):
-        '''
+    def selectFile(self, fp: str):
+        """
         Selects the file or folder at the given path if possible.
         This has a bit of a recursion issue when you connect this to
         the library and the library back to this.
-        '''
+        """
 
         # Clear the current selection
         self.selectionModel().clearSelection()

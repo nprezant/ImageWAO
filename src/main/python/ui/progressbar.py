@@ -1,8 +1,7 @@
+from PySide2 import QtCore, QtWidgets
 
-from PySide2 import QtCore, QtGui, QtWidgets
 
 class QAbsoluteProgressBar(QtWidgets.QProgressBar):
-
     def __init__(self, parent):
         super().__init__(parent)
 
@@ -16,16 +15,17 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
         # create opacity effect
         self.opacityEffect = QtWidgets.QGraphicsOpacityEffect(opacity=0)
         self.setGraphicsEffect(self.opacityEffect)
-        self.opacityAni = QtCore.QPropertyAnimation(self.opacityEffect, b'opacity')
-        self.opacityAni.setStartValue(0.)
-        self.opacityAni.setEndValue(1.)
+        self.opacityAni = QtCore.QPropertyAnimation(self.opacityEffect, b"opacity")
+        self.opacityAni.setStartValue(0.0)
+        self.opacityAni.setEndValue(1.0)
         self.opacityAni.setDuration(2000)
         self.opacityAni.finished.connect(self._checkHidden)
 
         self.h = 10
 
         # style
-        self.setStyleSheet('''
+        self.setStyleSheet(
+            """
             QProgressBar {
                 border: 0px solid grey;
                 border-radius: 5px;
@@ -36,22 +36,23 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
                 background-color: #007bff; /* light blue */
                 width: 20px;
             }
-        ''')
+        """
+        )
 
         self.hide()
 
     def setValue(self, val):
-        '''
+        """
         Reimplement from QProgressBar.
         When the value is set to 0, the progress bar will hide itself.
         When the value is set to any other number, the progress bar will show.
-        '''
+        """
         if val == 0:
             if not self.isHidden():
                 # Fade out
                 self.opacityAni.setDirection(self.opacityAni.Backward)
                 self.opacityAni.start()
-                return # return so the progress bar stays full
+                return  # return so the progress bar stays full
         else:
             if self.isHidden():
                 # Fade in
@@ -62,7 +63,7 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
         super().setValue(val)
 
     def _checkHidden(self):
-        ''' If we have been fading out, we should hide the progress bar'''
+        """ If we have been fading out, we should hide the progress bar"""
         if self.opacityAni.direction() == self.opacityAni.Backward:
             self.hide()
 

@@ -1,5 +1,5 @@
+from PySide2 import QtWidgets, QtCore
 
-from PySide2 import QtWidgets, QtGui, QtCore
 
 class WidthMenu(QtWidgets.QMenu):
 
@@ -8,10 +8,10 @@ class WidthMenu(QtWidgets.QMenu):
     widthChanged = QtCore.Signal(int)
 
     def __init__(self, values, defaultValue):
-        '''
+        """
         Create and assign menu actions with icons corresponding
         to the input iterable of width integer values
-        '''
+        """
         super().__init__()
         self.actions = []
         self._activeIndex = 0
@@ -39,13 +39,13 @@ class WidthMenu(QtWidgets.QMenu):
         return self.actions[self._activeIndex].width
 
     def emitActiveWidth(self):
-        '''
+        """
         Trigger an emit for the active index.
         This method is used internally, but can also be called externally
         to manually emit the colorChanged signal on the active index.
         This can be helpful when initializing the class after setting up
         the proper slots.
-        '''
+        """
         self.widthChanged.emit(self.activeWidth)
 
     def handleSelectionChanged(self, checked):
@@ -60,7 +60,7 @@ class WidthMenu(QtWidgets.QMenu):
 
         # Find the new active action, change the active index,
         # and emit the new width
-        for i,a in enumerate(self.actions):
+        for i, a in enumerate(self.actions):
             if a.isChecked():
                 self._activeIndex = i
                 self.emitActiveWidth()

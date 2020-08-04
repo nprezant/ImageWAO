@@ -1,11 +1,12 @@
-'''
+"""
 Custom popup implementation with opacity tied into
 the mouse cursor distance from it.
-'''
+"""
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtWidgets
 
 from tools import distanceToRect
+
 
 class PopupFrame(QtWidgets.QFrame):
 
@@ -46,11 +47,11 @@ class PopupFrame(QtWidgets.QFrame):
         # mouse tracking state was before we changed it.
         self._mouseTrackingState = False
 
-    def popup(self, pos:QtCore.QPointF):
-        '''
+    def popup(self, pos: QtCore.QPointF):
+        """
         Show the Count Form as a popup window.
         Hide form if mouse does not immediately move it.
-        '''
+        """
 
         # Show
         self.setPersistance(False)
@@ -63,12 +64,12 @@ class PopupFrame(QtWidgets.QFrame):
         self._mouseTrackingState = self.parent().hasMouseTracking()
         self.parent().setMouseTracking(True)
 
-    def _autoPosition(self, pos:QtCore.QPointF):
-        '''
-        Automatically positions the widget. Sets position just outside of 
+    def _autoPosition(self, pos: QtCore.QPointF):
+        """
+        Automatically positions the widget. Sets position just outside of
         the fullOpacityMargin so the widget initializes as semi-transparent.
         Tries to place widget to the lower right of the position.
-        '''
+        """
 
         # Get sizes
         parentSize: QtCore.QSizeF = self.parent().size()
@@ -77,9 +78,9 @@ class PopupFrame(QtWidgets.QFrame):
         # Margin around rect. Increase the fullOpacityMargin so the widget
         # starts out semi-transparent.
         margin = self._fullOpacityMargin + self._extraAutoMargin
-        
+
         # Update opacity to reflect new cursor distance from the widget
-        self._updateDistanceOpacity((margin**2 + margin**2)**(0.5))
+        self._updateDistanceOpacity((margin ** 2 + margin ** 2) ** (0.5))
 
         # Initialize fitting checks
         rightFit = False
@@ -113,39 +114,37 @@ class PopupFrame(QtWidgets.QFrame):
 
         # Retreive geometry
         geo = self.geometry()
-        
+
         # Favored position is below and to the right
-        if (rightFit and bottomFit
-            or rightFit and not topFit
-            or not leftFit and not topFit
+        if (
+            rightFit
+            and bottomFit
+            or rightFit
+            and not topFit
+            or not leftFit
+            and not topFit
         ):
-            geo.moveTopLeft(
-                QtCore.QPoint(pos.x() + margin, pos.y() + margin))
+            geo.moveTopLeft(QtCore.QPoint(pos.x() + margin, pos.y() + margin))
 
         # Above to the right
-        elif (rightFit and topFit
-              or not leftFit and topFit):
-            geo.moveBottomLeft(
-                QtCore.QPoint(pos.x() + margin, pos.y() - margin))
+        elif rightFit and topFit or not leftFit and topFit:
+            geo.moveBottomLeft(QtCore.QPoint(pos.x() + margin, pos.y() - margin))
 
         # Below to the left
-        elif (leftFit and bottomFit
-              or leftFit and not topFit):
-            geo.moveTopRight(
-                QtCore.QPoint(pos.x() - margin, pos.y() + margin))
+        elif leftFit and bottomFit or leftFit and not topFit:
+            geo.moveTopRight(QtCore.QPoint(pos.x() - margin, pos.y() + margin))
 
         # Above to the left
         else:
-            geo.moveBottomRight(
-                QtCore.QPoint(pos.x() - margin, pos.y() - margin))
+            geo.moveBottomRight(QtCore.QPoint(pos.x() - margin, pos.y() - margin))
 
         # Assign newly positioned geometry
         self.setGeometry(geo)
 
     def hidePopup(self):
-        '''
+        """
         Hides the popup window.
-        '''
+        """
 
         if self.isHidden():
             return
@@ -161,11 +160,11 @@ class PopupFrame(QtWidgets.QFrame):
 
         self.hide()
 
-    def setPersistance(self, value:bool):
-        '''
+    def setPersistance(self, value: bool):
+        """
         Notes that this widget should persist regardless of
         mouse movement.
-        '''
+        """
         if value:
             self._persistant = True
             self._opacityEffect.setOpacity(1)
@@ -175,10 +174,10 @@ class PopupFrame(QtWidgets.QFrame):
     def isPersistant(self):
         return self._persistant
 
-    def eventFilter(self, source:QtCore.QObject, event:QtCore.QEvent):
-        '''
+    def eventFilter(self, source: QtCore.QObject, event: QtCore.QEvent):
+        """
         Grabs mouse events from outside the widget
-        '''
+        """
 
         # If the user clicks outside of this widget, hide it.
         if event.type() == QtCore.QEvent.MouseButtonPress:
@@ -189,7 +188,7 @@ class PopupFrame(QtWidgets.QFrame):
         elif event.type() == QtCore.QEvent.MouseMove:
 
             # If we are not visible, no need to compute anything
-            if self.isVisible() == False:
+            if self.isVisible() is False:
                 pass
 
             else:
@@ -202,11 +201,11 @@ class PopupFrame(QtWidgets.QFrame):
         return super().eventFilter(source, event)
 
     def _updateDistanceOpacity(self, d):
-        '''
+        """
         Updates the widget opacity and hidden status based on
         the cursor distance to the widget.
-        '''
-        # The hiding distance changes depending 
+        """
+        # The hiding distance changes depending
         if self.isPersistant():
             hideDistance = self._hidePersistantPopupDistance
         else:
@@ -222,15 +221,14 @@ class PopupFrame(QtWidgets.QFrame):
 
         # If the cursor is some other distance, adjust the opacity
         else:
-            opacity = 1 - (d - self._fullOpacityMargin) / (hideDistance - self._fullOpacityMargin)
+            opacity = 1 - (d - self._fullOpacityMargin) / (
+                hideDistance - self._fullOpacityMargin
+            )
             self._opacityEffect.setOpacity(opacity)
 
-    def enterEvent(self, event:QtCore.QEvent):
-        '''
+    def enterEvent(self, event: QtCore.QEvent):
+        """
         When the mouse enters this widget, we need to note that
         the widget should persist until the user clicks elsewhere.
-        '''
+        """
         self.setPersistance(True)
-
-
-    

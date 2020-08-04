@@ -1,5 +1,4 @@
-
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtGui
 
 from serializers import JSONDrawnItems
 
@@ -7,18 +6,18 @@ from .enums import UserRoles
 
 
 class PositionedIndexes:
-    '''
+    """
     Effectively a list of indexes in the proper positioned order.
     [[idx1 idx2]
      [idx3 idx4]
      [idx5 idx6]]
-    '''
+    """
 
     def __init__(self, indexes):
-        '''
-        Creates a 2D list of of 
+        """
+        Creates a 2D list of of
         the indexes
-        '''
+        """
 
         # Instance variables
         self.relativeIndexes = []
@@ -33,7 +32,7 @@ class PositionedIndexes:
         # Each column of the first row, then each of the second)
         # [(1,1), (1,2), (2,1), (2,2)]
         # To do this, we sort first by columns, then by rows.
-        absolutePositions.sort(key = lambda x: (x[1], x[2]))
+        absolutePositions.sort(key=lambda x: (x[1], x[2]))
 
         # This way we know how many rows and columnss we have total
         uniqueAbsoluteRows = list(dict.fromkeys([x[1] for x in absolutePositions]))
@@ -63,7 +62,7 @@ class PositionedIndexes:
             self.relativeIndexes[relativeRow][relativeColumn] = idx
 
     def resultantTopLefts(self, role):
-        '''
+        """
         Top and left of each index of the combined,
         relatively positioned data.
 
@@ -73,7 +72,7 @@ class PositionedIndexes:
         Returns the positions
         Return data: rowTops = [0, ..., ...,]
         Return data: columnTops = [0, ..., ...,]
-        '''
+        """
 
         # If we already computed this, no need to do it again
         if self.tops and self.lefts:
@@ -134,11 +133,11 @@ class PositionedIndexes:
         return rowTops, columnLefts
 
     def toImage(self, role):
-        '''
+        """
         Paints the internal relatively positioned items
         to an image, provided that the given role
         retreives an image from the index.
-        '''
+        """
 
         tops, lefts = self.resultantTopLefts(role)
 
@@ -165,10 +164,10 @@ class PositionedIndexes:
 
         return result
 
-    def indexAt(self, pos:QtCore.QPoint):
-        '''
+    def indexAt(self, pos: QtCore.QPoint):
+        """
         The index under a given point
-        '''
+        """
 
         # Safety check: these must be lists containing at least a [0]
         if not self.tops or self.lefts:
@@ -200,87 +199,87 @@ class PositionedIndexes:
                 continue
             col += 1
 
-        if rowFound and colFound: 
+        if rowFound and colFound:
             return self.relativeIndexes[row][col]
         else:
             return None
 
     def positionOfIndex(self, index):
-        '''
+        """
         Position of an index within the
         relativeIndexes 2D list.
-        '''
+        """
         for r, idxRow in enumerate(self.relativeIndexes):
             for c, idx in enumerate(idxRow):
                 if index is idx:
-                    return r,c
-        
+                    return r, c
+
         return None
 
     def topOfIndex(self, idx):
-        '''
+        """
         Top integer value of this index
-        '''
-        r,_ = self.positionOfIndex(idx)
+        """
+        r, _ = self.positionOfIndex(idx)
         return self.tops[r]
 
     def leftOfIndex(self, idx):
-        '''
+        """
         Left integer value of this index
-        '''
-        _,c = self.positionOfIndex(idx)
+        """
+        _, c = self.positionOfIndex(idx)
         return self.lefts[c]
 
     def positionData(self):
-        '''
+        """
         Generator for positional data
         of the relativeIndexes 2D list.
         returns (index, rowNumber, colNumber)
-        '''
+        """
         for r, idxRow in enumerate(self.relativeIndexes):
             for c, idx in enumerate(idxRow):
                 yield idx, r, c
 
 
 class MergedIndexes:
-    '''
+    """
     Class for merging the images at various
     indexes together.
-    
+
     This class also includes helpful
     tools such as indexAt() which returns
     the index that a given QPoint is at.
-    '''
+    """
 
-    def __init__(self, indexes:QtCore.QModelIndex):
-        '''
-        Finds the selected images and, if there are any, 
+    def __init__(self, indexes: QtCore.QModelIndex):
+        """
+        Finds the selected images and, if there are any,
         generates a QImage of them stitched together.
         This image can be retreived through the resultantImage
         method.
-        
+
         Returns None if nothing is selected.
         Assumes consistent sizes.
         (More precisely: assumes that all images are the
         same sie as the first image)
-        '''
+        """
 
         # Position the indexes relative to each other in a map
         # Note: 2D list cells with "None" had no index at that location
         self.positions = PositionedIndexes(indexes)
 
     def resultantImage(self):
-        '''
+        """
         The combined image generated from the set
         of indexes.
-        '''
+        """
         return self.positions.toImage(UserRoles.FullResImage)
 
-    def setModelDrawings(self, model, items):
-        '''
+    def setModelDrawings(self, model, items: JSONDrawnItems):
+        """
         Set the drawings on the model, given the list
         of items currently drawn on the merged indexes.
-        '''
+        """
 
         # Assign each drawn item to it's index.
         assignments = self.assignDrawnItems(items)
@@ -288,21 +287,18 @@ class MergedIndexes:
         # For each index and drawing pairing, we need to set it on the
         # model. However, if the index is None, that means the drawing
         # was over a null space on the merged image.
-        for idx, drawingString in assignments.items():
+        for idx, drawnItems in assignments.items():
             if idx is not None:
-                model.setDrawings(idx, drawingString)
+                model.setDrawings(idx, drawnItems)
 
-    def assignDrawnItems(self, itemstring):
-        '''
+    def assignDrawnItems(self, items: JSONDrawnItems):
+        """
         Assign the items passed in to their proper
         corresponding index.
-        '''
-
-        # Read items into a workable object
-        items = JSONDrawnItems.loads(itemstring)
+        """
 
         # Dict:
-        # {index1: [rep1, rep2, rep3], 
+        # {index1: [rep1, rep2, rep3],
         # index2, [rep4, rep5, rep6]}
         assignments = {}
 
@@ -313,7 +309,7 @@ class MergedIndexes:
             idx = self.positions.indexAt(rep.center)
             idxTop = self.positions.topOfIndex(idx)
             idxLeft = self.positions.leftOfIndex(idx)
-            
+
             # Offset this geometric representation
             # to be in the same coordinates as the index
             # that it is on top of.
@@ -334,16 +330,16 @@ class MergedIndexes:
 
         # For item in the, dump to a string
         for idx, reps in assignments.items():
-            stringAssignments[idx] = JSONDrawnItems(reps).dumps()
+            stringAssignments[idx] = JSONDrawnItems(reps)
 
         return stringAssignments
 
-    def drawnItems(self):
-        '''
+    def drawnItems(self) -> JSONDrawnItems:
+        """
         Merge the drawn items for this combined image
-        into one nice string of serialized items.
-        '''
-        
+        into one nice JSONDrawnItems.
+        """
+
         # Tracks the graphical representations
         # of drawn items.
         reps = []
@@ -355,11 +351,11 @@ class MergedIndexes:
                 continue
 
             # Retreive the drawn item string
-            sItems = idx.data(role=UserRoles.DrawnItems)
-            
-            # If there are no drawn items, go to the next 
+            items = idx.data(role=UserRoles.DrawnItems)
+
+            # If there are no drawn items, go to the next
             # position.
-            if sItems is None:
+            if items is None:
                 continue
 
             # Find the top and left coordinates of this index
@@ -368,15 +364,9 @@ class MergedIndexes:
 
             # Offset each item to it's proper location within
             # the merged image.
-            items = JSONDrawnItems.loads(sItems)
             for rep in items:
                 rep.offset(left, top)
                 reps.append(rep)
 
-        # Return the whole set of drawn items as a serialized
-        # string
-        return JSONDrawnItems(reps).dumps()
-
-            
-
-
+        # Return the whole set of drawn items
+        return JSONDrawnItems(reps)

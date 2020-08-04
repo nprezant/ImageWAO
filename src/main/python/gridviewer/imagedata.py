@@ -1,19 +1,17 @@
-
 from pathlib import Path
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtGui
 
-from base import config
 from serializers import JSONDrawnItems
 
 
 class FullImage:
-    '''
-    Contains all image data necessary to draw in grid form or 
+    """
+    Contains all image data necessary to draw in grid form or
     as a full resolution image. Caches the gridded images so
     the computation only happens once.
     Provides convenient access to the images.
-    '''
+    """
 
     def __init__(self, image, path=Path(), rows=2, cols=2, initialWidths=[200]):
         self.image = image
@@ -30,7 +28,7 @@ class FullImage:
             self.computeScalings(w)
 
     def part(self, r, c, scaledWidth=None):
-        '''
+        """
         Returns a portions of this image.
         The portion is is computed as the item of the image at
         row r and column c, given that the image is divided
@@ -38,7 +36,7 @@ class FullImage:
 
         If the scaledWidth is None, the full resolution image portion
         is returned.
-        '''
+        """
         if scaledWidth is None:
             return self.parts[r][c]
         else:
@@ -51,45 +49,49 @@ class FullImage:
                 return self.scaledParts[key][r][c]
 
     def drawnPart(self, r, c, scaledWidth):
-        '''
+        """
         Gets the scaled portion of this image,
         with the items drawn on it.
-        '''
-        img = self.part(r,c, scaledWidth).copy()
+        """
+        img = self.part(r, c, scaledWidth).copy()
 
         # Add drawing items if present
-        sItems = self.drawnItems(r,c)
-        if sItems is not None:
+        items = self.drawnItems(r, c)
+        if items is not None:
 
             # Since we are drawing on a scaled part of the image,
             # we need to use the scale factor
-            sf = scaledWidth / self.part(r,c,None).width()
-            JSONDrawnItems.loads(sItems).paintToDevice(img, sf)
-        
+            sf = scaledWidth / self.part(r, c, None).width()
+            items.paintToDevice(img, sf)
+
         return img
 
-    def drawnItems(self, r, c):
-        '''
-        Gets the serialized string
-        of the drawn items at the given 
+    def drawnItems(self, r, c) -> JSONDrawnItems:
+        """
+        Gets the drawn items at the given
         row, column
-        '''
-        return self._drawnItems[r][c]
+        """
+        return JSONDrawnItems.loads(self._drawnItems[r][c])
 
-    def setDrawings(self, r, c, drawings):
-        '''
-        Sets the serialized string of the 
+    def setDrawings(self, r, c, drawings: JSONDrawnItems):
+        """
+        Sets the serialized string of the
         drawn items at the given row, column to
         the given value.
-        '''
-        self._drawnItems[r][c] = drawings
+        """
+        # It's kind of stupid but the drawn items seems to only be able to
+        # handle the string version of the drawings
+        if drawings is None:
+            self._drawnItems[r][c] = None
+        else:
+            self._drawnItems[r][c] = drawings.dumps()
 
-    def computeScalings(self, width:int):
-        '''
+    def computeScalings(self, width: int):
+        """
         Compute and populate the `scaldWidth` object
-        '''
+        """
         width = int(width)
-        
+
         scaledParts = []
         self.scaledParts[str(width)] = scaledParts
 
@@ -100,12 +102,12 @@ class FullImage:
                 scaledParts[-1].append(self.parts[row][col].scaledToWidth(width))
 
     def breakUpImage(self):
-        '''
+        """
         Computes the rects of the image,
         divided into a grid self.rows by self.cols.
         Uses those rects to generate tables of the
         parts of this pixmap.
-        '''
+        """
 
         self.parts = []
         self._drawnItems = []
@@ -138,11 +140,11 @@ class FullImage:
         count = len(files)
 
         for i, fp in enumerate(files):
-            if not progress is None:
-                progress.emit(int((i / count)*100))
+            if progress is not None:
+                progress.emit(int((i / count) * 100))
             images.append(FullImage(QtGui.QImage(str(fp)), Path(fp), *args))
-        
-        if not progress is None:
+
+        if progress is not None:
             progress.emit(100)
 
         return images

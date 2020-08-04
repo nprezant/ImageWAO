@@ -1,9 +1,9 @@
-
 from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from transects import TransectSaveData
+from serializers import JSONDrawnItems
 
 from .gridmodel import QImageGridModel, UserRoles
 from .merging import MergedIndexes
@@ -12,12 +12,14 @@ from .delegates import ImageDelegate
 
 class QImageGridView(QtWidgets.QTableView):
 
-    selectedFilesChanged = QtCore.Signal(Path) # this prevents redundant signal emits
-    selectedImageChanged = QtCore.Signal(QtGui.QImage, str) # this will let the grid determine what the viewer shows
-    notificationMessage = QtCore.Signal(str) # notifications to the main application
-    statusMessage = QtCore.Signal(tuple) # status bar message to the main application
-    loadProgress = QtCore.Signal(int) # loading progress notification
-    loadFinished = QtCore.Signal() # loading finished notification
+    selectedFilesChanged = QtCore.Signal(Path)  # this prevents redundant signal emits
+    selectedImageChanged = QtCore.Signal(
+        QtGui.QImage, JSONDrawnItems
+    )  # Send image/drawings to display
+    notificationMessage = QtCore.Signal(str)  # notifications to the main application
+    statusMessage = QtCore.Signal(tuple)  # status bar message to the main application
+    loadProgress = QtCore.Signal(int)  # loading progress notification
+    loadFinished = QtCore.Signal()  # loading finished notification
     countDataChanged = QtCore.Signal(TransectSaveData)
 
     def __init__(self):
@@ -30,8 +32,12 @@ class QImageGridView(QtWidgets.QTableView):
         self.verticalHeader().hide()
 
         # Resize headers to fit the contents
-        self.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
-        self.verticalHeader().setSectionResizeMode(QtWidgets.QHeaderView.ResizeToContents)
+        self.horizontalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeToContents
+        )
+        self.verticalHeader().setSectionResizeMode(
+            QtWidgets.QHeaderView.ResizeToContents
+        )
 
         # Create context menu
         self.menu = QtWidgets.QMenu(self)
@@ -64,7 +70,7 @@ class QImageGridView(QtWidgets.QTableView):
         self.menu = QtWidgets.QMenu(self)
 
         # Create menu actions
-        previewAction = QtWidgets.QAction('Preview', self)
+        previewAction = QtWidgets.QAction("Preview", self)
 
         # Connect handlers for actions
         previewAction.triggered.connect(self._handlePreviewRequest)
@@ -76,19 +82,19 @@ class QImageGridView(QtWidgets.QTableView):
         self.model().resetImagesFromFullImages([])
 
     @QtCore.Slot(QtCore.QPoint)
-    def _customMenuRequested(self, pos:QtCore.QPoint):
-        '''
+    def _customMenuRequested(self, pos: QtCore.QPoint):
+        """
         Open the context menu
-        '''
+        """
         self.menu.popup(self.viewport().mapToGlobal(pos))
 
     @QtCore.Slot(str)
     def addFolder(self, folder):
-        '''
+        """
         Adds the folder at this directory to the model,
         removing any other model that may have been previously loaded.
         folder: any Path() -able object, resolving to a directory.
-        '''
+        """
         self.model().tryAddFolder(folder)
 
     @QtCore.Slot(QtCore.QItemSelection, QtCore.QItemSelection)
@@ -121,11 +127,11 @@ class QImageGridView(QtWidgets.QTableView):
 
     @QtCore.Slot()
     def _handlePreviewRequest(self):
-        '''
+        """
         Requests a preview of all selected images
         from the model, emitting that in the selectedImageChanged
         signal
-        '''
+        """
 
         # Currently selected indexes
         indexes = self.selectionModel().selectedIndexes()
@@ -139,17 +145,17 @@ class QImageGridView(QtWidgets.QTableView):
         preview = self._mergedIndexes.resultantImage()
 
         # Merge drawn items
-        mergedItems = self._mergedIndexes.drawnItems()
+        mergedItems: JSONDrawnItems = self._mergedIndexes.drawnItems()
 
         # Emit data
         self.selectedImageChanged.emit(preview, mergedItems)
 
     @QtCore.Slot(str)
     def selectFile(self, path):
-        '''
+        """
         Selects all the items associated
         with a given file path
-        '''
+        """
         self.selectionModel().clearSelection()
         indexes = self.model().matchPath(path)
         for idx in indexes:
@@ -159,8 +165,9 @@ class QImageGridView(QtWidgets.QTableView):
             idx = indexes[0]
         except IndexError:
             self.notificationMessage.emit(
-                'Images still loading...\n\n'
-                f'No image parts were found at the requested path:\n{path}')
+                "Images still loading...\n\n"
+                f"No image parts were found at the requested path:\n{path}"
+            )
         else:
 
             # Ensure the index associated with this file is visible
@@ -169,12 +176,12 @@ class QImageGridView(QtWidgets.QTableView):
             # Select the entire image associated with the first index
             self._handlePreviewRequest()
 
-    @QtCore.Slot(str)
-    def setDrawings(self, drawings):
-        '''
+    @QtCore.Slot(JSONDrawnItems)
+    def setDrawings(self, drawings: JSONDrawnItems):
+        """
         Set the drawn items passed in to the currently active
         model index.
-        '''
+        """
         model = self.selectionModel()
         indexes = model.selectedIndexes()
 
@@ -187,7 +194,7 @@ class QImageGridView(QtWidgets.QTableView):
         if self._mergedIndexes is None:
             index = indexes[0]
             self.model().setDrawings(index, drawings)
-        
+
         # If multiple indexes are merged, we need to
         # sort out which items belong where
         else:
@@ -198,9 +205,9 @@ class QImageGridView(QtWidgets.QTableView):
 
     @QtCore.Slot()
     def save(self):
-        '''
+        """
         Save the model.
-        '''
+        """
         self.model().save()
 
     @QtCore.Slot()
@@ -209,10 +216,10 @@ class QImageGridView(QtWidgets.QTableView):
         if data is not None:
             self.model().transectDataChanged.emit(data)
 
-    def resizeEvent(self, event:QtGui.QResizeEvent):
+    def resizeEvent(self, event: QtGui.QResizeEvent):
         self.model().setDisplayWidth(event.size().width())
         super().resizeEvent(event)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pass
