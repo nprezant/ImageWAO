@@ -64,7 +64,7 @@ class TransectSaveData(UserDict):
         self.addImage(imageName)
 
         # Add these drawings the image dict
-        self.data[imageName]["drawings"] = drawings
+        self.data[imageName]["drawings"] = drawings.toDict()
 
     def removeDrawings(self, imageName: str):
         """
@@ -171,7 +171,7 @@ class TransectSaveData(UserDict):
         return countSet
 
     def __repr__(self):
-        return f"TransectSaveData({super().__repr__()}"
+        return f"TransectSaveData({super().__repr__()})"
 
     def sorted(self):
         return TransectSaveData(sorted(self.items(), key=lambda t: t[0]), self.fp)

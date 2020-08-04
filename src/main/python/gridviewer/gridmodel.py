@@ -279,7 +279,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             indexes = self.matchPath(originalPath)
 
             # Now that we have all the indexes associated with this
-            # path, we no longer need them in "changedIndexes"
+            # path, we no longer need them in "changedIndexes".
+            # Setting them to None will cause them to be skipped higher
+            # in the loop
             for idx in indexes:
                 try:
                     num = self._changedIndexes.index(idx)
@@ -297,7 +299,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
             # Merge drawn items and draw them onto the image
             drawings: JSONDrawnItems = mergedIndexes.drawnItems()
-            if drawings.isEmpty():
+            if not drawings.isEmpty():
 
                 # We should only save these drawings if they aren't
                 # already saved.

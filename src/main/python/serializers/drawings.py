@@ -120,11 +120,17 @@ class JSONDrawnItems:
         if len(self._drawingData) == 0:
             return None
 
+        return json.dumps(self.toDict())
+
+    def toDict(self):
+        """
+        Returns the encoded drawing items as a JSON serializable dict
+        """
         encoded = []
         for drawing in self._drawingData:
             encoded.append(drawing.toDict())
 
-        return json.dumps(encoded)
+        return encoded
 
     def addToScene(self, scene: QtWidgets.QGraphicsScene):
         """
