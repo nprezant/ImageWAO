@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtGui
 
-from serializers import JSONDrawnItems
+from serializers import DrawingDataList
 from transects import TransectSaveData
 from base import QWorker, config
 from tools import saveManyImages, roundToMultiple
@@ -298,7 +298,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             markedPath = markedFolder / originalPath.name
 
             # Merge drawn items and draw them onto the image
-            drawings: JSONDrawnItems = mergedIndexes.drawnItems()
+            drawings: DrawingDataList = mergedIndexes.drawnItems()
             if not drawings.isEmpty():
 
                 # We should only save these drawings if they aren't

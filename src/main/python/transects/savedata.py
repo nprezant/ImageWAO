@@ -2,7 +2,7 @@ import json
 from collections import UserDict
 
 from base.primatives import CountData, CountDataSet
-from serializers import JSONDrawnItems
+from serializers import DrawingDataList
 
 
 class TransectSaveData(UserDict):
@@ -52,7 +52,7 @@ class TransectSaveData(UserDict):
         if imageName not in self.data.keys():
             self.data[imageName] = {}
 
-    def addDrawings(self, imageName, drawings: JSONDrawnItems):
+    def addDrawings(self, imageName, drawings: DrawingDataList):
         """
         Add drawings (for a specific image) to the
         save data. This will replace any drawings currently
@@ -78,7 +78,7 @@ class TransectSaveData(UserDict):
             except KeyError:
                 pass
 
-    def imageHasDrawings(self, imageName: str, otherDrawings: JSONDrawnItems):
+    def imageHasDrawings(self, imageName: str, otherDrawings: DrawingDataList):
         """
         Compares the drawings associated with `imageName`,
         and returns `True` if those drawings match `otherDrawings`.
@@ -94,18 +94,18 @@ class TransectSaveData(UserDict):
 
         # Check if image drawings are the same as the input
         # also lol TODO stop this maddness
-        drawings = JSONDrawnItems.loads(json.dumps(self.data[imageName]["drawings"]))
+        drawings = DrawingDataList.loads(json.dumps(self.data[imageName]["drawings"]))
         return drawings == otherDrawings
 
     def drawings(self):
         """
         Generator yielding a tuple of images
         with corresponding drawings.
-        (imageName:str, drawings:JSONDrawnItems)
+        (imageName:str, drawings:DrawingDataList)
         """
         for imageName, imageData in self.data.items():
             if "drawings" in imageData.keys():
-                yield imageName, JSONDrawnItems.load(imageData["drawings"])
+                yield imageName, DrawingDataList.load(imageData["drawings"])
 
     def imageCounts(self):
         """

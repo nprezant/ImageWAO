@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide2 import QtCore, QtWidgets, QtGui
 
 from transects import TransectSaveData
-from serializers import JSONDrawnItems
+from serializers import DrawingDataList
 
 from .gridmodel import QImageGridModel, UserRoles
 from .merging import MergedIndexes
@@ -14,7 +14,7 @@ class QImageGridView(QtWidgets.QTableView):
 
     selectedFilesChanged = QtCore.Signal(Path)  # this prevents redundant signal emits
     selectedImageChanged = QtCore.Signal(
-        QtGui.QImage, JSONDrawnItems
+        QtGui.QImage, DrawingDataList
     )  # Send image/drawings to display
     notificationMessage = QtCore.Signal(str)  # notifications to the main application
     statusMessage = QtCore.Signal(tuple)  # status bar message to the main application
@@ -145,7 +145,7 @@ class QImageGridView(QtWidgets.QTableView):
         preview = self._mergedIndexes.resultantImage()
 
         # Merge drawn items
-        mergedItems: JSONDrawnItems = self._mergedIndexes.drawnItems()
+        mergedItems: DrawingDataList = self._mergedIndexes.drawnItems()
 
         # Emit data
         self.selectedImageChanged.emit(preview, mergedItems)
@@ -176,8 +176,8 @@ class QImageGridView(QtWidgets.QTableView):
             # Select the entire image associated with the first index
             self._handlePreviewRequest()
 
-    @QtCore.Slot(JSONDrawnItems)
-    def setDrawings(self, drawings: JSONDrawnItems):
+    @QtCore.Slot(DrawingDataList)
+    def setDrawings(self, drawings: DrawingDataList):
         """
         Set the drawn items passed in to the currently active
         model index.

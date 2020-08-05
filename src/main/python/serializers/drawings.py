@@ -7,7 +7,7 @@ import scenegraphics as sg
 from base.primatives import DrawingData
 
 
-class JSONDrawnItems:
+class DrawingDataList:
     """
     Contains methods useful for encoding and
     decoding drawn items on a graphics scene.
@@ -82,7 +82,7 @@ class JSONDrawnItems:
 
             drawingData.append(DrawingData(name, geom, pen, countData))
 
-        return JSONDrawnItems(drawingData)
+        return DrawingDataList(drawingData)
 
     @staticmethod
     def loads(s: str):
@@ -92,11 +92,11 @@ class JSONDrawnItems:
         """
 
         if s is None:
-            return JSONDrawnItems([])
+            return DrawingDataList([])
 
         data = json.loads(s)
 
-        return JSONDrawnItems.load(data)
+        return DrawingDataList.load(data)
 
     @staticmethod
     def load(data: List[dict]):
@@ -111,7 +111,7 @@ class JSONDrawnItems:
             if drawing is not None:
                 drawings.append(drawing)
 
-        return JSONDrawnItems(drawings)
+        return DrawingDataList(drawings)
 
     def dumps(self):
         """

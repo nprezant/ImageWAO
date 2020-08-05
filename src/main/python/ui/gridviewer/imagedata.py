@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtGui
 
-from serializers import JSONDrawnItems
+from serializers import DrawingDataList
 
 
 class FullImage:
@@ -66,14 +66,14 @@ class FullImage:
 
         return img
 
-    def drawnItems(self, r, c) -> JSONDrawnItems:
+    def drawnItems(self, r, c) -> DrawingDataList:
         """
         Gets the drawn items at the given
         row, column
         """
-        return JSONDrawnItems.loads(self._drawnItems[r][c])
+        return DrawingDataList.loads(self._drawnItems[r][c])
 
-    def setDrawings(self, r, c, drawings: JSONDrawnItems):
+    def setDrawings(self, r, c, drawings: DrawingDataList):
         """
         Sets the serialized string of the
         drawn items at the given row, column to

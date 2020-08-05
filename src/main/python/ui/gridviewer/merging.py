@@ -1,6 +1,6 @@
 from PySide2 import QtCore, QtGui
 
-from serializers import JSONDrawnItems
+from serializers import DrawingDataList
 
 from .enums import UserRoles
 
@@ -275,7 +275,7 @@ class MergedIndexes:
         """
         return self.positions.toImage(UserRoles.FullResImage)
 
-    def setModelDrawings(self, model, items: JSONDrawnItems):
+    def setModelDrawings(self, model, items: DrawingDataList):
         """
         Set the drawings on the model, given the list
         of items currently drawn on the merged indexes.
@@ -291,7 +291,7 @@ class MergedIndexes:
             if idx is not None:
                 model.setDrawings(idx, drawnItems)
 
-    def assignDrawnItems(self, items: JSONDrawnItems):
+    def assignDrawnItems(self, items: DrawingDataList):
         """
         Assign the items passed in to their proper
         corresponding index.
@@ -330,14 +330,14 @@ class MergedIndexes:
 
         # For item in the, dump to a string
         for idx, reps in assignments.items():
-            stringAssignments[idx] = JSONDrawnItems(reps)
+            stringAssignments[idx] = DrawingDataList(reps)
 
         return stringAssignments
 
-    def drawnItems(self) -> JSONDrawnItems:
+    def drawnItems(self) -> DrawingDataList:
         """
         Merge the drawn items for this combined image
-        into one nice JSONDrawnItems.
+        into one nice DrawingDataList.
         """
 
         # Tracks the graphical representations
@@ -369,4 +369,4 @@ class MergedIndexes:
                 reps.append(rep)
 
         # Return the whole set of drawn items
-        return JSONDrawnItems(reps)
+        return DrawingDataList(reps)

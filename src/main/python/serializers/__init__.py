@@ -1,3 +1,3 @@
-from .drawings import JSONDrawnItems
+from .drawings import DrawingDataList
 
-__all__ = [JSONDrawnItems]
+__all__ = [DrawingDataList]

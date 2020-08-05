@@ -1,6 +1,6 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from serializers import JSONDrawnItems
+from serializers import DrawingDataList
 from ui import CountForm
 
 import scenegraphics as sg
@@ -15,7 +15,7 @@ class QImageEditor(QImageViewer):
 
     # Emits signal with a list of encoded items
     # When a new item is drawn or removed
-    drawnItemsChanged = QtCore.Signal(JSONDrawnItems)
+    drawnItemsChanged = QtCore.Signal(DrawingDataList)
 
     def __init__(self):
         super().__init__()
@@ -83,8 +83,8 @@ class QImageEditor(QImageViewer):
         """
         self.scene().clear()
 
-    @QtCore.Slot(QtGui.QImage, JSONDrawnItems)
-    def setImage(self, image: QtGui.QImage, drawings: JSONDrawnItems):
+    @QtCore.Slot(QtGui.QImage, DrawingDataList)
+    def setImage(self, image: QtGui.QImage, drawings: DrawingDataList):
         """
         Re-implement to ensure that drawn items are
         cleared when a new image is set, and to save
@@ -95,11 +95,11 @@ class QImageEditor(QImageViewer):
         super().setImage(image)
 
         if isinstance(drawings, str):
-            raise ValueError(JSONDrawnItems)
+            raise ValueError(DrawingDataList)
 
         # If we have drawings, redraw them
         if drawings is not None:
-            self.addJSONDrawnItemsToScene(drawings)
+            self.addDrawingDataListToScene(drawings)
 
     @QtCore.Slot(QtGui.QColor)
     def _updatePenColor(self, qcolor):
@@ -174,10 +174,10 @@ class QImageEditor(QImageViewer):
             if isinstance(item, sg.SceneCountsItemMixin):
                 drawnItems.append(item)
 
-        serializer = JSONDrawnItems.loadGraphicsItems(drawnItems)
+        serializer = DrawingDataList.loadGraphicsItems(drawnItems)
         self.drawnItemsChanged.emit(serializer)
 
-    def addJSONDrawnItemsToScene(self, drawnItems: JSONDrawnItems):
+    def addDrawingDataListToScene(self, drawnItems: DrawingDataList):
         """
         Reads serialized data about drawn items into
         itself the current scene.
