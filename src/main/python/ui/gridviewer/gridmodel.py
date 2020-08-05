@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide2 import QtCore, QtGui
 
 from serializers import DrawingDataList
-from transects import TransectSaveData
+from transects import TransectData
 from base import QWorker, config
 from tools import saveManyImages, roundToMultiple
 
@@ -17,7 +17,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
     loadProgress = QtCore.Signal(int)
     loadFinished = QtCore.Signal()
     message = QtCore.Signal(tuple)
-    transectDataChanged = QtCore.Signal(TransectSaveData)
+    transectDataChanged = QtCore.Signal(TransectData)
 
     def __init__(self):
         super().__init__()
@@ -146,7 +146,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
             return
 
         # Load save data
-        saveData = TransectSaveData.load(savePath)
+        saveData = TransectData.load(savePath)
         for imageName, drawings in saveData.drawings():
 
             # Merge indexes that compose this file, and
@@ -187,9 +187,9 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         # If the save file doesn't exist, initialize empty.
         transectPath = config.markedDataFile(transectFolder=self._folder())
         if transectPath.exists():
-            saveData = TransectSaveData.load(transectPath)
+            saveData = TransectData.load(transectPath)
         else:
-            saveData = TransectSaveData({}, fp=transectPath)
+            saveData = TransectData({}, fp=transectPath)
 
         # Only save files that have changed
         for index in self._changedIndexes:
@@ -254,10 +254,10 @@ class QImageGridModel(QtCore.QAbstractTableModel):
 
         if transectPath.exists():
             # Initialize save data from old data path
-            saveData = TransectSaveData.load(transectPath)
+            saveData = TransectData.load(transectPath)
         else:
             transectPath.touch()
-            saveData = TransectSaveData({}, fp=transectPath)
+            saveData = TransectData({}, fp=transectPath)
 
         # List of images to be saved and the `save` arguments
         # [(image, ['C:/Photos/myFavoriteImage.jpg']), ]

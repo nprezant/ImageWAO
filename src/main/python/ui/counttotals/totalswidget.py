@@ -3,7 +3,7 @@ from pathlib import Path
 from PySide2 import QtCore, QtWidgets
 
 from base import ctx, config
-from transects import TransectSaveData
+from transects import TransectData
 from .totalsview import TotalsView
 
 
@@ -66,7 +66,7 @@ class CountTotals(QtWidgets.QWidget):
         """
         self.totalsView.model().readDirectory(fp)
 
-    @QtCore.Slot(TransectSaveData)
+    @QtCore.Slot(TransectData)
     def setTransectData(self, data):
         self.totalsView.model().refresh()
 

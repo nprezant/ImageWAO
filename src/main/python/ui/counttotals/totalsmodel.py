@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets
 
-from transects import TransectSaveDatas
+from transects import TransectDataGroupList
 from base import config
 
 from .enums import UserRoles
@@ -18,7 +18,7 @@ class TotalsModel(QtCore.QAbstractListModel):
     def __init__(self):
         super().__init__()
 
-        self._data = TransectSaveDatas()
+        self._data = TransectDataGroupList()
         self._parentDir = None
         self.inTransect = False
 
@@ -98,11 +98,11 @@ class TotalsModel(QtCore.QAbstractListModel):
             # If the save file exists, read it
             saveFile = config.markedDataFile(transectFolder=fp)
             if saveFile.exists():
-                saveDatas = TransectSaveDatas()
+                saveDatas = TransectDataGroupList()
                 saveDatas.load(saveFile)
                 self._resetData(saveDatas)
             else:
-                self._resetData(TransectSaveDatas())
+                self._resetData(TransectDataGroupList())
 
         # Otherwise, try to find all .marked/ folders within this dir
         else:
@@ -113,13 +113,13 @@ class TotalsModel(QtCore.QAbstractListModel):
             if filesToLoad:
                 self._loadFiles(filesToLoad)
             else:
-                self._resetData(TransectSaveDatas())
+                self._resetData(TransectDataGroupList())
 
     def _loadFiles(self, filesToLoad):
         """
         Loads files from `filesToLoad` list of (topLevelGroup, fp)
         """
-        saveDatas = TransectSaveDatas()
+        saveDatas = TransectDataGroupList()
         for topLevel, saveFile in filesToLoad:
             saveDatas.load(saveFile, groupName=topLevel)
         self._resetData(saveDatas)

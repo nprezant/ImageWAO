@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
-from transects import TransectSaveData
+from transects import TransectData
 from serializers import DrawingDataList
 
 from .gridmodel import QImageGridModel, UserRoles
@@ -20,7 +20,7 @@ class QImageGridView(QtWidgets.QTableView):
     statusMessage = QtCore.Signal(tuple)  # status bar message to the main application
     loadProgress = QtCore.Signal(int)  # loading progress notification
     loadFinished = QtCore.Signal()  # loading finished notification
-    countDataChanged = QtCore.Signal(TransectSaveData)
+    countDataChanged = QtCore.Signal(TransectData)
 
     def __init__(self):
         super().__init__()

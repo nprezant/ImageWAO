@@ -5,7 +5,7 @@ from base.primatives import CountData, CountDataSet
 from serializers import DrawingDataList
 
 
-class TransectSaveData(UserDict):
+class TransectData(UserDict):
     """
     Manages transect save data in a primitive
     data state, such that it can be easily
@@ -34,7 +34,7 @@ class TransectSaveData(UserDict):
 
         # Legacy -- if drawings are stored as a string, upgrade them
         # TODO fix this
-        return TransectSaveData(data, fp)
+        return TransectData(data, fp)
 
     def dump(self, fp):
         """
@@ -171,7 +171,7 @@ class TransectSaveData(UserDict):
         return countSet
 
     def __repr__(self):
-        return f"TransectSaveData({super().__repr__()})"
+        return f"TransectData({super().__repr__()})"
 
     def sorted(self):
-        return TransectSaveData(sorted(self.items(), key=lambda t: t[0]), self.fp)
+        return TransectData(sorted(self.items(), key=lambda t: t[0]), self.fp)

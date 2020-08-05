@@ -2,17 +2,17 @@ from collections import UserList, OrderedDict
 
 from base import config
 
-from .savedata import TransectSaveData
-from .savedatagroup import SaveDataGroup
+from .savedata import TransectData
+from .TransectDataGroup import TransectDataGroup
 
 
-class TransectSaveDatas(UserList):
+class TransectDataGroupList(UserList):
     """
     This class manages multiple transect save files and
     provides easy access methods for displaying and
     summarizing the data.
 
-    `data` is a list of `TransectSaveData`
+    `data` is a list of `TransectData`
     """
 
     def __init__(self, initlist=[]):
@@ -27,7 +27,7 @@ class TransectSaveDatas(UserList):
         Specify the `groupName` if you want to group the save
         data any particular way.
         """
-        self.data.append(SaveDataGroup(groupName, TransectSaveData.load(fp)))
+        self.data.append(TransectDataGroup(groupName, TransectData.load(fp)))
 
     def clipboardText(self):
         """
@@ -110,7 +110,7 @@ class TransectSaveDatas(UserList):
             dataGroup.saveData = dataGroup.saveData.sorted()
 
         # Sort the overall list
-        return TransectSaveDatas(sorted(self, key=lambda dg: dg.name))
+        return TransectDataGroupList(sorted(self, key=lambda dg: dg.name))
 
     def numImages(self):
         """ The number of images in the save data """
@@ -123,8 +123,8 @@ class TransectSaveDatas(UserList):
         """
         Create an ordered dictionary of the save groups.
         OrderedDict(
-            ('GroupName', TransectSaveDatas()),
-            ('GroupName2', TransectSaveDatas()),
+            ('GroupName', TransectDataGroupList()),
+            ('GroupName2', TransectDataGroupList()),
         )
         """
         # For optimization purposes, only generate this dictionary once.
@@ -139,12 +139,12 @@ class TransectSaveDatas(UserList):
             if len(dataGroup.saveData.uniqueImages()) == 0:
                 continue
 
-            # Create a dictionary of `TransectSaveDatas` that
+            # Create a dictionary of `TransectDataGroupList` that
             # are keyed by the group name.
             try:
                 d[dataGroup.name]
             except KeyError:
-                d[dataGroup.name] = TransectSaveDatas([dataGroup])
+                d[dataGroup.name] = TransectDataGroupList([dataGroup])
             else:
                 d[dataGroup.name].append(dataGroup)
         return d
@@ -164,7 +164,7 @@ class TransectSaveDatas(UserList):
 
     def indexOfGroupName(self, name):
         """
-        The index of the first SaveDataGroup with a matching `name`.
+        The index of the first TransectDataGroup with a matching `name`.
         If the name cannot be found, `None` is returned.
         """
         for i, groupName in enumerate(self.groupedDict().keys()):
