@@ -11,7 +11,7 @@ from .popupframe import PopupFrame
 from .tools import setPlainTextEditHeight
 
 
-class CountForm(PopupFrame):
+class CountPopup(PopupFrame):
 
     countChanged = QtCore.Signal()
 

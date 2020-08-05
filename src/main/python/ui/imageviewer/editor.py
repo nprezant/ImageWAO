@@ -1,7 +1,7 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from drawingdata import DrawingDataList
-from ui import CountForm
+from ui import CountPopup
 
 import scenegraphics as sg
 
@@ -47,8 +47,8 @@ class QImageEditor(QImageViewer):
 
         # Animal counting editor. When the counts form count changes,
         # the editor must update it's drawings.
-        self._countForm = CountForm(self)
-        self._countForm.countChanged.connect(self.itemCountsUpdated)
+        self._CountPopup = CountPopup(self)
+        self._CountPopup.countChanged.connect(self.itemCountsUpdated)
 
         # Required to propogate events to the drawing items
         # This is necessary for the drawn items to display their associated counts.
@@ -91,7 +91,7 @@ class QImageEditor(QImageViewer):
         the old image if necessary
         """
         self.scene().clear()  # We'll be redrawing the whole scene
-        self._countForm.hidePopup()  # Ensure popup is hidden
+        self._CountPopup.hidePopup()  # Ensure popup is hidden
         super().setImage(image)
 
         if isinstance(drawings, str):
@@ -156,7 +156,7 @@ class QImageEditor(QImageViewer):
         item = self.itemAt(pos)
         if isinstance(item, sg.SceneCountsItemMixin):
             self.menu.addEditableItem(
-                item, lambda *args: self._countForm.popup(item, pos), "Edit counts"
+                item, lambda *args: self._CountPopup.popup(item, pos), "Edit counts"
             )
             self.menu.addDeletableItem(item, lambda *args: eraseItem(item), "Erase")
 
@@ -206,8 +206,8 @@ class QImageEditor(QImageViewer):
             self.zoomOut(0.1)
 
         # If the count form is shown, forward events there.
-        if self._countForm.isVisible():
-            self._countForm.keyPressEvent(event)
+        if self._CountPopup.isVisible():
+            self._CountPopup.keyPressEvent(event)
 
         return super().keyPressEvent(event)
 
@@ -359,7 +359,7 @@ class QImageEditor(QImageViewer):
                 if width > minLength and height > minLength:
                     valid = True
 
-                    self._countForm.popup(self._dynamicallyDrawnItem, event.pos())
+                    self._CountPopup.popup(self._dynamicallyDrawnItem, event.pos())
 
             # Some shapes use lines
             elif self.mouseAction.tooltype == ToolType.LineShape:
