@@ -7,6 +7,9 @@ from .notifications import Notifier
 from .library import Library
 from .buttons import SingleUseAction
 from .flightimportwizard import FlightImportWizard
+from .imageviewer import QImageEditor
+from .gridviewer import QImageGridView
+from .counttotals import CountTotals
 
 __all__ = [
     DockWidget,
@@ -18,4 +21,7 @@ __all__ = [
     Library,
     SingleUseAction,
     FlightImportWizard,
+    QImageEditor,
+    QImageGridView,
+    CountTotals,
 ]

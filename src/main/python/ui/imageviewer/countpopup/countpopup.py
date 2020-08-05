@@ -5,7 +5,7 @@ Form used to add counts of animals.
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from base import config
-from drawingdata import CountData
+from countdata import CountData
 
 from .popupframe import PopupFrame
 from .tools import setPlainTextEditHeight
