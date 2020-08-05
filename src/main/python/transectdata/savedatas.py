@@ -3,12 +3,7 @@ from collections import UserList, OrderedDict
 from base import config
 
 from .savedata import TransectSaveData
-
-
-class SaveDataGroup:
-    def __init__(self, name, saveData):
-        self.name = name
-        self.saveData = saveData
+from .savedatagroup import SaveDataGroup
 
 
 class TransectSaveDatas(UserList):
