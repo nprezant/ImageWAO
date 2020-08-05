@@ -1,14 +1,13 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from drawingdata import DrawingDataList
-from ui import CountPopup
-
 import scenegraphics as sg
 
 from .imageviewer import QImageViewer
 from .controls import ImageController, ToolType
 from .cursors import Cursors
 from .menus import ItemMenu
+from .countpopup import CountPopup
 
 
 class QImageEditor(QImageViewer):
