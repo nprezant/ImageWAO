@@ -11,6 +11,9 @@ class Configuration:
         # Invalid path characters (windows allows more than this but better safe than sorry)
         self.invalidPathCharacters = "/!@#$%^&*`'\"\\}{[]?:;+=|<>"
 
+        # Files and folders on a top (meta) level. E.g. database version.
+        self.imageWaoMetaFolderName = ".imagewao"
+
         # Files and folders in the "Flight" directory.
         # E.g. Flight01/.flight/meta.json
         self.flightDataFolderName = ".flight"
@@ -81,7 +84,7 @@ class Configuration:
     # ImageWAO data files
 
     def _imageWaoMetaFolder(self):
-        folder = Path(self.libraryDirectory) / ".imagewao"
+        folder = Path(self.libraryDirectory) / self.imageWaoMetaFolderName
         folder.mkdir(parents=True, exist_ok=True)
         return folder
 

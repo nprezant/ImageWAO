@@ -12,7 +12,7 @@ from .events import DirectoryChangeEvent, EventTypes
 
 class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
 
-    filterOut = None
+    filterOut = []
 
     def filterAcceptsRow(self, sourceRow, sourceParent):
         # Fetch datetime value.
@@ -22,7 +22,7 @@ class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
         # Filter OUT matching files
         if self.filterOut is None:
             return super().filterAcceptsRow(sourceRow, sourceParent)
-        elif self.filterOut.lower() in data.lower():
+        elif data.lower() in self.filterOut:
             return False
         else:
             return True
@@ -48,7 +48,9 @@ class Library(QtWidgets.QWidget):
 
         self.proxyView.setModel(self.proxyModel)
         self.proxyModel.setSourceModel(self.sourceModel)
-        self.proxyModel.filterOut = config.markedImageFolderName
+        self.proxyModel.filterOut.append(config.markedImageFolderName.lower())
+        self.proxyModel.filterOut.append(config.imageWaoMetaFolderName.lower())
+        self.proxyModel.filterOut.append(config.flightDataFolderName.lower())
 
         self.address = AddressBar()
 
