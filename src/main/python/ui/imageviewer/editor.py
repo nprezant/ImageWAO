@@ -1,6 +1,6 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 
-from serializers import DrawingDataList
+from drawingdata import DrawingDataList
 from ui import CountForm
 
 import scenegraphics as sg

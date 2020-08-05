@@ -5,10 +5,10 @@ Form used to add counts of animals.
 from PySide2 import QtCore, QtGui, QtWidgets
 
 from base import config
-from base.primatives import CountData
-from tools import setPlainTextEditHeight
+from drawingdata import CountData
 
-from .popup import PopupFrame
+from .popupframe import PopupFrame
+from .tools import setPlainTextEditHeight
 
 
 class CountForm(PopupFrame):

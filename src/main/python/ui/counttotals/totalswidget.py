@@ -3,7 +3,8 @@ from pathlib import Path
 from PySide2 import QtCore, QtWidgets
 
 from base import ctx, config
-from transects import TransectData
+from transectdata import TransectData
+
 from .totalsview import TotalsView
 
 

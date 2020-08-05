@@ -5,7 +5,7 @@ the mouse cursor distance from it.
 
 from PySide2 import QtCore, QtWidgets
 
-from tools import distanceToRect
+from .tools import distanceToRect
 
 
 class PopupFrame(QtWidgets.QFrame):

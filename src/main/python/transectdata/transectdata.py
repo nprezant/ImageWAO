@@ -1,8 +1,7 @@
 import json
 from collections import UserDict
 
-from base.primatives import CountData, CountDataSet
-from serializers import DrawingDataList
+from drawingdata import CountData, CountDataSet, DrawingDataList
 
 
 class TransectData(UserDict):

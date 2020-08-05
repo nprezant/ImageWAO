@@ -2,8 +2,6 @@ from collections import OrderedDict
 
 from .countdata import CountData
 
-# TODO thid might be entirely obsolete
-
 
 class CountDataSet(OrderedDict):
     """

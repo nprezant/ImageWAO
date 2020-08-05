@@ -1,6 +1,6 @@
 from PySide2 import QtCore, QtGui
 
-from serializers import DrawingDataList
+from drawingdata import DrawingDataList
 
 from .enums import UserRoles
 

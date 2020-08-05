@@ -1,5 +1,5 @@
-from .savedata import TransectData
-from .saves import TransectDataGroupList
-from .savefiles import GetSaveFiles
+from .transectdata import TransectData
+from .transectdatagrouplist import TransectDataGroupList
+from .tools import GetSaveFiles
 
 __all__ = [TransectData, TransectDataGroupList, GetSaveFiles]

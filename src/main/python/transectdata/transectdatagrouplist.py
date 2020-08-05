@@ -2,8 +2,8 @@ from collections import UserList, OrderedDict
 
 from base import config
 
-from .savedata import TransectData
-from .TransectDataGroup import TransectDataGroup
+from .transectdata import TransectData
+from .transectdatagroup import TransectDataGroup
 
 
 class TransectDataGroupList(UserList):

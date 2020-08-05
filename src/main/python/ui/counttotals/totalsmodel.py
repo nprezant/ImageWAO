@@ -2,11 +2,10 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets
 
-from transects import TransectDataGroupList
+from transectdata import TransectDataGroupList, GetSaveFiles
 from base import config
 
 from .enums import UserRoles
-from transects import GetSaveFiles
 
 
 class TotalsModel(QtCore.QAbstractListModel):

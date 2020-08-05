@@ -2,8 +2,8 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
-from transects import TransectData
-from serializers import DrawingDataList
+from transectdata import TransectData
+from drawingdata import DrawingDataList
 
 from .gridmodel import QImageGridModel, UserRoles
 from .merging import MergedIndexes

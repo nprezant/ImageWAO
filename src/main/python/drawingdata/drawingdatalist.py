@@ -4,7 +4,8 @@ from typing import List
 from PySide2 import QtWidgets, QtGui
 
 import scenegraphics as sg
-from base.primatives import DrawingData
+
+from .drawingdata import DrawingData
 
 
 class DrawingDataList:

@@ -2,8 +2,8 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtGui
 
-from serializers import DrawingDataList
-from transects import TransectData
+from drawingdata import DrawingDataList
+from transectdata import TransectData
 from base import QWorker, config
 from tools import saveManyImages, roundToMultiple
 

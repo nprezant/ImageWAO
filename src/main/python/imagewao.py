@@ -2,13 +2,19 @@ from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx, config
 from migrator import Migrator
-from importwizards import FlightImportWizard
-from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay, Notifier, Library
+from ui import (
+    DockWidget,
+    TitleBarText,
+    StatusBar,
+    LoadingOverlay,
+    Notifier,
+    Library,
+    FlightImportWizard,
+    QImageGridView,
+    QImageEditor,
+    CountTotals,
+)
 from ui.messageboxes import DoYouWantToSave
-
-from gridviewer import QImageGridView
-from imageviewer import QImageEditor
-from counttotals import CountTotals
 
 QtCore.QCoreApplication.setOrganizationName("Namibia WAO")
 QtCore.QCoreApplication.setOrganizationDomain("imagewao.com")
