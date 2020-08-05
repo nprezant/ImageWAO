@@ -1,6 +1,6 @@
 from PySide2 import QtCore, QtGui
 
-from .countdata import CountData
+from countdata import CountData
 
 
 class DrawingData:

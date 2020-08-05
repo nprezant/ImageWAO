@@ -6,7 +6,7 @@ display this information.
 
 from PySide2 import QtWidgets
 
-from drawingdata import CountData
+from countdata import CountData
 
 
 class SceneCountsItemMixin:

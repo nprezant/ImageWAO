@@ -1,7 +1,6 @@
 from .dock import DockWidget
 from .titlebar import TitleBarText
 from .statusbar import StatusBar
-from .counts import CountPopup
 from .overlays import LoadingOverlay
 from .progressbar import QAbsoluteProgressBar
 from .notifications import Notifier
@@ -13,7 +12,6 @@ __all__ = [
     DockWidget,
     TitleBarText,
     StatusBar,
-    CountPopup,
     LoadingOverlay,
     QAbsoluteProgressBar,
     Notifier,

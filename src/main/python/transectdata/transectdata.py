@@ -1,7 +1,8 @@
 import json
 from collections import UserDict
 
-from drawingdata import CountData, CountDataSet, DrawingDataList
+from countdata import CountData, CountDataSet
+from drawingdata import DrawingDataList
 
 
 class TransectData(UserDict):
