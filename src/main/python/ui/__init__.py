@@ -1,7 +1,7 @@
-from .dock import DockWidget
-from .titlebar import TitleBarText
+from .dockwidget import DockWidget
+from .titlebartext import TitleBarText
 from .statusbar import StatusBar
-from .overlaywidget import LoadingOverlay
+from .overlays import LoadingOverlay
 from .progressbar import QAbsoluteProgressBar
 from .notifications import Notifier
 from .library import Library
@@ -10,6 +10,7 @@ from .flightimportwizard import FlightImportWizard
 from .imageviewer import QImageEditor
 from .gridviewer import QImageGridView
 from .counttotals import CountTotals
+from .doyouwanttosave import DoYouWantToSave
 
 __all__ = [
     DockWidget,
@@ -24,4 +25,5 @@ __all__ = [
     QImageEditor,
     QImageGridView,
     CountTotals,
+    DoYouWantToSave,
 ]

@@ -13,8 +13,8 @@ from ui import (
     QImageGridView,
     QImageEditor,
     CountTotals,
+    DoYouWantToSave,
 )
-from ui.messageboxes import DoYouWantToSave
 
 QtCore.QCoreApplication.setOrganizationName("Namibia WAO")
 QtCore.QCoreApplication.setOrganizationDomain("imagewao.com")
