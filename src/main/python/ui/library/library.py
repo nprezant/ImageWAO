@@ -223,7 +223,7 @@ class Library(QtWidgets.QWidget):
         self.rootPath = rootPath
         try:
             Path(self.rootPath).mkdir(exist_ok=True)
-        except:
+        except FileNotFoundError:
             raise ValueError(f"Invalid root directory: {rootPath}")
 
         # Ensure root path is directory
@@ -333,6 +333,7 @@ class Library(QtWidgets.QWidget):
         # so long as we are in the root index
         if self._inRootIndex():
             self.menu.enableImportWizard()
+            self.menu.enableShowFlightInfo()
 
         # Show the menu
         self.menu.popup(self.mapToGlobal(pos))

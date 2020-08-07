@@ -20,10 +20,12 @@ class LibraryMenu(QtWidgets.QMenu):
 
         self.revealAction = None
         self.importWizardAction = None
+        self.showFlightInfoAction = None
 
     def reset(self):
         self.revealAction = None
         self.importWizardAction = None
+        self.showFlightInfoAction = None
 
     def setTargetPath(self, path: str):
         """
@@ -49,6 +51,14 @@ class LibraryMenu(QtWidgets.QMenu):
         self.importWizardAction = QtWidgets.QAction("Import new images", self.parent())
         self.importWizardAction.triggered.connect(FlightImportWizard.openNew)
 
+    def enableShowFlightInfo(self):
+        """
+        Creates the action to show the flight info dialog.
+        Will be added to the menu during popup()
+        """
+        self.showFlightInfoAction = QtWidgets.QAction("Flight info", self.parent())
+        self.showFlightInfoAction.triggered.connect(lambda: print("not implemented"))
+
     def popup(self, *args):
         """
         Re-implemented to show popup menu.
@@ -63,7 +73,9 @@ class LibraryMenu(QtWidgets.QMenu):
 
         if self.importWizardAction is not None:
             self.addAction(self.importWizardAction)
-            self.addSeparator()
+
+        if self.showFlightInfoAction is not None:
+            self.addAction(self.showFlightInfoAction)
 
         self.reset()
         return super().popup(*args)
