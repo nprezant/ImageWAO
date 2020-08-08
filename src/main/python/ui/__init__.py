@@ -6,12 +6,11 @@ from .progressbar import QAbsoluteProgressBar
 from .notifications import Notifier
 from .library import Library
 from .singleusebuttons import SingleUseAction
-from .flightimportwizard import FlightImportWizard
+from .flightimport import FlightImportWizard, FlightInfoForm
 from .imageviewer import QImageEditor
 from .gridviewer import QImageGridView
 from .counttotals import CountTotals
 from .doyouwanttosave import DoYouWantToSave
-from .flightinfoform import FlightInfoForm
 
 __all__ = [
     DockWidget,
