@@ -29,6 +29,7 @@ class FlightImportWizard(QtWidgets.QWizard):
 
         # connections
         reviewPage.modelChanged.connect(conclusionPage.updateModel)
+        metadataPage.flightInfoChanged.connect(conclusionPage.updateFlightInfo)
 
         # set page numbers
         self.setPage(PageIds.Page_Intro, introPage)

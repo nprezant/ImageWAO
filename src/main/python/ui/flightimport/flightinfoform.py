@@ -35,3 +35,9 @@ class FlightInfoForm(QtWidgets.QWidget):
         Populates this form based on the data in the flight folder
         """
         print(f"reading folder: {flightFolder}")
+
+    def save(self, flightFolder: Path):
+        """
+        Saves the data contained in this form
+        """
+        print(f"saving to folder: {flightFolder}")
