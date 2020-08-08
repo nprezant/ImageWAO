@@ -52,7 +52,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.grid = QImageGridView()
         self.library = Library()
         self.countTotals = CountTotals()
-        self.flightInfoForm = FlightInfoForm()
+        self.flightInfoForm = FlightInfoForm.CreateWithApplyCancel()
 
         # Dock widget creation
         self._addDockWidget(
@@ -125,6 +125,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.countTotals.requestDrawingUpdate.connect(
             self.grid.save
         )  # Hacky. Ideally you could request the data without saving.
+
+        # Flight info form signals
+        self.flightInfoForm.closeRequested.connect(self.flightInfoDock.hide)
 
         # File | Etc. Menus
         self._menusCreated = False
