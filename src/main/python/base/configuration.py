@@ -118,7 +118,9 @@ class Configuration:
     # Flight Data Files
 
     def flightDataFolder(self, flightFolder):
-        return Path(flightFolder) / self.flightDataFolderName
+        folder = Path(flightFolder) / self.flightDataFolderName
+        folder.mkdir(exist_ok=True)
+        return folder
 
     def flightMetaFile(self, flightFolder):
         return self.flightDataFolder(flightFolder) / "meta.json"

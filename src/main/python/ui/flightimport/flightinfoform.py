@@ -1,6 +1,9 @@
+import json
 from pathlib import Path
 
 from PySide2 import QtWidgets
+
+from base import config
 
 
 class FlightInfoForm(QtWidgets.QWidget):
@@ -34,10 +37,36 @@ class FlightInfoForm(QtWidgets.QWidget):
         """
         Populates this form based on the data in the flight folder
         """
-        print(f"reading folder: {flightFolder}")
+        flightMetaFile = config.flightMetaFile(flightFolder)
+        if not flightMetaFile.exists():
+            return
+
+        with open(flightMetaFile, "r") as f:
+            saveData: dict = json.load(f)
+
+        expectedKeys = ["Airframe", "FlightDate", "FlightTime", "FlightNotes"]
+        for key in expectedKeys:
+            if key not in saveData.keys():
+                raise RuntimeError(
+                    f"Expected key '{key}' in flight info file '{flightMetaFile}''"
+                )
+
+        self.airframeBox.setText(saveData["Airframe"])
+        self.flightDateBox.setText(saveData["FlightDate"])
+        self.flightTimeBox.setText(saveData["FlightTime"])
+        self.flightNotesBox.setText(saveData["FlightNotes"])
 
     def save(self, flightFolder: Path):
         """
         Saves the data contained in this form
         """
-        print(f"saving to folder: {flightFolder}")
+        saveData = {
+            "Airframe": self.airframeBox.text(),
+            "FlightDate": self.flightDateBox.text(),
+            "FlightTime": self.flightTimeBox.text(),
+            "FlightNotes": self.flightNotesBox.toPlainText(),
+        }
+        saveFile: Path = config.flightMetaFile(flightFolder)
+        saveFile.touch(exist_ok=True)
+        with open(saveFile, "w") as f:
+            json.dump(saveData, f)
