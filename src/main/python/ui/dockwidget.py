@@ -27,6 +27,12 @@ class DockWidget(QtWidgets.QDockWidget):
         widget.addButton(button)
         widget.updateLayout()
 
+    def setTitleBarText(self, text: str):
+        """
+        Sets the text of the title bar.
+        """
+        self.titleBarWidget().titleLabel.setText(text)
+
 
 class DockTitleWidget(QtWidgets.QWidget):
     """

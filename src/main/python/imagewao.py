@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from PySide2 import QtGui, QtCore, QtWidgets
 
 from base import ctx, config
@@ -14,6 +16,7 @@ from ui import (
     QImageEditor,
     CountTotals,
     DoYouWantToSave,
+    FlightInfoForm,
 )
 
 QtCore.QCoreApplication.setOrganizationName("Namibia WAO")
@@ -49,12 +52,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.grid = QImageGridView()
         self.library = Library()
         self.countTotals = CountTotals()
-
-        # Dock widgets are saved in a dictionary
-        self._dockWidgets = {}
+        self.flightInfoForm = FlightInfoForm()
 
         # Dock widget creation
-        # Access dock widgets like so: self._dockWidgets['Flight Explorer']
         self._addDockWidget(
             self.library,
             ctx.explorerIcon,
@@ -72,6 +72,14 @@ class QImageWAO(QtWidgets.QMainWindow):
             ctx.defaultDockIcon,
             "Count Totals",
             startArea=QtCore.Qt.LeftDockWidgetArea,
+        )
+        self.flightInfoDock = self._addDockWidget(
+            self.flightInfoForm,
+            ctx.defaultDockIcon,
+            "Flight Info",
+            startArea=QtCore.Qt.BottomDockWidgetArea,
+            startVisible=False,
+            startFloating=True,
         )
 
         # Event filters
@@ -96,6 +104,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.library.directoryChanged.connect(self.grid.addFolder)
         self.library.directoryChanged.connect(self.titleBarText.setFolderName)
         self.library.directoryChanged.connect(self.countTotals.readDirectory)
+        self.library.showFlightInfoRequested.connect(self._showFlightInfoForm)
 
         # Image grid signal connections
         self.grid.loadProgress.connect(self.loadingOverlay.setProgress)
@@ -128,13 +137,28 @@ class QImageWAO(QtWidgets.QMainWindow):
     def showStatusMessage(self, args):
         self.statusBar().showMessage(*args)
 
+    @QtCore.Slot(str)
+    def _showFlightInfoForm(self, flightFolder: str):
+        fp = Path(flightFolder)
+        self.flightInfoDock.setTitleBarText(f"Flight Info - {fp.name}")
+        self.flightInfoDock.show()
+        self.flightInfoForm.readFlightFolder(fp)
+
     def _addDockWidget(
-        self, w, icon, name: str, startArea=QtCore.Qt.LeftDockWidgetArea
-    ):
+        self,
+        w,
+        icon,
+        name: str,
+        startArea=QtCore.Qt.LeftDockWidgetArea,
+        startVisible=True,
+        startFloating=False,
+    ) -> DockWidget:
         dock = DockWidget(name, icon, parent=self)
         dock.setWidget(w)
+        dock.setVisible(startVisible)
+        dock.setFloating(startFloating)
         self.addDockWidget(startArea, dock)
-        self._dockWidgets[name] = dock
+        return dock
 
     def _makeMenus(self):
         self._createMenus()

@@ -3,7 +3,7 @@ Popup menu for the library and address bars.
 """
 
 import sys
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtCore
 
 from ..flightimportwizard import FlightImportWizard
 from tools import showInFolder
@@ -15,12 +15,16 @@ class LibraryMenu(QtWidgets.QMenu):
     menu to populate.
     """
 
+    showFlightInfoRequested = QtCore.Signal(str)  # flight folder
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.revealAction = None
         self.importWizardAction = None
         self.showFlightInfoAction = None
+
+        self._targetPath = ""
 
     def reset(self):
         self.revealAction = None
@@ -32,6 +36,8 @@ class LibraryMenu(QtWidgets.QMenu):
         This menu is based off of target paths.
         The context buttons will populate automatically.
         """
+
+        self._targetPath = path
 
         # Create menu actions
         if sys.platform == "win32":
@@ -57,7 +63,9 @@ class LibraryMenu(QtWidgets.QMenu):
         Will be added to the menu during popup()
         """
         self.showFlightInfoAction = QtWidgets.QAction("Flight info", self.parent())
-        self.showFlightInfoAction.triggered.connect(lambda: print("not implemented"))
+        self.showFlightInfoAction.triggered.connect(
+            lambda: self.showFlightInfoRequested.emit(self._targetPath)
+        )
 
     def popup(self, *args):
         """

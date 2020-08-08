@@ -34,6 +34,7 @@ class Library(QtWidgets.QWidget):
     fileSelected = QtCore.Signal(str)
     fileActivated = QtCore.Signal(str)
     directoryChanged = QtCore.Signal(str)
+    showFlightInfoRequested = QtCore.Signal(str)
 
     # Events
     Events = EventTypes()
@@ -63,7 +64,8 @@ class Library(QtWidgets.QWidget):
 
         # Context menu policy must be CustomContextMenu for us to implement
         # our own context menu. Connect the context menu request to our internal slot.
-        self.menu = LibraryMenu(self)
+        self.menu: LibraryMenu = LibraryMenu(self)
+        self.menu.showFlightInfoRequested.connect(self.showFlightInfoRequested.emit)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._customMenuRequested)
 
