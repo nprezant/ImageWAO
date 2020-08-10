@@ -303,17 +303,19 @@ class Library(QtWidgets.QWidget):
         srcIndex = self.proxyModel.mapToSource(idx)
         path = self.sourceModel.filePath(srcIndex)
 
-        if path:
-            self.menu.setTargetPath(path)
-
         # We should be able to open the flight import wizard by right clicking anywhere
         # so long as we are in the root index
         if self._inRootIndex():
             self.menu.enableImportWizard()
-            self.menu.enableShowFlightInfo()
 
-        if self._inFolderLevel(1):
-            self.menu.enableShowMigrationLog()
+        if path:
+            self.menu.setTargetPath(path)  # enables reveal in explorer action
+
+            if self._inRootIndex():
+                self.menu.enableShowFlightInfo()
+
+            if self._inFolderLevel(1):
+                self.menu.enableShowMigrationLog()
 
         # Show the menu
         self.menu.popup(self.mapToGlobal(pos))
