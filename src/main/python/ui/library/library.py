@@ -62,11 +62,42 @@ class Library(QtWidgets.QWidget):
             self._handleSelectionChange
         )
 
-        # Allows different layouts based on whether or not the folder is empty
-        self._nothingInRootLayout = None
-
         # Root path. Defaults to $HOME$/Pictures/ImageWAO
         rootPath: str = config.libraryDirectory
+
+        # Widget for use when there are no folders
+        label = QtWidgets.QLabel(
+            "  There is nothing here :(  \n  Right click to import flight images  "
+        )
+        label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+
+        # add to layout
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(label, stretch=1)
+
+        # return widget with this layout
+        self.noFoldersWidget = QtWidgets.QWidget()
+        self.noFoldersWidget.setLayout(layout)
+
+        # Widget for use when there are folders
+        layout = QtWidgets.QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self.setLayout(layout)
+
+        # Add the address bar on top. Always shown.
+        layout.addWidget(self.address)
+
+        # If root dir has files or folders
+        layout.addWidget(self.proxyView, stretch=1)
+        self.hasFoldersWidget = QtWidgets.QWidget()
+        self.hasFoldersWidget.setLayout(layout)
+
+        # Create the stacked layout
+        self.stackedLayout = QtWidgets.QStackedLayout()
+        self.setLayout(self.stackedLayout)
+        self.stackedLayout.addWidget(self.noFoldersWidget)
+        self.stackedLayout.addWidget(self.hasFoldersWidget)
 
         # Re-base the model on the new root path.
         self.rebase(rootPath)
@@ -84,104 +115,6 @@ class Library(QtWidgets.QWidget):
             self.watcher.removePaths(dirs)
         self.watcher.addPath(fp)
 
-    def setNothingInRootLayout(self, layout):
-        """
-        This layout will be used when there are no folders in the root layout.
-        """
-        self._noFoldersInRootLayout = layout
-
-    def nothingInRootLayout(self):
-        """
-        This layout will be shown when no folders are found in the root directory.
-        The default layout simply informs the user that there are no folders.
-
-        To set a custom layout, set one with `setNothingInRootLayout()`
-        """
-
-        # If a custom layout has been set, use that.
-        if self._nothingInRootLayout is not None:
-            return self._nothingInRootLayout
-
-        # No custom layout set, so return the default
-        # prompt user to choose a flights folder
-        label = QtWidgets.QLabel(
-            "  There is nothing here :(  \n  Right click to import flight images  "
-        )
-        label.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
-
-        # add to layout
-        layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(label)
-        return layout
-
-    @QtCore.Slot(str)
-    def setConditionalLayout(self, path: str = None):
-        """
-        Sets the layout based on whether or not anything is found in the root directory.
-        """
-
-        # If we are not currently in the root, nothing to do.
-        if not self._inRootIndex():
-            return
-
-        # If things in root dir
-        rootDirBlank = len([1 for _ in Path(self.rootPath).glob("**/*")]) == 0
-
-        # If this is the same situation as last time we checked, nothing to do
-        if self._rootDirPreviouslyBlank is None:
-            pass
-        elif self._rootDirPreviouslyBlank == rootDirBlank:
-            return
-
-        # Record whether anything is in the root directory
-        self._rootDirPreviouslyBlank = rootDirBlank
-
-        # Reparent current layout so we can use a new one
-        if self.layout() is not None:
-
-            # Get a reference to the layout's items so we don't lose them to the garbage collector
-            # There should be two items: address bar, main item
-            keepIndexes = []  # Track which indexes to keep references to
-            for i in range(self.layout().count()):
-                item = self.layout().itemAt(i)
-                if not item:
-                    continue
-
-                w = item.widget()
-                if w:
-                    if w is self.address or w is self.proxyView:
-                        keepIndexes.append(i)
-                    else:
-                        pass
-
-            # Taking the items that we want to keep out of the
-            # layout will maintain their references, because otherwise they'll
-            # be deleted when we re-parent the layout.
-            keepIndexes.sort(reverse=True)
-            for i in keepIndexes:
-                item = self.layout().takeAt(i)
-                item.widget().hide()
-
-            QtWidgets.QWidget().setLayout(self.layout())
-
-        layout = QtWidgets.QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        self.setLayout(layout)
-
-        # Add the address bar on top. Always shown.
-        layout.addWidget(self.address)
-        self.address.show()
-
-        # If root dir has files or folders
-        if not rootDirBlank:
-            layout.addWidget(self.proxyView, stretch=1)
-            self.proxyView.show()
-
-        # Nothing in root dir
-        else:
-            layout.addLayout(self.nothingInRootLayout(), stretch=1)
-
     def changeRootFolderDialog(self):
 
         # prompt user to choose folder
@@ -193,9 +126,6 @@ class Library(QtWidgets.QWidget):
         )
 
         if not folder == "":
-
-            # remove old layout
-            clearLayout(self.layout())
 
             # rebase view on new folder
             self.rebase(folder)
@@ -236,6 +166,44 @@ class Library(QtWidgets.QWidget):
 
         # Set layout
         self.setConditionalLayout()
+
+    @QtCore.Slot(str)
+    def setConditionalLayout(self, path: str = None):
+        """
+        Sets the layout based on whether or not anything is found in the root directory.
+        """
+
+        # If we are not currently in the root, nothing to do.
+        if not self._inRootIndex():
+            return
+
+        # If things in root dir
+        rootPath = Path(self.rootPath)
+        rootDirBlank = (
+            len(
+                [
+                    1
+                    for fp in rootPath.glob("**/*")
+                    if not fp.relative_to(rootPath).parts[0][0] == "."
+                ]
+            )
+            == 0
+        )
+
+        # If this is the same situation as last time we checked, nothing to do
+        # (for optimization)
+        if self._rootDirPreviouslyBlank is None:
+            pass
+        elif self._rootDirPreviouslyBlank == rootDirBlank:
+            return
+
+        # Record whether anything is in the root directory
+        self._rootDirPreviouslyBlank = rootDirBlank
+
+        if rootDirBlank:
+            self.stackedLayout.setCurrentWidget(self.noFoldersWidget)
+        else:
+            self.stackedLayout.setCurrentWidget(self.hasFoldersWidget)
 
     def _rootProxyIndex(self):
         return self.proxyModel.mapFromSource(self.sourceModel.index(self.rootPath))
