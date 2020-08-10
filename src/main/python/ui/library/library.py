@@ -2,7 +2,6 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets
 
-from tools import clearLayout
 from base import config
 
 from .address import AddressBar
