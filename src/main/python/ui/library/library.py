@@ -8,24 +8,7 @@ from base import config
 from .address import AddressBar
 from .popup import LibraryMenu
 from .events import DirectoryChangeEvent, EventTypes
-
-
-class SortFilterProxyModel(QtCore.QSortFilterProxyModel):
-
-    filterOut = []
-
-    def filterAcceptsRow(self, sourceRow, sourceParent):
-        # Fetch datetime value.
-        index = self.sourceModel().index(sourceRow, 0, sourceParent)
-        data = self.sourceModel().data(index)
-
-        # Filter OUT matching files
-        if self.filterOut is None:
-            return super().filterAcceptsRow(sourceRow, sourceParent)
-        elif data.lower() in self.filterOut:
-            return False
-        else:
-            return True
+from .sortfilterproxymodel import SortFilterProxyModel
 
 
 class Library(QtWidgets.QWidget):
@@ -35,6 +18,7 @@ class Library(QtWidgets.QWidget):
     fileActivated = QtCore.Signal(str)
     directoryChanged = QtCore.Signal(str)
     showFlightInfoRequested = QtCore.Signal(str)
+    showMigrationLogRequested = QtCore.Signal(str)
 
     # Events
     Events = EventTypes()
@@ -66,6 +50,7 @@ class Library(QtWidgets.QWidget):
         # our own context menu. Connect the context menu request to our internal slot.
         self.menu: LibraryMenu = LibraryMenu(self)
         self.menu.showFlightInfoRequested.connect(self.showFlightInfoRequested.emit)
+        self.menu.showMigrationLogRequested.connect(self.showMigrationLogRequested.emit)
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._customMenuRequested)
 
@@ -259,6 +244,28 @@ class Library(QtWidgets.QWidget):
         """True if the current view index is the model root index"""
         return self._rootProxyIndex() == self.proxyView.rootIndex()
 
+    def _inFolderLevel(self, level: int):
+        """True if we are currently in the folder level specified.
+        0 is root index. 1 in one folder down, etc.
+        """
+        actualRoot = Path(
+            self.sourceModel.filePath(
+                self.proxyModel.mapToSource(self._rootProxyIndex())
+            )
+        )
+
+        currentRoot = Path(
+            self.sourceModel.filePath(
+                self.proxyModel.mapToSource(self.proxyView.rootIndex())
+            )
+        )
+
+        compareRoot = currentRoot
+        for _ in range(level):
+            compareRoot = compareRoot.parent
+
+        return actualRoot == compareRoot
+
     @QtCore.Slot()
     def viewActivated(self, index):
         sourceIndex = self.proxyModel.mapToSource(index)
@@ -336,6 +343,9 @@ class Library(QtWidgets.QWidget):
         if self._inRootIndex():
             self.menu.enableImportWizard()
             self.menu.enableShowFlightInfo()
+
+        if self._inFolderLevel(1):
+            self.menu.enableShowMigrationLog()
 
         # Show the menu
         self.menu.popup(self.mapToGlobal(pos))

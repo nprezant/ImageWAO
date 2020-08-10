@@ -17,6 +17,7 @@ from ui import (
     CountTotals,
     DoYouWantToSave,
     FlightInfoForm,
+    MigrationLogForm,
 )
 
 QtCore.QCoreApplication.setOrganizationName("Namibia WAO")
@@ -53,6 +54,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.library = Library()
         self.countTotals = CountTotals()
         self.flightInfoForm = FlightInfoForm.CreateWithApplyCancel()
+        self.migrationLogForm = MigrationLogForm()
 
         # Dock widget creation
         self._addDockWidget(
@@ -81,6 +83,14 @@ class QImageWAO(QtWidgets.QMainWindow):
             startVisible=False,
             startFloating=True,
         )
+        self.migrationLogDock = self._addDockWidget(
+            self.migrationLogForm,
+            ctx.defaultDockIcon,
+            "Migration Log",
+            startArea=QtCore.Qt.BottomDockWidgetArea,
+            startVisible=False,
+            startFloating=True,
+        )
 
         # Event filters
         self.library.installEventFilter(self)
@@ -104,7 +114,8 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.library.directoryChanged.connect(self.grid.addFolder)
         self.library.directoryChanged.connect(self.titleBarText.setFolderName)
         self.library.directoryChanged.connect(self.countTotals.readDirectory)
-        self.library.showFlightInfoRequested.connect(self._showFlightInfoForm)
+        self.library.showFlightInfoRequested.connect(self._showFlightInfoDock)
+        self.library.showMigrationLogRequested.connect(self._showMigrationLogDock)
 
         # Image grid signal connections
         self.grid.loadProgress.connect(self.loadingOverlay.setProgress)
@@ -128,6 +139,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Flight info form signals
         self.flightInfoForm.closeRequested.connect(self.flightInfoDock.hide)
+        self.migrationLogForm.closeRequested.connect(self.migrationLogDock.hide)
 
         # File | Etc. Menus
         self._menusCreated = False
@@ -141,11 +153,20 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.statusBar().showMessage(*args)
 
     @QtCore.Slot(str)
-    def _showFlightInfoForm(self, flightFolder: str):
+    def _showFlightInfoDock(self, flightFolder: str):
         fp = Path(flightFolder)
         self.flightInfoDock.setTitleBarText(f"Flight Info - {fp.name}")
         self.flightInfoDock.show()
         self.flightInfoForm.readFlightFolder(fp)
+
+    @QtCore.Slot(str)
+    def _showMigrationLogDock(self, transectFolder: str):
+        fp = Path(transectFolder)
+        self.migrationLogDock.setTitleBarText(
+            f"Migration Log - {fp.parent.name}/{fp.name}"
+        )
+        self.migrationLogDock.show()
+        self.migrationLogForm.readTransectFolder(fp)
 
     def _addDockWidget(
         self,

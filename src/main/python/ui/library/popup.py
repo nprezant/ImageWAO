@@ -5,8 +5,9 @@ Popup menu for the library and address bars.
 import sys
 from PySide2 import QtWidgets, QtCore
 
-from ..flightimport import FlightImportWizard
 from tools import showInFolder
+
+from ..flightimport import FlightImportWizard
 
 
 class LibraryMenu(QtWidgets.QMenu):
@@ -16,6 +17,7 @@ class LibraryMenu(QtWidgets.QMenu):
     """
 
     showFlightInfoRequested = QtCore.Signal(str)  # flight folder
+    showMigrationLogRequested = QtCore.Signal(str)  # transect folder
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -23,6 +25,7 @@ class LibraryMenu(QtWidgets.QMenu):
         self.revealAction = None
         self.importWizardAction = None
         self.showFlightInfoAction = None
+        self.showMigrationLogAction = None
 
         self._targetPath = ""
 
@@ -30,6 +33,7 @@ class LibraryMenu(QtWidgets.QMenu):
         self.revealAction = None
         self.importWizardAction = None
         self.showFlightInfoAction = None
+        self.showMigrationLogAction = None
 
     def setTargetPath(self, path: str):
         """
@@ -67,6 +71,16 @@ class LibraryMenu(QtWidgets.QMenu):
             lambda: self.showFlightInfoRequested.emit(self._targetPath)
         )
 
+    def enableShowMigrationLog(self):
+        """
+        Creates the action to show the migration log dialog.
+        Will be added to the menu during popup()
+        """
+        self.showMigrationLogAction = QtWidgets.QAction("Migration log", self.parent())
+        self.showMigrationLogAction.triggered.connect(
+            lambda: self.showMigrationLogRequested.emit(self._targetPath)
+        )
+
     def popup(self, *args):
         """
         Re-implemented to show popup menu.
@@ -84,6 +98,9 @@ class LibraryMenu(QtWidgets.QMenu):
 
         if self.showFlightInfoAction is not None:
             self.addAction(self.showFlightInfoAction)
+
+        if self.showMigrationLogAction is not None:
+            self.addAction(self.showMigrationLogAction)
 
         self.reset()
         return super().popup(*args)
