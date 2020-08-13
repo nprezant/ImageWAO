@@ -2,7 +2,7 @@ from pathlib import Path
 
 from PySide2 import QtGui, QtCore, QtWidgets
 
-from base import ctx, config
+from base import ctx
 from migrator import Migrator
 from ui import (
     DockWidget,
@@ -246,29 +246,6 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Info Menu
         self.infoMenu.addAction(QtWidgets.QAction(f"Version: {self.version}", self))
-
-        # Create text box for user name
-        widgetAction = QtWidgets.QWidgetAction(self.infoMenu)
-
-        userNameWidget = QtWidgets.QWidget()
-        userNameLayout = QtWidgets.QHBoxLayout()
-        userNameLayout.setContentsMargins(0, 0, 0, 0)
-
-        nameLabel = QtWidgets.QLabel("User")
-        nameLabel.setToolTip("Username is exported to Excel along with animal counts")
-        nameEdit = QtWidgets.QLineEdit(config.username)
-        nameEdit.editingFinished.connect(
-            lambda: setattr(config, "username", nameEdit.text())
-        )
-        nameEdit.setToolTip(nameLabel.toolTip())
-
-        userNameLayout.addWidget(nameLabel)
-        userNameLayout.addWidget(nameEdit)
-
-        userNameWidget.setLayout(userNameLayout)
-        widgetAction.setDefaultWidget(userNameWidget)
-
-        self.infoMenu.addAction(widgetAction)
 
     def _arrangeMenus(self):
         self.menuBar().addMenu(self.fileMenu)
