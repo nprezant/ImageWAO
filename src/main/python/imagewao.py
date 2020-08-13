@@ -19,6 +19,7 @@ from ui import (
     FlightInfoForm,
     MigrationLogForm,
     DistributionForm,
+    PreferencesDialog,
 )
 
 QtCore.QCoreApplication.setOrganizationName("Namibia WAO")
@@ -223,6 +224,12 @@ class QImageWAO(QtWidgets.QMainWindow):
         a.triggered.connect(FlightImportWizard().openNew)
         self.fileMenu.addAction(a)
 
+        self.fileMenu.addSeparator()
+
+        a = QtWidgets.QAction("Preferences", self)
+        a.triggered.connect(self._showPreferencesForm)
+        self.fileMenu.addAction(a)
+
         # Experimental Menu
         a = QtWidgets.QAction("Test notification", self)
         a.setShortcut("Ctrl+N")
@@ -354,3 +361,8 @@ class QImageWAO(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def _raiseError(self):
         raise RuntimeError("this is a problem")
+
+    @QtCore.Slot()
+    def _showPreferencesForm(self):
+        dialog = PreferencesDialog(self)  # shares taskbar entry and is centered on self
+        dialog.exec_()

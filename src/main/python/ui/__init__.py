@@ -12,6 +12,7 @@ from .gridviewer import QImageGridView
 from .counttotals import CountTotals
 from .doyouwanttosave import DoYouWantToSave
 from .distribution import DistributionForm
+from .preferences import PreferencesDialog
 
 __all__ = [
     DockWidget,
@@ -30,4 +31,5 @@ __all__ = [
     FlightInfoForm,
     MigrationLogForm,
     DistributionForm,
+    PreferencesDialog,
 ]
