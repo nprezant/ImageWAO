@@ -74,7 +74,7 @@ class Library(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(label, stretch=1)
 
-        # return widget with this layout
+        # Make widget with this layout
         self.noFoldersWidget = QtWidgets.QWidget()
         self.noFoldersWidget.setLayout(layout)
 
@@ -82,12 +82,7 @@ class Library(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
-        self.setLayout(layout)
-
-        # Add the address bar on top. Always shown.
         layout.addWidget(self.address)
-
-        # If root dir has files or folders
         layout.addWidget(self.proxyView, stretch=1)
         self.hasFoldersWidget = QtWidgets.QWidget()
         self.hasFoldersWidget.setLayout(layout)
