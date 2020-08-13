@@ -18,6 +18,7 @@ from ui import (
     DoYouWantToSave,
     FlightInfoForm,
     MigrationLogForm,
+    DistributionForm,
 )
 
 QtCore.QCoreApplication.setOrganizationName("Namibia WAO")
@@ -55,6 +56,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.countTotals = CountTotals()
         self.flightInfoForm = FlightInfoForm.CreateWithApplyCancel()
         self.migrationLogForm = MigrationLogForm()
+        self.distributionForm = DistributionForm()
 
         # Dock widget creation
         self._addDockWidget(
@@ -87,6 +89,14 @@ class QImageWAO(QtWidgets.QMainWindow):
             self.migrationLogForm,
             ctx.defaultDockIcon,
             "Migration Log",
+            startArea=QtCore.Qt.BottomDockWidgetArea,
+            startVisible=False,
+            startFloating=True,
+        )
+        self.distributionDock = self._addDockWidget(
+            self.distributionForm,
+            ctx.defaultDockIcon,
+            "Flight Distribution",
             startArea=QtCore.Qt.BottomDockWidgetArea,
             startVisible=False,
             startFloating=True,
