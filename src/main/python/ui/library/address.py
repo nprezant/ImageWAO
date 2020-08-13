@@ -83,4 +83,5 @@ class AddressBar(QtWidgets.QWidget):
         for a in actions:
             button = QtWidgets.QToolButton()
             button.setDefaultAction(a)
+            button.setMinimumWidth(1)
             layout.addWidget(button)
