@@ -1,8 +1,8 @@
 from collections import UserList, OrderedDict
 from pathlib import Path
-import json
 
 from base import config
+from flightinfo import FlightInfo
 
 from .transectdata import TransectData
 from .transectdatagroup import TransectDataGroup
@@ -35,7 +35,7 @@ class TransectDataGroupList(UserList):
         """
         Returns a string that can be copied and pasted into excel/notepad
         """
-        s = "Flight\tAircraft\tTransect\tImage\tSpecies\tNumber\tIsDuplicate\tNotes\tUser"
+        s = "Flight\tAircraft\tFlightDate\tFlightTime\tTransect\tImage\tSpecies\tCount\tIsDuplicate\tCountNotes\tUser\tFlightNotes"
 
         for saveGroup in self.data:
             datafp = saveGroup.saveData.fp  # data.transect file path
@@ -50,25 +50,17 @@ class TransectDataGroupList(UserList):
                 Path(config.libraryDirectory) / flight
             )
             if metadataFile.exists():
-                with open(metadataFile, "r") as f:
-                    metadata = json.load(f)
-                try:
-                    airframe = metadata["Airframe"]
-                except KeyError:
-                    raise KeyError(
-                        "'Airframe' key not found in meta data file."
-                        " This should not happen."
-                    )
+                flightInfo = FlightInfo.readInfoFile(metadataFile)
             else:
-                airframe = ""
+                flightInfo = FlightInfo("", "", "", "")
 
             # Combine into string
             for imageName, countData in saveGroup.saveData.imageCounts():
                 isDuplicate = 1 if countData.isDuplicate else 0
                 s += (
-                    f"\n{flight}\t{airframe}\t{transect}\t{imageName}"
-                    f"\t{countData.species}\t{countData.number}"
-                    f"\t{isDuplicate}\t{countData.notes}\t{config.username}"
+                    f"\n{flight}\t{flightInfo.airframe}\t{flightInfo.date}\t{flightInfo.time}"
+                    f"\t{transect}\t{imageName}\t{countData.species}\t{countData.number}"
+                    f"\t{isDuplicate}\t{countData.notes}\t{config.username}\t{flightInfo.notes}"
                 )
         return s
 
