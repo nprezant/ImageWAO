@@ -223,6 +223,10 @@ class QImageWAO(QtWidgets.QMainWindow):
         a.triggered.connect(lambda: QtCore.QSettings().clear())
         self.expeMenu.addAction(a)
 
+        a = QtWidgets.QAction("Throw runtime error", self)
+        a.triggered.connect(self._raiseError)
+        self.expeMenu.addAction(a)
+
         # Info Menu
         self.infoMenu.addAction(QtWidgets.QAction(f"Version: {self.version}", self))
 
@@ -336,3 +340,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         the user wants to save them.
         """
         self._exitDirectoryEvent(event)
+
+    @QtCore.Slot()
+    def _raiseError(self):
+        raise RuntimeError("this is a problem")
