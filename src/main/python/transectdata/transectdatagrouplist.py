@@ -1,4 +1,6 @@
 from collections import UserList, OrderedDict
+from pathlib import Path
+import json
 
 from base import config
 
@@ -33,15 +35,38 @@ class TransectDataGroupList(UserList):
         """
         Returns a string that can be copied and pasted into excel/notepad
         """
-        s = "Flight\tTransect\tImage\tSpecies\tNumber\tIsDuplicate\tNotes\tUser"
+        s = "Flight\tAircraft\tTransect\tImage\tSpecies\tNumber\tIsDuplicate\tNotes\tUser"
+
         for saveGroup in self.data:
-            rel = saveGroup.saveData.fp.relative_to(config.defaultLibraryDirectory)
+            datafp = saveGroup.saveData.fp  # data.transect file path
+
+            # Extract flight folder and transect folder
+            rel = datafp.relative_to(config.libraryDirectory)
             flight = rel.parts[0]
             transect = rel.parts[1]
+
+            # Extract metadata info
+            metadataFile: Path = config.flightMetaFile(
+                Path(config.libraryDirectory) / flight
+            )
+            if metadataFile.exists():
+                with open(metadataFile, "r") as f:
+                    metadata = json.load(f)
+                try:
+                    airframe = metadata["Airframe"]
+                except KeyError:
+                    raise KeyError(
+                        "'Airframe' key not found in meta data file."
+                        " This should not happen."
+                    )
+            else:
+                airframe = ""
+
+            # Combine into string
             for imageName, countData in saveGroup.saveData.imageCounts():
                 isDuplicate = 1 if countData.isDuplicate else 0
                 s += (
-                    f"\n{flight}\t{transect}\t{imageName}"
+                    f"\n{flight}\t{airframe}\t{transect}\t{imageName}"
                     f"\t{countData.species}\t{countData.number}"
                     f"\t{isDuplicate}\t{countData.notes}\t{config.username}"
                 )
