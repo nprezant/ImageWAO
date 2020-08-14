@@ -127,6 +127,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.library.directoryChanged.connect(self.countTotals.readDirectory)
         self.library.showFlightInfoRequested.connect(self._showFlightInfoDock)
         self.library.showMigrationLogRequested.connect(self._showMigrationLogDock)
+        self.library.showDistributionFormRequested.connect(self._showDistributionDock)
 
         # Image grid signal connections
         self.imageGridView.loadProgress.connect(self.loadingOverlay.setProgress)
@@ -171,18 +172,25 @@ class QImageWAO(QtWidgets.QMainWindow):
     @QtCore.Slot(str)
     def _showFlightInfoDock(self, flightFolder: str):
         fp = Path(flightFolder)
+        self.flightInfoForm.readFlightFolder(fp)
         self.flightInfoDock.setTitleBarText(f"Flight Info - {fp.name}")
         self.flightInfoDock.show()
-        self.flightInfoForm.readFlightFolder(fp)
 
     @QtCore.Slot(str)
     def _showMigrationLogDock(self, transectFolder: str):
         fp = Path(transectFolder)
+        self.migrationLogForm.readTransectFolder(fp)
         self.migrationLogDock.setTitleBarText(
             f"Migration Log - {fp.parent.name}/{fp.name}"
         )
         self.migrationLogDock.show()
-        self.migrationLogForm.readTransectFolder(fp)
+
+    @QtCore.Slot(str)
+    def _showDistributionDock(self, flightFolder: str):
+        fp = Path(flightFolder)
+        self.distributionForm.readFlightFolder(fp)
+        self.distributionDock.setTitleBarText(f"Distribute flight - {fp.name}")
+        self.distributionDock.show()
 
     def _addDockWidget(
         self,

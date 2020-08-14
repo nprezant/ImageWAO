@@ -18,6 +18,7 @@ class Library(QtWidgets.QWidget):
     directoryChanged = QtCore.Signal(str)
     showFlightInfoRequested = QtCore.Signal(str)
     showMigrationLogRequested = QtCore.Signal(str)
+    showDistributionFormRequested = QtCore.Signal(str)
 
     # Events
     Events = EventTypes()
@@ -50,6 +51,9 @@ class Library(QtWidgets.QWidget):
         self.menu: LibraryMenu = LibraryMenu(self)
         self.menu.showFlightInfoRequested.connect(self.showFlightInfoRequested.emit)
         self.menu.showMigrationLogRequested.connect(self.showMigrationLogRequested.emit)
+        self.menu.showDistributionFormRequested.connect(
+            self.showDistributionFormRequested.emit
+        )
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self._customMenuRequested)
 
@@ -307,6 +311,7 @@ class Library(QtWidgets.QWidget):
 
             if self._inRootIndex():
                 self.menu.enableShowFlightInfo()
+                self.menu.enableShowDistributionForm()
 
             if self._inFolderLevel(1):
                 self.menu.enableShowMigrationLog()

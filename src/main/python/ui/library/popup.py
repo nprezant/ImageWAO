@@ -18,6 +18,7 @@ class LibraryMenu(QtWidgets.QMenu):
 
     showFlightInfoRequested = QtCore.Signal(str)  # flight folder
     showMigrationLogRequested = QtCore.Signal(str)  # transect folder
+    showDistributionFormRequested = QtCore.Signal(str)  # flight folder
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -26,6 +27,7 @@ class LibraryMenu(QtWidgets.QMenu):
         self.importWizardAction = None
         self.showFlightInfoAction = None
         self.showMigrationLogAction = None
+        self.showDistributionFormAction = None
 
         self._targetPath = ""
 
@@ -34,6 +36,7 @@ class LibraryMenu(QtWidgets.QMenu):
         self.importWizardAction = None
         self.showFlightInfoAction = None
         self.showMigrationLogAction = None
+        self.showDistributionFormAction = None
 
     def setTargetPath(self, path: str):
         """
@@ -81,6 +84,18 @@ class LibraryMenu(QtWidgets.QMenu):
             lambda: self.showMigrationLogRequested.emit(self._targetPath)
         )
 
+    def enableShowDistributionForm(self):
+        """
+        Creates the action to show the distribution form.
+        Will be added to the menu during popup()
+        """
+        self.showDistributionFormAction = QtWidgets.QAction(
+            "Distribute flight", self.parent()
+        )
+        self.showDistributionFormAction.triggered.connect(
+            lambda: self.showDistributionFormRequested.emit(self._targetPath)
+        )
+
     def popup(self, *args):
         """
         Re-implemented to show popup menu.
@@ -95,6 +110,10 @@ class LibraryMenu(QtWidgets.QMenu):
 
         if self.importWizardAction is not None:
             self.addAction(self.importWizardAction)
+            self.addSeparator()
+
+        if self.showDistributionFormAction is not None:
+            self.addAction(self.showDistributionFormAction)
 
         if self.showFlightInfoAction is not None:
             self.addAction(self.showFlightInfoAction)
