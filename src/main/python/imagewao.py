@@ -153,8 +153,13 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.migrationLogForm.closeRequested.connect(self.migrationLogDock.hide)
 
         # File | Etc. Menus
-        self._menusCreated = False
-        self._makeMenus()
+        fileMenu = self._createFileMenu()
+        expMenu = self._createExperimentalMenu()
+        infoMenu = self._createInfoMenu()
+
+        self.menuBar().addMenu(fileMenu)
+        self.menuBar().addMenu(expMenu)
+        self.menuBar().addMenu(infoMenu)
 
         # Toolbars
         self.addToolBar(QtCore.Qt.TopToolBarArea, self.imageViewer.toolbar)
@@ -195,62 +200,50 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.addDockWidget(startArea, dock)
         return dock
 
-    def _makeMenus(self):
-        self._createMenus()
-        self._clearMenus()
-        self._populateMenus()
-        self._arrangeMenus()
+    def _createFileMenu(self) -> QtWidgets.QMenu:
 
-    def _clearMenus(self):
-        self.fileMenu.clear()
-        self.infoMenu.clear()
-
-    def _createMenus(self):
-        if self._menusCreated is False:
-            self.fileMenu = QtWidgets.QMenu("&File", self)
-            self.expeMenu = QtWidgets.QMenu("&Exp.", self)  # Experimental
-            self.infoMenu = QtWidgets.QMenu("&Info", self)
-            self._menusCreated = True
-
-    def _populateMenus(self):
+        menu = QtWidgets.QMenu("&File", self)
 
         # File Menu
         a = QtWidgets.QAction("Save", self)
         a.setShortcut("Ctrl+S")
         a.triggered.connect(self._saveIfDirty)
-        self.fileMenu.addAction(a)
+        menu.addAction(a)
 
         a = QtWidgets.QAction("Import Flight Images", self)
         a.triggered.connect(FlightImportWizard().openNew)
-        self.fileMenu.addAction(a)
+        menu.addAction(a)
 
-        self.fileMenu.addSeparator()
+        menu.addSeparator()
 
         a = QtWidgets.QAction("Preferences", self)
         a.triggered.connect(self._showPreferencesForm)
-        self.fileMenu.addAction(a)
+        menu.addAction(a)
 
-        # Experimental Menu
+        return menu
+
+    def _createExperimentalMenu(self) -> QtWidgets.QMenu:
+        menu = QtWidgets.QMenu("&Exp.", self)
+
         a = QtWidgets.QAction("Test notification", self)
         a.setShortcut("Ctrl+N")
         a.triggered.connect(lambda: self.notifier.notify(""))
-        self.expeMenu.addAction(a)
+        menu.addAction(a)
 
         a = QtWidgets.QAction("Reset settings", self)
         a.triggered.connect(lambda: QtCore.QSettings().clear())
-        self.expeMenu.addAction(a)
+        menu.addAction(a)
 
         a = QtWidgets.QAction("Throw runtime error", self)
         a.triggered.connect(self._raiseError)
-        self.expeMenu.addAction(a)
+        menu.addAction(a)
 
-        # Info Menu
-        self.infoMenu.addAction(QtWidgets.QAction(f"Version: {self.version}", self))
+        return menu
 
-    def _arrangeMenus(self):
-        self.menuBar().addMenu(self.fileMenu)
-        self.menuBar().addMenu(self.expeMenu)
-        self.menuBar().addMenu(self.infoMenu)
+    def _createInfoMenu(self) -> QtWidgets.QMenu:
+        menu = QtWidgets.QMenu("&Info", self)
+        menu.addAction(QtWidgets.QAction(f"Version: {self.version}", self))
+        return menu
 
     def _saveIfDirty(self):
         if self._dirty:
