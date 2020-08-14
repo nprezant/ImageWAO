@@ -48,11 +48,11 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.titleBarText.changed.connect(self.setWindowTitle)
 
         # The image editor is the central widget
-        self.viewer = QImageEditor()
-        self.setCentralWidget(self.viewer)
+        self.imageViewer = QImageEditor()
+        self.setCentralWidget(self.imageViewer)
 
         # Dock widget references
-        self.grid = QImageGridView()
+        self.imageGridView = QImageGridView()
         self.library = Library()
         self.countTotals = CountTotals()
         self.flightInfoForm = FlightInfoForm.CreateWithApplyCancel()
@@ -67,7 +67,7 @@ class QImageWAO(QtWidgets.QMainWindow):
             startArea=QtCore.Qt.LeftDockWidgetArea,
         )
         self._addDockWidget(
-            self.grid,
+            self.imageGridView,
             ctx.defaultDockIcon,
             "Image Grids",
             startArea=QtCore.Qt.RightDockWidgetArea,
@@ -121,31 +121,31 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Flight library signal connections
         self.library.fileSelected.connect(self.countTotals.selectFile)
-        self.library.fileActivated.connect(self.grid.selectFile)
-        self.library.directoryChanged.connect(self.grid.addFolder)
+        self.library.fileActivated.connect(self.imageGridView.selectFile)
+        self.library.directoryChanged.connect(self.imageGridView.addFolder)
         self.library.directoryChanged.connect(self.titleBarText.setFolderName)
         self.library.directoryChanged.connect(self.countTotals.readDirectory)
         self.library.showFlightInfoRequested.connect(self._showFlightInfoDock)
         self.library.showMigrationLogRequested.connect(self._showMigrationLogDock)
 
         # Image grid signal connections
-        self.grid.loadProgress.connect(self.loadingOverlay.setProgress)
-        self.grid.loadFinished.connect(self.loadingOverlay.fadeOut)
-        self.grid.selectedImageChanged.connect(self.viewer.setImage)
-        self.grid.selectedFilesChanged.connect(self.library.selectFiles)
-        self.grid.notificationMessage.connect(self.notifier.notify)
-        self.grid.statusMessage.connect(self.showStatusMessage)
-        self.grid.countDataChanged.connect(self.countTotals.setTransectData)
+        self.imageGridView.loadProgress.connect(self.loadingOverlay.setProgress)
+        self.imageGridView.loadFinished.connect(self.loadingOverlay.fadeOut)
+        self.imageGridView.selectedImageChanged.connect(self.imageViewer.setImage)
+        self.imageGridView.selectedFilesChanged.connect(self.library.selectFiles)
+        self.imageGridView.notificationMessage.connect(self.notifier.notify)
+        self.imageGridView.statusMessage.connect(self.showStatusMessage)
+        self.imageGridView.countDataChanged.connect(self.countTotals.setTransectData)
 
         # Image viewer signal connections
-        self.viewer.drawnItemsChanged.connect(self.grid.setDrawings)
-        self.viewer.drawnItemsChanged.connect(self._markAsDirty)
+        self.imageViewer.drawnItemsChanged.connect(self.imageGridView.setDrawings)
+        self.imageViewer.drawnItemsChanged.connect(self._markAsDirty)
 
         # Count totals form connections
-        self.countTotals.fileActivated.connect(self.grid.selectFile)
+        self.countTotals.fileActivated.connect(self.imageGridView.selectFile)
         self.countTotals.selectedFilesChanged.connect(self.library.selectFiles)
         self.countTotals.requestDrawingUpdate.connect(
-            self.grid.save
+            self.imageGridView.save
         )  # Hacky. Ideally you could request the data without saving.
 
         # Flight info form signals
@@ -157,7 +157,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         self._makeMenus()
 
         # Toolbars
-        self.addToolBar(QtCore.Qt.TopToolBarArea, self.viewer.toolbar)
+        self.addToolBar(QtCore.Qt.TopToolBarArea, self.imageViewer.toolbar)
 
     @QtCore.Slot(tuple)
     def showStatusMessage(self, args):
@@ -261,7 +261,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         All save operations. Once saving is completed,
         The application will be marked clean.
         """
-        self.grid.save()
+        self.imageGridView.save()
         self._markAsClean()
 
     def _markAsDirty(self, *args):
@@ -294,8 +294,8 @@ class QImageWAO(QtWidgets.QMainWindow):
                 # If we are going to change the directory, we'll need to clear
                 # the images from the grid and from the viewer.
                 if event.isAccepted():
-                    self.grid.clear()
-                    self.viewer.clear()
+                    self.imageGridView.clear()
+                    self.imageViewer.clear()
                     return False  # Don't filter it, allow to progate
                 else:
                     return True  # Filter this one! Don't let the dir change
