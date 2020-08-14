@@ -17,6 +17,7 @@ class DockWidget(QtWidgets.QDockWidget):
         """
         super().__init__(title, parent, QtCore.Qt.Widget)
         self.setTitleBarWidget(DockTitleWidget(title, icon, self))
+        self.topLevelChanged.connect(self._handleTopLevelChanged)
 
     def addTitleBarButton(self, button):
         """
@@ -32,3 +33,23 @@ class DockWidget(QtWidgets.QDockWidget):
         Sets the text of the title bar.
         """
         self.titleBarWidget().titleLabel.setText(text)
+
+    @QtCore.Slot(bool)
+    def _handleTopLevelChanged(self, isFloating: bool):
+        """
+        Stores the title bar, lets the native window painter handle
+        the look and feel of the floating widget. If we wanted to keep the
+        custom widget as the title, could do something like this...
+
+        isVisible = self.isVisible()
+        if isFloating:
+            # Setting window flags hides the widget
+            self.setWindowFlags(QtCore.Qt.Tool | QtCore.Qt.CustomizeWindowHint)
+            if isVisible:
+                self.show()
+        """
+        if isFloating:
+            self._storedTitleBarWidget = self.titleBarWidget()
+            self.setTitleBarWidget(None)
+        else:
+            self.setTitleBarWidget(self._storedTitleBarWidget)

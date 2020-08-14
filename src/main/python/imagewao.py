@@ -205,6 +205,9 @@ class QImageWAO(QtWidgets.QMainWindow):
         dock.setWidget(w)
         dock.setVisible(startVisible)
         dock.setFloating(startFloating)
+        dock.setAllowedAreas(
+            QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | startArea
+        )
         self.addDockWidget(startArea, dock)
         return dock
 
