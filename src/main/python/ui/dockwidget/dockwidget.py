@@ -32,7 +32,10 @@ class DockWidget(QtWidgets.QDockWidget):
         """
         Sets the text of the title bar.
         """
-        self.titleBarWidget().titleLabel.setText(text)
+        if isinstance(self.titleBarWidget(), DockTitleWidget):
+            self.titleBarWidget().titleLabel.setText(text)
+        else:
+            self.setWindowTitle(text)
 
     @QtCore.Slot(bool)
     def _handleTopLevelChanged(self, isFloating: bool):
