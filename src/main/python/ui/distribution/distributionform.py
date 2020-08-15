@@ -1,8 +1,10 @@
 from pathlib import Path
+from typing import List
 
 from PySide2 import QtWidgets, QtGui, QtCore
 
 from .person import Person
+from .transect import Transect
 
 
 class DistributionForm(QtWidgets.QWidget):
@@ -45,18 +47,37 @@ class DistributionForm(QtWidgets.QWidget):
                 item = layout.takeAt(i)
                 w.deleteLater()
 
+    def _people(self) -> List[Person]:
+        people = []
+        layout = self.layout()
+        for i in reversed(range(layout.count())):
+            item = layout.itemAt(i)
+            if not item:
+                continue
+
+            w = item.widget()
+            if w and isinstance(w, Person):
+                people.append(w)
+        return people
+
     def readFlightFolder(self, flightFolder: Path):
 
         self._clearPeople()
 
-        l = self._addPerson("Lauren")
-        n = self._addPerson("Noah")
-        m = self._addPerson("Matt")
+        transects = Transect.createFromFlight(flightFolder)
+        transects.extend(transects)
+        transects.sort(key=lambda x: x.numPhotos)
 
-        for fp in flightFolder.iterdir():
-            if fp.is_file() or fp.name[0] == ".":
-                continue
-            else:
-                l.addTransect(fp.name)
-                n.addTransect(fp.name)
-                m.addTransect(fp.name)
+        self._addPerson("Lauren")
+        self._addPerson("Noah")
+        self._addPerson("Matt")
+
+        people = self._people()
+        people.reverse()  # want people top to bottom
+        numPeople = len(people)
+        i = 0
+        while transects:
+            personIndex = i % numPeople
+            person = people[personIndex]
+            person.addTransect(transects.pop())
+            i += 1

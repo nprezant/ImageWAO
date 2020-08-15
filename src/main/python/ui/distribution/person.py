@@ -1,5 +1,6 @@
 from PySide2 import QtWidgets
 
+from .transect import Transect
 from .draglabelcontainer import DragLabelContainer
 
 
@@ -17,5 +18,7 @@ class Person(QtWidgets.QWidget):
         layout.addWidget(self.assignedTransectList)
         self.setLayout(layout)
 
-    def addTransect(self, name: str):
-        self.assignedTransectList.addDragLabel(name)
+    def addTransect(self, transect: Transect):
+        self.assignedTransectList.addDragLabel(
+            f"{transect.name} ({transect.numPhotos})"
+        )
