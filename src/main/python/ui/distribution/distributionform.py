@@ -1,15 +1,21 @@
 from pathlib import Path
 from typing import List
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide2 import QtWidgets, QtCore
 
+from base import config
 from .person import Person
+from .people import People
 from .transect import Transect
 
 
 class DistributionForm(QtWidgets.QWidget):
+
+    closeRequested = QtCore.Signal()
+
     def __init__(self):
         super().__init__()
+        self.flightFolder = None
 
         buttonBox = QtWidgets.QDialogButtonBox()
         addPersonButton = buttonBox.addButton(
@@ -30,8 +36,18 @@ class DistributionForm(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def _okPressed(self):
-        # would want to save here
-        self.close()
+        if self.flightFolder is None:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Distribution Form",
+                "Cannot save data when no flight folder is specified."
+                " Please open this form by right clicking on a flight folder"
+                " and selecting 'distribute flight'.",
+            )
+        else:
+            people = People(self.findChildren(Person))
+            people.dump(config.flightDistributionFile(self.flightFolder))
+            self.closeRequested.emit()
 
     def _addPerson(self, name: str = "New Person") -> Person:
         person = Person(name)
@@ -83,9 +99,9 @@ class DistributionForm(QtWidgets.QWidget):
                 w.deleteLater()
 
     def readFlightFolder(self, flightFolder: Path):
+        self.flightFolder = flightFolder
 
         self._clearPeople()
-
         self._addPerson("Lauren")
         self._addPerson("Noah")
         self._addPerson("Matt")

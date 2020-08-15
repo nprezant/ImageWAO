@@ -37,3 +37,9 @@ class Person(QtWidgets.QWidget):
 
     def updateNumPhotos(self):
         self.numPhotos.setText(str(self.assignedTransectList.numPhotos()))
+
+    def toDict(self):
+        return {
+            "name": self.nameLine.text(),
+            "transects": self.assignedTransectList.toList(),
+        }

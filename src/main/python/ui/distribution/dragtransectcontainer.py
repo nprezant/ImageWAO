@@ -66,5 +66,8 @@ class DragTransectContainer(QtWidgets.QFrame):
         numPhotos = 0
         for dragTransect in dragTransects:
             if not dragTransect.aboutToBeRemoved:
-                numPhotos += dragTransect.numPhotos
+                numPhotos += dragTransect.numPhotos()
         return numPhotos
+
+    def toList(self):
+        return [t.toDict() for t in self.findChildren(DragTransect)]

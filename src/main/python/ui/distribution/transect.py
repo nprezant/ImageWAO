@@ -7,6 +7,9 @@ class Transect:
         self.name = name
         self.numPhotos = numPhotos
 
+    def toDict(self):
+        return {"name": self.name, "numPhotos": self.numPhotos}
+
     @staticmethod
     def createFromFlight(flightFolder: Path):
         """Returns List[Transect]"""

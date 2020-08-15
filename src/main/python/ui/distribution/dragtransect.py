@@ -12,8 +12,7 @@ class DragTransect(QtWidgets.QLabel):
 
     def __init__(self, parent, transect: Transect):
         super().__init__(parent)
-        self.name = transect.name
-        self.numPhotos = transect.numPhotos
+        self.transect = transect
 
         text = f"{transect.name} ({transect.numPhotos})"
         self.setText(text)
@@ -34,6 +33,12 @@ class DragTransect(QtWidgets.QLabel):
         self.setMaximumHeight(5 * self.fontMetrics().height())
         self.setMinimumWidth(self.width() / 3)
 
+    def toDict(self):
+        return self.transect.toDict()
+
+    def numPhotos(self):
+        return self.transect.numPhotos
+
     def mousePressEvent(self, event: QtGui.QMouseEvent):
         if event.button() == QtCore.Qt.LeftButton:
             self._dragStartPosition = event.pos()
@@ -49,7 +54,7 @@ class DragTransect(QtWidgets.QLabel):
         hotSpot = event.pos()
 
         mimeData = QtCore.QMimeData()
-        mimeData.setText(json.dumps({"name": self.name, "numPhotos": self.numPhotos}))
+        mimeData.setText(json.dumps(self.transect.toDict()))
 
         pixmap = QtGui.QPixmap(self.size())
         self.render(pixmap)

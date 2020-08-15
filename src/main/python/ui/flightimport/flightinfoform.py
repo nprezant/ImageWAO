@@ -65,7 +65,8 @@ class FlightInfoForm(QtWidgets.QWidget):
                 self,
                 "Flight Info",
                 "Cannot save data when no flight folder is specified."
-                " Please read in flight info data using 'readFlightFolder'",
+                " Please open this form by right clicking on a flight folder"
+                " and selecting 'flight info'.",
             )
         else:
             self.save(self.flightFolder)

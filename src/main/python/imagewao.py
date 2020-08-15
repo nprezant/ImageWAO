@@ -152,6 +152,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         # Flight info form signals
         self.flightInfoForm.closeRequested.connect(self.flightInfoDock.hide)
         self.migrationLogForm.closeRequested.connect(self.migrationLogDock.hide)
+        self.distributionForm.closeRequested.connect(self.distributionDock.hide)
 
         # File | Etc. Menus
         fileMenu = self._createFileMenu()
