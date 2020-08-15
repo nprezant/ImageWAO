@@ -12,6 +12,7 @@ class DragLabel(QtWidgets.QLabel):
         self.setFrameShadow(QtWidgets.QFrame.Raised)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._dragStartPosition = None
+        self.setStyleSheet("background-color: yellow; color: blue;")
 
     def mousePressEvent(self, event: QtGui.QMouseEvent):
         if event.button() == QtCore.Qt.LeftButton:
