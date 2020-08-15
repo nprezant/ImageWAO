@@ -37,4 +37,4 @@ class FlightInfo:
         }
         infoFile.touch(exist_ok=True)
         with open(infoFile, "w") as f:
-            json.dump(infoData, f)
+            json.dump(infoData, f, indent=4)
