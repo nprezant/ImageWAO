@@ -4,9 +4,10 @@ from PySide2 import QtWidgets, QtGui, QtCore
 class DragLabel(QtWidgets.QLabel):
     """The actual thing that gets dragged"""
 
-    def __init__(self, parent, text):
+    def __init__(self, parent, text: str):
         super().__init__(parent)
         self.setText(text)
+        self.setToolTip(text)
         self.setAutoFillBackground(True)
         self.setFrameShape(QtWidgets.QFrame.Panel)
         self.setFrameShadow(QtWidgets.QFrame.Raised)

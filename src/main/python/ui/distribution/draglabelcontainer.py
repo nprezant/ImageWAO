@@ -14,11 +14,7 @@ class DragLabelContainer(QtWidgets.QWidget):
         newPalette = self.palette()
         newPalette.setColor(QtGui.QPalette.Window, QtCore.Qt.blue)
         self.setPalette(newPalette)
-
-        layout = QtWidgets.QHBoxLayout()
-        layout.addWidget(DragLabel(self, "hello"))
-        layout.addWidget(DragLabel(self, "another one"))
-        self.setLayout(layout)
+        self.setLayout(QtWidgets.QHBoxLayout())
 
         self.setStyleSheet("DragLabelContainer { border: blue }")
         self.setAcceptDrops(True)
@@ -47,3 +43,8 @@ class DragLabelContainer(QtWidgets.QWidget):
             event.accept()
         else:
             event.ignore()
+
+    def addDragLabel(self, text: str) -> DragLabel:
+        dragLabel = DragLabel(self, text)
+        self.layout().addWidget(dragLabel)
+        return dragLabel
