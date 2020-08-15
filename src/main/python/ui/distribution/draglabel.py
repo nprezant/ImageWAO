@@ -1,19 +1,27 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 
 
-class DragLabel(QtWidgets.QLabel):
+class TransectDragLabel(QtWidgets.QLabel):
     """The actual thing that gets dragged"""
 
-    def __init__(self, parent, text: str):
+    def __init__(self, parent, name: str, numPhotos: int):
         super().__init__(parent)
+        self.name = name
+        self.numPhotos = numPhotos
+
+        text = f"{name} ({numPhotos})"
         self.setText(text)
         self.setToolTip(text)
+
+        self._dragStartPosition = None
+        self._setupUi()
+
+    def _setupUi(self):
         self.setFrameShape(QtWidgets.QFrame.Panel)
         self.setFrameShadow(QtWidgets.QFrame.Raised)
         self.setLineWidth(3)
         self.setMidLineWidth(3)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self._dragStartPosition = None
         self.setStyleSheet("background-color: yellow; color: blue;")
 
     def mousePressEvent(self, event: QtGui.QMouseEvent):

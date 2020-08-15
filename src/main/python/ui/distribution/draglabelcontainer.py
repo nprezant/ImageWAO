@@ -3,7 +3,7 @@ from PySide2 import QtWidgets, QtGui, QtCore
 from .draglabel import DragLabel
 
 
-class DragLabelContainer(QtWidgets.QFrame):
+class TransectContainer(QtWidgets.QFrame):
     """The widget that can accept the drag and
     drop events from DragLabels.
     """

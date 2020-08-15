@@ -1,7 +1,9 @@
+from typing import List
+
 from PySide2 import QtWidgets
 
 from .transect import Transect
-from .draglabelcontainer import DragLabelContainer
+from .draglabelcontainer import TransectContainer
 
 
 class Person(QtWidgets.QWidget):
@@ -11,7 +13,7 @@ class Person(QtWidgets.QWidget):
         self.nameLine = QtWidgets.QLineEdit(self)
         self.nameLine.setText(name)
 
-        self.assignedTransectList = DragLabelContainer()
+        self.assignedTransectList = TransectContainer()
 
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.nameLine)
@@ -22,3 +24,7 @@ class Person(QtWidgets.QWidget):
         self.assignedTransectList.addDragLabel(
             f"{transect.name} ({transect.numPhotos})"
         )
+
+    def transects(self) -> List[Transect]:
+        return self.findChildren(Transect)
+

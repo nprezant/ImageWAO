@@ -15,24 +15,55 @@ class DistributionForm(QtWidgets.QWidget):
         addPersonButton = buttonBox.addButton(
             "Add Person", QtWidgets.QDialogButtonBox.ResetRole
         )
+        distributeButton = buttonBox.addButton(
+            "Distribute", QtWidgets.QDialogButtonBox.HelpRole
+        )
         okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
 
         addPersonButton.clicked.connect(lambda: self._addPerson())
+        distributeButton.clicked.connect(lambda: self._distribute())
         okayButton.clicked.connect(self._okPressed)
 
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(buttonBox)
         self.setLayout(layout)
 
+    @QtCore.Slot()
+    def _okPressed(self):
+        # would want to save here
+        self.close()
+
     def _addPerson(self, name: str = "New Person") -> Person:
         person = Person(name)
         self.layout().insertWidget(self.layout().count() - 1, person)
         return person
 
-    @QtCore.Slot()
-    def _okPressed(self):
-        # would want to save here
-        self.close()
+    def _distribute(self, newTransects: List[Transect] = None):
+        """Distributes transects among existing people.
+        If newTransects are passed in, these are added on
+        top of existing transects. If no newTransects are passed
+        in, the existing transects are re-distributed among existing people.
+        """
+
+        # Grab the transects from the people
+        if newTransects is None:
+            newTransects = []
+            for person in self._people():
+                [newTransects.append(t) for t in person.transects()]
+
+        # Sort transects by number of photos
+        newTransects.sort(key=lambda x: x.numPhotos)
+
+        # Distribute among people
+        people = self._people()
+        people.reverse()  # want people top to bottom
+        numPeople = len(people)
+        i = 0
+        while newTransects:
+            personIndex = i % numPeople
+            person = people[personIndex]
+            person.addTransect(newTransects.pop())
+            i += 1
 
     def _clearPeople(self):
         """Clears all people from layout, leaving button box"""
@@ -44,7 +75,7 @@ class DistributionForm(QtWidgets.QWidget):
 
             w = item.widget()
             if w and isinstance(w, Person):
-                item = layout.takeAt(i)
+                layout.takeAt(i)
                 w.deleteLater()
 
     def _people(self) -> List[Person]:
@@ -64,20 +95,12 @@ class DistributionForm(QtWidgets.QWidget):
 
         self._clearPeople()
 
-        transects = Transect.createFromFlight(flightFolder)
-        transects.extend(transects)
-        transects.sort(key=lambda x: x.numPhotos)
-
         self._addPerson("Lauren")
         self._addPerson("Noah")
         self._addPerson("Matt")
 
-        people = self._people()
-        people.reverse()  # want people top to bottom
-        numPeople = len(people)
-        i = 0
-        while transects:
-            personIndex = i % numPeople
-            person = people[personIndex]
-            person.addTransect(transects.pop())
-            i += 1
+        # Read transect folder
+        transects = Transect.createFromFlight(flightFolder)
+        transects.extend(transects)
+
+        self._distribute(transects)
