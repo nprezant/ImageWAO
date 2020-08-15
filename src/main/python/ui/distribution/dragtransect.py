@@ -28,13 +28,27 @@ class DragTransect(QtWidgets.QLabel):
         self.setLineWidth(3)
         self.setMidLineWidth(3)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setStyleSheet("background-color: #008080; color: white;")
+        self.setAlignment(QtCore.Qt.AlignCenter)
+
+        font: QtGui.QFont = self.font()
+        font.setPointSize(font.pointSize() + 2)
+        font.setBold(True)
+        self.setFont(font)
+        self.adjustSize()
+        self.setStyleSheet("DragTransect{background-color: #008080; color: white;}")
+
         self.setMaximumWidth(self.width())
-        self.setMaximumHeight(5 * self.fontMetrics().height())
+        self.setMaximumHeight(3 * self.fontMetrics().height())
         self.setMinimumWidth(self.width() / 3)
+        self.setMinimumHeight(self.height() * 1.2)
 
     def toDict(self):
         return self.transect.toDict()
+
+    def sizeHint(self):
+        """Adjust size hint width to be slightly larger than the default"""
+        size: QtCore.QSize = super().sizeHint()
+        return QtCore.QSize(size.width() + 10, size.height())
 
     def numPhotos(self):
         return self.transect.numPhotos
