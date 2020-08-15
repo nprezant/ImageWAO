@@ -24,6 +24,5 @@ class Person(QtWidgets.QWidget):
     def addTransect(self, transect: Transect):
         self.assignedTransectList.addTransect(transect)
 
-    def transects(self) -> List[Transect]:
-        return self.findChildren(DragTransect)
-
+    def removeTransects(self) -> List[DragTransect]:
+        return self.assignedTransectList.removeTransects()

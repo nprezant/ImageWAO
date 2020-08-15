@@ -1,4 +1,5 @@
 import json
+from typing import List
 
 from PySide2 import QtWidgets, QtGui, QtCore
 
@@ -49,3 +50,8 @@ class DragTransectContainer(QtWidgets.QFrame):
         dragTransect = DragTransect(self, transect)
         self.layout().addWidget(dragTransect)
         return dragTransect
+
+    def removeTransects(self) -> List[DragTransect]:
+        dragTransects = self.findChildren(DragTransect)
+        [t.setParent(None) for t in dragTransects]
+        return dragTransects

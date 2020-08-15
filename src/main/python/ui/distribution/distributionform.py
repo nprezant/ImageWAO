@@ -49,7 +49,7 @@ class DistributionForm(QtWidgets.QWidget):
         if newTransects is None:
             newTransects = []
             for person in self._people():
-                [newTransects.append(t) for t in person.transects()]
+                [newTransects.append(t) for t in person.removeTransects()]
 
         # Sort transects by number of photos
         newTransects.sort(key=lambda x: x.numPhotos)
