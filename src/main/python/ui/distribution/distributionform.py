@@ -1,23 +1,57 @@
 from pathlib import Path
-from typing import List
 
 from PySide2 import QtWidgets, QtGui, QtCore
 
+from tools import clearLayout
 from .person import Person
 
 
 class DistributionForm(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        vBoxLayout = QtWidgets.QVBoxLayout()
-        self.setLayout(vBoxLayout)
 
-    def _addPerson(self, name: str) -> Person:
+        buttonBox = QtWidgets.QDialogButtonBox()
+        addPersonButton = buttonBox.addButton(
+            "Add Person", QtWidgets.QDialogButtonBox.ResetRole
+        )
+        okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
+
+        addPersonButton.clicked.connect(lambda: self._addPerson())
+        okayButton.clicked.connect(self._okPressed)
+
+        layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(buttonBox)
+        self.setLayout(layout)
+
+    def _reset(self):
+        clearLayout(self.layout())
+
+    def _addPerson(self, name: str = "New Person") -> Person:
         person = Person(name)
-        self.layout().addWidget(person)
+        self.layout().insertWidget(self.layout().count() - 1, person)
         return person
 
+    @QtCore.Slot()
+    def _okPressed(self):
+        # would want to save here
+        self.close()
+
+    def _clearPeople(self):
+        """Clears all people from layout, leaving button box"""
+        layout = self.layout()
+        for i in reversed(range(layout.count())):
+            item = layout.itemAt(i)
+            if not item:
+                continue
+
+            w = item.widget()
+            if w and isinstance(w, Person):
+                item = layout.takeAt(i)
+                w.deleteLater()
+
     def readFlightFolder(self, flightFolder: Path):
+
+        self._clearPeople()
 
         l = self._addPerson("Lauren")
         n = self._addPerson("Noah")
