@@ -32,7 +32,7 @@ class DragTransect(QtWidgets.QLabel):
         self.setStyleSheet("background-color: #008080; color: white;")
         self.setMaximumWidth(self.width())
         self.setMaximumHeight(5 * self.fontMetrics().height())
-        self.setMinimumWidth(10)
+        self.setMinimumWidth(self.width() / 3)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent):
         if event.button() == QtCore.Qt.LeftButton:
