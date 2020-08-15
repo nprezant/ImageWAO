@@ -3,7 +3,7 @@ from PySide2 import QtWidgets, QtGui, QtCore
 from .draglabel import DragLabel
 
 
-class DragLabelContainer(QtWidgets.QWidget):
+class DragLabelContainer(QtWidgets.QFrame):
     """The widget that can accept the drag and
     drop events from DragLabels.
     """
@@ -11,6 +11,8 @@ class DragLabelContainer(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
+        self.setFrameShape(QtWidgets.QFrame.Panel)
+        self.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.setAcceptDrops(True)
         self.setMinimumSize(400, 100)
