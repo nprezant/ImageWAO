@@ -19,6 +19,7 @@ class DragTransectContainer(QtWidgets.QFrame):
         self.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.setLineWidth(1)
         self.setLayout(QtWidgets.QHBoxLayout())
+        self.layout().addStretch()
         self.setAcceptDrops(True)
         self.setMinimumSize(400, 100)
 
@@ -35,7 +36,7 @@ class DragTransectContainer(QtWidgets.QFrame):
             transectData = json.loads(mime.text())
 
             transect = Transect(transectData["name"], transectData["numPhotos"])
-            self.layout().addWidget(DragTransect(self, transect))
+            self.addTransect(transect)
 
             if event.source() in self.children():
                 event.setDropAction(QtCore.Qt.MoveAction)
@@ -48,7 +49,7 @@ class DragTransectContainer(QtWidgets.QFrame):
 
     def addTransect(self, transect: Transect) -> DragTransect:
         dragTransect = DragTransect(self, transect)
-        self.layout().addWidget(dragTransect)
+        self.layout().insertWidget(self.layout().count() - 1, dragTransect)
         return dragTransect
 
     def removeTransects(self) -> List[DragTransect]:

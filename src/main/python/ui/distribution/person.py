@@ -13,6 +13,7 @@ class Person(QtWidgets.QWidget):
 
         self.nameLine = QtWidgets.QLineEdit(self)
         self.nameLine.setText(name)
+        self.nameLine.setFixedWidth(self.nameLine.width())
 
         self.assignedTransectList = DragTransectContainer()
 
