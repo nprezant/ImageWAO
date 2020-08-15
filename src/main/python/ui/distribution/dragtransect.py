@@ -64,6 +64,8 @@ class DragTransect(QtWidgets.QLabel):
         drag.setPixmap(pixmap)
         drag.setHotSpot(hotSpot)
 
+        self.hide()
+
         dropAction: QtCore.Qt.DropAction = drag.exec_(
             QtCore.Qt.MoveAction | QtCore.Qt.CopyAction
         )
