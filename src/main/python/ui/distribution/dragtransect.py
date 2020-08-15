@@ -8,6 +8,8 @@ from .transect import Transect
 class DragTransect(QtWidgets.QLabel):
     """The actual thing that gets dragged"""
 
+    removed = QtCore.Signal()
+
     def __init__(self, parent, transect: Transect):
         super().__init__(parent)
         self.name = transect.name
@@ -18,6 +20,7 @@ class DragTransect(QtWidgets.QLabel):
         self.setToolTip(text)
 
         self._dragStartPosition = None
+        self.aboutToBeRemoved = False
         self._setupUi()
 
     def _setupUi(self):
@@ -64,3 +67,6 @@ class DragTransect(QtWidgets.QLabel):
             print("removing myself, yw")
             self.close()
             self.update()
+            self.aboutToBeRemoved = True
+            self.removed.emit()
+            self.aboutToBeRemoved = False

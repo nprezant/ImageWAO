@@ -65,6 +65,9 @@ class DistributionForm(QtWidgets.QWidget):
             person.addTransect(newTransects.pop())
             i += 1
 
+        # Update counts for each person
+        [p.updateNumPhotos() for p in people]
+
     def _clearPeople(self):
         """Clears all people from layout, leaving button box"""
         layout = self.layout()

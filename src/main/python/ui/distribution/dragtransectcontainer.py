@@ -12,6 +12,8 @@ class DragTransectContainer(QtWidgets.QFrame):
     drop events from Transects.
     """
 
+    contentsChanged = QtCore.Signal()
+
     def __init__(self):
         super().__init__()
 
@@ -44,11 +46,13 @@ class DragTransectContainer(QtWidgets.QFrame):
                 event.setDropAction(QtCore.Qt.MoveAction)
 
             event.accept()
+            self.contentsChanged.emit()
         else:
             event.ignore()
 
     def addTransect(self, transect: Transect) -> DragTransect:
         dragTransect = DragTransect(self, transect)
+        dragTransect.removed.connect(self.contentsChanged.emit)
         self.layout().insertWidget(self.layout().count() - 1, dragTransect)
         return dragTransect
 
@@ -56,3 +60,12 @@ class DragTransectContainer(QtWidgets.QFrame):
         dragTransects = self.findChildren(DragTransect)
         [t.setParent(None) for t in dragTransects]
         return dragTransects
+
+    def numPhotos(self):
+        """Summed number of photos from all contained DragTransects"""
+        dragTransects = self.findChildren(DragTransect)
+        numPhotos = 0
+        for dragTransect in dragTransects:
+            if not dragTransect.aboutToBeRemoved:
+                numPhotos += dragTransect.numPhotos
+        return numPhotos

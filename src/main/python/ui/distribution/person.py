@@ -16,9 +16,10 @@ class Person(QtWidgets.QWidget):
         self.nameLine.setFixedWidth(self.nameLine.width())
 
         self.assignedTransectList = DragTransectContainer()
+        self.assignedTransectList.contentsChanged.connect(self.updateNumPhotos)
 
         self.numPhotos = QtWidgets.QLabel(self)
-        self.numPhotos.setText("###")
+        self.numPhotos.setText("0")
         fm = self.numPhotos.fontMetrics()
         self.numPhotos.setFixedWidth(fm.width("###"))
 
@@ -33,3 +34,6 @@ class Person(QtWidgets.QWidget):
 
     def removeTransects(self) -> List[DragTransect]:
         return self.assignedTransectList.removeTransects()
+
+    def updateNumPhotos(self):
+        self.numPhotos.setText(str(self.assignedTransectList.numPhotos()))
