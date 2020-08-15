@@ -17,9 +17,15 @@ class Person(QtWidgets.QWidget):
 
         self.assignedTransectList = DragTransectContainer()
 
+        self.numPhotos = QtWidgets.QLabel(self)
+        self.numPhotos.setText("###")
+        fm = self.numPhotos.fontMetrics()
+        self.numPhotos.setFixedWidth(fm.width("###"))
+
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.nameLine)
         layout.addWidget(self.assignedTransectList)
+        layout.addWidget(self.numPhotos)
         self.setLayout(layout)
 
     def addTransect(self, transect: Transect):
