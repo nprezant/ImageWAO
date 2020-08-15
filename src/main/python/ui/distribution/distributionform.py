@@ -45,18 +45,18 @@ class DistributionForm(QtWidgets.QWidget):
         in, the existing transects are re-distributed among existing people.
         """
 
+        people = self.findChildren(Person)
+
         # Grab the transects from the people
         if newTransects is None:
             newTransects = []
-            for person in self._people():
+            for person in people:
                 [newTransects.append(t) for t in person.removeTransects()]
 
         # Sort transects by number of photos
         newTransects.sort(key=lambda x: x.numPhotos)
 
         # Distribute among people
-        people = self._people()
-        people.reverse()  # want people top to bottom
         numPeople = len(people)
         i = 0
         while newTransects:
@@ -76,20 +76,8 @@ class DistributionForm(QtWidgets.QWidget):
             w = item.widget()
             if w and isinstance(w, Person):
                 layout.takeAt(i)
+                w.setParent(None)
                 w.deleteLater()
-
-    def _people(self) -> List[Person]:
-        people = []
-        layout = self.layout()
-        for i in reversed(range(layout.count())):
-            item = layout.itemAt(i)
-            if not item:
-                continue
-
-            w = item.widget()
-            if w and isinstance(w, Person):
-                people.append(w)
-        return people
 
     def readFlightFolder(self, flightFolder: Path):
 
