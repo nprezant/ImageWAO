@@ -13,6 +13,7 @@ class DragLabelContainer(QtWidgets.QFrame):
 
         self.setFrameShape(QtWidgets.QFrame.Panel)
         self.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.setLineWidth(1)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.setAcceptDrops(True)
         self.setMinimumSize(400, 100)

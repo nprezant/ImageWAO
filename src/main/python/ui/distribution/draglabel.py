@@ -10,6 +10,8 @@ class DragLabel(QtWidgets.QLabel):
         self.setToolTip(text)
         self.setFrameShape(QtWidgets.QFrame.Panel)
         self.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.setLineWidth(3)
+        self.setMidLineWidth(3)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._dragStartPosition = None
         self.setStyleSheet("background-color: yellow; color: blue;")
