@@ -76,3 +76,5 @@ class DragTransect(QtWidgets.QLabel):
             self.aboutToBeRemoved = True
             self.removed.emit()
             self.aboutToBeRemoved = False
+        else:
+            self.show()
