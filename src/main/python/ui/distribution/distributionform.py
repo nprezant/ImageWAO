@@ -2,7 +2,6 @@ from pathlib import Path
 
 from PySide2 import QtWidgets, QtGui, QtCore
 
-from tools import clearLayout
 from .person import Person
 
 
@@ -22,9 +21,6 @@ class DistributionForm(QtWidgets.QWidget):
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(buttonBox)
         self.setLayout(layout)
-
-    def _reset(self):
-        clearLayout(self.layout())
 
     def _addPerson(self, name: str = "New Person") -> Person:
         person = Person(name)
