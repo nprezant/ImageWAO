@@ -24,10 +24,12 @@ class DistributionForm(QtWidgets.QWidget):
         distributeButton = buttonBox.addButton(
             "Distribute", QtWidgets.QDialogButtonBox.ResetRole
         )
+        resetButton = buttonBox.addButton("Reset", QtWidgets.QDialogButtonBox.ResetRole)
         okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
 
         addPersonButton.clicked.connect(lambda: self._addNewPerson())
         distributeButton.clicked.connect(lambda: self._distribute())
+        resetButton.clicked.connect(lambda: self._reset())
         okayButton.clicked.connect(self._okPressed)
 
         layout = QtWidgets.QVBoxLayout()
@@ -122,6 +124,10 @@ class DistributionForm(QtWidgets.QWidget):
         for person in people:
             self._addPerson(person)
         self._updateCountsPerPerson()
+
+    def _reset(self):
+        if self.flightFolder is not None:
+            self._loadFromFileStructure(self.flightFolder)
 
     def _loadFromFileStructure(self, flightFolder: Path):
         self._clearPeople()
