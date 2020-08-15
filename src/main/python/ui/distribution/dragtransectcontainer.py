@@ -1,11 +1,14 @@
+import json
+
 from PySide2 import QtWidgets, QtGui, QtCore
 
-from .draglabel import DragLabel
+from .transect import Transect
+from .dragtransect import DragTransect
 
 
-class TransectContainer(QtWidgets.QFrame):
+class DragTransectContainer(QtWidgets.QFrame):
     """The widget that can accept the drag and
-    drop events from DragLabels.
+    drop events from Transects.
     """
 
     def __init__(self):
@@ -28,9 +31,10 @@ class TransectContainer(QtWidgets.QFrame):
     def dropEvent(self, event: QtGui.QDropEvent):
         if event.mimeData().hasText():
             mime = event.mimeData()
-            name = mime.text()
+            transectData = json.loads(mime.text())
 
-            self.layout().addWidget(DragLabel(self, name))
+            transect = Transect(transectData["name"], transectData["numPhotos"])
+            self.layout().addWidget(DragTransect(self, transect))
 
             if event.source() in self.children():
                 event.setDropAction(QtCore.Qt.MoveAction)
@@ -41,7 +45,7 @@ class TransectContainer(QtWidgets.QFrame):
         else:
             event.ignore()
 
-    def addDragLabel(self, text: str) -> DragLabel:
-        dragLabel = DragLabel(self, text)
-        self.layout().addWidget(dragLabel)
-        return dragLabel
+    def addTransect(self, transect: Transect) -> DragTransect:
+        dragTransect = DragTransect(self, transect)
+        self.layout().addWidget(dragTransect)
+        return dragTransect

@@ -1,15 +1,19 @@
+import json
+
 from PySide2 import QtWidgets, QtGui, QtCore
 
+from .transect import Transect
 
-class TransectDragLabel(QtWidgets.QLabel):
+
+class DragTransect(QtWidgets.QLabel):
     """The actual thing that gets dragged"""
 
-    def __init__(self, parent, name: str, numPhotos: int):
+    def __init__(self, parent, transect: Transect):
         super().__init__(parent)
-        self.name = name
-        self.numPhotos = numPhotos
+        self.name = transect.name
+        self.numPhotos = transect.numPhotos
 
-        text = f"{name} ({numPhotos})"
+        text = f"{transect.name} ({transect.numPhotos})"
         self.setText(text)
         self.setToolTip(text)
 
@@ -41,7 +45,7 @@ class TransectDragLabel(QtWidgets.QLabel):
         hotSpot = event.pos()
 
         mimeData = QtCore.QMimeData()
-        mimeData.setText(self.text())
+        mimeData.setText(json.dumps({"name": self.name, "numPhotos": self.numPhotos}))
 
         pixmap = QtGui.QPixmap(self.size())
         self.render(pixmap)
