@@ -71,3 +71,9 @@ class DragTransectContainer(QtWidgets.QFrame):
 
     def toList(self):
         return [t.toDict() for t in self.findChildren(DragTransect)]
+
+    @staticmethod
+    def fromList(rawList: list):
+        container = DragTransectContainer()
+        [container.addTransect(Transect.fromDict(d)) for d in rawList]
+        return container

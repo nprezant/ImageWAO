@@ -26,7 +26,7 @@ class DistributionForm(QtWidgets.QWidget):
         )
         okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
 
-        addPersonButton.clicked.connect(lambda: self._addPerson())
+        addPersonButton.clicked.connect(lambda: self._addNewPerson())
         distributeButton.clicked.connect(lambda: self._distribute())
         okayButton.clicked.connect(self._okPressed)
 
@@ -49,10 +49,12 @@ class DistributionForm(QtWidgets.QWidget):
             people.dump(config.flightDistributionFile(self.flightFolder))
             self.closeRequested.emit()
 
-    def _addPerson(self, name: str = "New Person") -> Person:
+    def _addNewPerson(self, name: str = "New Person"):
         person = Person(name)
+        self._addPerson(person)
+
+    def _addPerson(self, person: Person):
         self.layout().insertWidget(self.layout().count() - 1, person)
-        return person
 
     def _distribute(self, newTransects: List[Transect] = None):
         """Distributes transects among existing people.
@@ -61,13 +63,16 @@ class DistributionForm(QtWidgets.QWidget):
         in, the existing transects are re-distributed among existing people.
         """
 
-        people = self.findChildren(Person)
+        people: List[Person] = self.findChildren(Person)
 
         # Grab the transects from the people
         if newTransects is None:
-            newTransects = []
+            newTransects: List[Transect] = []
             for person in people:
-                [newTransects.append(t) for t in person.removeTransects()]
+                [
+                    newTransects.append(dragTransect.transect)
+                    for dragTransect in person.removeTransects()
+                ]
 
         # Sort transects by number of photos
         newTransects.sort(key=lambda x: x.numPhotos)
@@ -82,7 +87,11 @@ class DistributionForm(QtWidgets.QWidget):
             i += 1
 
         # Update counts for each person
-        [p.updateNumPhotos() for p in people]
+        self._updateCountsPerPerson()
+
+    def _updateCountsPerPerson(self):
+        """Update the number of photos value for each person"""
+        [p.updateNumPhotos() for p in self.findChildren(Person)]
 
     def _clearPeople(self):
         """Clears all people from layout, leaving button box"""
@@ -98,16 +107,32 @@ class DistributionForm(QtWidgets.QWidget):
                 w.setParent(None)
                 w.deleteLater()
 
-    def readFlightFolder(self, flightFolder: Path):
+    def openFlightFolder(self, flightFolder: Path):
         self.flightFolder = flightFolder
 
+        saveFile = config.flightDistributionFile(flightFolder)
+        if saveFile.exists():
+            self._loadSaveFile(saveFile)
+        else:
+            self._loadFromFileStructure(flightFolder)
+
+    def _loadSaveFile(self, saveFile: Path):
         self._clearPeople()
-        self._addPerson("Lauren")
-        self._addPerson("Noah")
-        self._addPerson("Matt")
+        people = People.loadFromFile(saveFile)
+        for person in people:
+            self._addPerson(person)
+        self._updateCountsPerPerson()
+
+    def _loadFromFileStructure(self, flightFolder: Path):
+        self._clearPeople()
+
+        # Default people. Need at least two for this to make any sense
+        self._addNewPerson("Josh")
+        self._addNewPerson("Pawel")
 
         # Read transect folder
         transects = Transect.createFromFlight(flightFolder)
         transects.extend(transects)
 
+        # Distribute transects among the people
         self._distribute(transects)

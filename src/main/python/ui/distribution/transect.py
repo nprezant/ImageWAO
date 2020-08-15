@@ -11,6 +11,10 @@ class Transect:
         return {"name": self.name, "numPhotos": self.numPhotos}
 
     @staticmethod
+    def fromDict(rawDict: dict):
+        return Transect(rawDict["name"], rawDict["numPhotos"])
+
+    @staticmethod
     def createFromFlight(flightFolder: Path):
         """Returns List[Transect]"""
         transects: List[Transect] = []

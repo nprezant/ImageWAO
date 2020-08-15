@@ -189,7 +189,7 @@ class QImageWAO(QtWidgets.QMainWindow):
     @QtCore.Slot(str)
     def _showDistributionDock(self, flightFolder: str):
         fp = Path(flightFolder)
-        self.distributionForm.readFlightFolder(fp)
+        self.distributionForm.openFlightFolder(fp)
         self.distributionDock.setTitleBarText(f"Distribute flight - {fp.name}")
         self.distributionDock.show()
 

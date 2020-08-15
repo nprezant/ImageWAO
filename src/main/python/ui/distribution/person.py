@@ -8,14 +8,17 @@ from .dragtransectcontainer import DragTransectContainer
 
 
 class Person(QtWidgets.QWidget):
-    def __init__(self, name: str):
+    def __init__(self, name: str, transects: DragTransectContainer = None):
         super().__init__()
+
+        if transects is None:
+            transects = DragTransectContainer()
 
         self.nameLine = QtWidgets.QLineEdit(self)
         self.nameLine.setText(name)
         self.nameLine.setFixedWidth(self.nameLine.width())
 
-        self.assignedTransectList = DragTransectContainer()
+        self.assignedTransectList = transects
         self.assignedTransectList.contentsChanged.connect(self.updateNumPhotos)
 
         self.numPhotos = QtWidgets.QLabel(self)
@@ -43,3 +46,10 @@ class Person(QtWidgets.QWidget):
             "name": self.nameLine.text(),
             "transects": self.assignedTransectList.toList(),
         }
+
+    @staticmethod
+    def fromDict(d):
+        name = d["name"]
+        rawTransects = d["transects"]
+        transects = DragTransectContainer.fromList(rawTransects)
+        return Person(name, transects)
