@@ -32,6 +32,7 @@ class DragTransect(QtWidgets.QLabel):
         self.setStyleSheet("background-color: #008080; color: white;")
         self.setMaximumWidth(self.width())
         self.setMaximumHeight(5 * self.fontMetrics().height())
+        self.setMinimumWidth(10)
 
     def mousePressEvent(self, event: QtGui.QMouseEvent):
         if event.button() == QtCore.Qt.LeftButton:
@@ -44,8 +45,6 @@ class DragTransect(QtWidgets.QLabel):
             event.pos() - self._dragStartPosition
         ).manhattanLength() < QtWidgets.QApplication.startDragDistance():
             return
-
-        print("I am dragging")
 
         hotSpot = event.pos()
 
@@ -65,7 +64,6 @@ class DragTransect(QtWidgets.QLabel):
         )
 
         if dropAction == QtCore.Qt.MoveAction:
-            print("removing myself, yw")
             self.close()
             self.update()
             self.aboutToBeRemoved = True
