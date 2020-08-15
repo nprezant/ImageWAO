@@ -41,7 +41,7 @@ class DragTransectContainer(QtWidgets.QFrame):
             if event.source() in self.children():
                 event.setDropAction(QtCore.Qt.MoveAction)
             else:
-                event.setDropAction(QtCore.Qt.CopyAction)
+                event.setDropAction(QtCore.Qt.MoveAction)
 
             event.accept()
         else:
