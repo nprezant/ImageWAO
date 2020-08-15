@@ -11,14 +11,10 @@ class DragLabelContainer(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
 
-        newPalette = self.palette()
-        newPalette.setColor(QtGui.QPalette.Window, QtCore.Qt.blue)
-        self.setPalette(newPalette)
         self.setLayout(QtWidgets.QHBoxLayout())
-
-        self.setStyleSheet("DragLabelContainer { border: blue }")
         self.setAcceptDrops(True)
 
+        self.setStyleSheet("background-color: blue; color: white;")
         self.setMinimumSize(400, 100)
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent):

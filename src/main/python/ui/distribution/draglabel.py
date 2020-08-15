@@ -8,7 +8,6 @@ class DragLabel(QtWidgets.QLabel):
         super().__init__(parent)
         self.setText(text)
         self.setToolTip(text)
-        self.setAutoFillBackground(True)
         self.setFrameShape(QtWidgets.QFrame.Panel)
         self.setFrameShadow(QtWidgets.QFrame.Raised)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
