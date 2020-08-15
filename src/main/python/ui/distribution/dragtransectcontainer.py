@@ -23,7 +23,6 @@ class DragTransectContainer(QtWidgets.QFrame):
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().addStretch()
         self.setAcceptDrops(True)
-        self.setMinimumSize(400, 100)
 
     def dragEnterEvent(self, event: QtGui.QDragEnterEvent):
         if event.mimeData().hasFormat("text/plain"):
