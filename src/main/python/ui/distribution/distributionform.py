@@ -16,7 +16,7 @@ class DistributionForm(QtWidgets.QWidget):
             "Add Person", QtWidgets.QDialogButtonBox.ResetRole
         )
         distributeButton = buttonBox.addButton(
-            "Distribute", QtWidgets.QDialogButtonBox.HelpRole
+            "Distribute", QtWidgets.QDialogButtonBox.ResetRole
         )
         okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
 
