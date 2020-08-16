@@ -22,6 +22,9 @@ class Person(QtWidgets.QWidget):
         self.nameLine = QtWidgets.QLineEdit(self)
         self.nameLine.setText(name)
         self.nameLine.setFixedWidth(self.nameLine.width())
+        font = self.nameLine.font()
+        font.setBold(True)
+        self.nameLine.setFont(font)
 
         self.assignedTransectList = transects
         self.assignedTransectList.contentsChanged.connect(self.updateNumPhotos)
