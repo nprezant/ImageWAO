@@ -30,6 +30,9 @@ class DragTransect(QtWidgets.QLabel):
         self.setMidLineWidth(3)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setAlignment(QtCore.Qt.AlignCenter)
+        sp = self.sizePolicy()
+        sp.setRetainSizeWhenHidden(True)
+        self.setSizePolicy(sp)
 
         font: QtGui.QFont = self.font()
         font.setPointSize(font.pointSize() + 1)
