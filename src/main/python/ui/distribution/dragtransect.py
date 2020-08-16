@@ -31,7 +31,7 @@ class DragTransect(QtWidgets.QLabel):
         self.setAlignment(QtCore.Qt.AlignCenter)
 
         font: QtGui.QFont = self.font()
-        font.setPointSize(font.pointSize() + 2)
+        font.setPointSize(font.pointSize() + 1)
         font.setBold(True)
         self.setFont(font)
         self.adjustSize()

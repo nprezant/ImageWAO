@@ -28,6 +28,7 @@ class Person(QtWidgets.QWidget):
         self.numPhotosLabel.setText("0")
         fm = self.numPhotosLabel.fontMetrics()
         self.numPhotosLabel.setFixedWidth(fm.width("###"))
+        self.numPhotosLabel.setAlignment(QtCore.Qt.AlignCenter)
 
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.nameLine)
