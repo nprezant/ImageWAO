@@ -35,12 +35,15 @@ class DragTransect(QtWidgets.QLabel):
         font.setBold(True)
         self.setFont(font)
         self.adjustSize()
-        self.setStyleSheet("DragTransect{background-color: #008080; color: white;}")
+        self.setBackgroundColor(QtGui.QColor("#008080"))
 
         self.setMaximumWidth(self.width())
         self.setMaximumHeight(3 * self.fontMetrics().height())
         self.setMinimumWidth(self.width() / 3)
         self.setMinimumHeight(self.height() * 1.2)
+
+    def setBackgroundColor(self, color: QtGui.QColor):
+        self.setStyleSheet(f"background-color: {color.name()}; color: white;")
 
     def toDict(self):
         return self.transect.toDict()

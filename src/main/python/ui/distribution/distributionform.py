@@ -1,12 +1,14 @@
 from pathlib import Path
 from typing import List
 
-from PySide2 import QtWidgets, QtCore
+from PySide2 import QtWidgets, QtCore, QtGui
 
 from base import config
 from .person import Person
 from .people import People
 from .transect import Transect
+from .twocolorgradient import TwoColorGradient
+from .dragtransect import DragTransect
 
 
 class DistributionForm(QtWidgets.QWidget):
@@ -16,6 +18,9 @@ class DistributionForm(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.flightFolder = None
+        self.transectColorGradient = TwoColorGradient(
+            QtGui.QColor("blue"), QtGui.QColor("green")
+        )
 
         buttonBox = QtWidgets.QDialogButtonBox()
         addPersonButton = buttonBox.addButton(
@@ -125,6 +130,7 @@ class DistributionForm(QtWidgets.QWidget):
         for person in people:
             self._addPerson(person)
         self._updateCountsPerPerson()
+        self._recolorTransects()
 
     def _reset(self):
         if self.flightFolder is not None:
@@ -144,6 +150,9 @@ class DistributionForm(QtWidgets.QWidget):
         # Distribute transects among the people
         self._distribute(transects)
 
+        # Color transects by their weight in photos
+        self._recolorTransects()
+
     def _people(self):
         return self.findChildren(Person)
 
@@ -151,13 +160,27 @@ class DistributionForm(QtWidgets.QWidget):
         people: List[Person] = self._people()
         people.sort(key=lambda p: p.numPhotos())
 
-        smallestValue = people[0].numPhotos()
-        largestValue = people[-1].numPhotos()
+        leastPhotos = people[0].numPhotos()
+        mostPhotos = people[-1].numPhotos()
 
         for p in people:
-            if p.numPhotos() == smallestValue:
+            if p.numPhotos() == leastPhotos:
                 p.numPhotosLabel.setLeastTransectsStyle()
-            elif p.numPhotos() == largestValue:
+            elif p.numPhotos() == mostPhotos:
                 p.numPhotosLabel.setMostTransectsStyle()
             else:
                 p.numPhotosLabel.clearStyle()
+
+    def _recolorTransects(self):
+        dragTransects: List[DragTransect] = self.findChildren(DragTransect)
+        dragTransects.sort(key=lambda t: t.numPhotos())
+
+        leastPhotos = dragTransects[0].numPhotos()
+        mostPhotos = dragTransects[-1].numPhotos()
+        diff = mostPhotos - leastPhotos
+
+        for dragTransect in dragTransects:
+            numPhotos = dragTransect.numPhotos()
+            percentage = (numPhotos - leastPhotos) / diff
+            color = self.transectColorGradient.getColor(percentage)
+            dragTransect.setBackgroundColor(color)
