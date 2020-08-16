@@ -1,6 +1,6 @@
 from typing import List
 
-from PySide2 import QtWidgets
+from PySide2 import QtWidgets, QtCore
 
 from .transect import Transect
 from .dragtransect import DragTransect
@@ -8,6 +8,9 @@ from .dragtransectcontainer import DragTransectContainer
 
 
 class Person(QtWidgets.QWidget):
+
+    numPhotosUpdated = QtCore.Signal()
+
     def __init__(self, name: str, transects: DragTransectContainer = None):
         super().__init__()
 
@@ -21,15 +24,15 @@ class Person(QtWidgets.QWidget):
         self.assignedTransectList = transects
         self.assignedTransectList.contentsChanged.connect(self.updateNumPhotos)
 
-        self.numPhotos = QtWidgets.QLabel(self)
-        self.numPhotos.setText("0")
-        fm = self.numPhotos.fontMetrics()
-        self.numPhotos.setFixedWidth(fm.width("###"))
+        self.numPhotosLabel = QtWidgets.QLabel(self)
+        self.numPhotosLabel.setText("0")
+        fm = self.numPhotosLabel.fontMetrics()
+        self.numPhotosLabel.setFixedWidth(fm.width("###"))
 
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.nameLine)
         layout.addWidget(self.assignedTransectList)
-        layout.addWidget(self.numPhotos)
+        layout.addWidget(self.numPhotosLabel)
         self.setLayout(layout)
 
     def addTransect(self, transect: Transect):
@@ -39,7 +42,11 @@ class Person(QtWidgets.QWidget):
         return self.assignedTransectList.removeTransects()
 
     def updateNumPhotos(self):
-        self.numPhotos.setText(str(self.assignedTransectList.numPhotos()))
+        self.numPhotosLabel.setText(str(self.numPhotos()))
+        self.numPhotosUpdated.emit()
+
+    def numPhotos(self):
+        return self.assignedTransectList.numPhotos()
 
     def toDict(self):
         return {

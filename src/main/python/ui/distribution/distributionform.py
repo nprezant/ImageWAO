@@ -47,7 +47,7 @@ class DistributionForm(QtWidgets.QWidget):
                 " and selecting 'distribute flight'.",
             )
         else:
-            people = People(self.findChildren(Person))
+            people = People(self._people())
             people.dump(config.flightDistributionFile(self.flightFolder))
             self.closeRequested.emit()
 
@@ -56,6 +56,7 @@ class DistributionForm(QtWidgets.QWidget):
         self._addPerson(person)
 
     def _addPerson(self, person: Person):
+        person.numPhotosUpdated.connect(self._recolorPhotoSums)
         self.layout().insertWidget(self.layout().count() - 1, person)
 
     def _distribute(self, newTransects: List[Transect] = None):
@@ -65,7 +66,7 @@ class DistributionForm(QtWidgets.QWidget):
         in, the existing transects are re-distributed among existing people.
         """
 
-        people: List[Person] = self.findChildren(Person)
+        people: List[Person] = self._people()
 
         # Grab the transects from the people
         if newTransects is None:
@@ -93,7 +94,7 @@ class DistributionForm(QtWidgets.QWidget):
 
     def _updateCountsPerPerson(self):
         """Update the number of photos value for each person"""
-        [p.updateNumPhotos() for p in self.findChildren(Person)]
+        [p.updateNumPhotos() for p in self._people()]
 
     def _clearPeople(self):
         """Clears all people from layout, leaving button box"""
@@ -142,3 +143,11 @@ class DistributionForm(QtWidgets.QWidget):
 
         # Distribute transects among the people
         self._distribute(transects)
+
+    def _people(self):
+        return self.findChildren(Person)
+
+    def _recolorPhotoSums(self):
+        people: List[Person] = self._people()
+        people.sort(key=lambda p: p.numPhotos())
+        # people[0].numPhotosLabel.setStyleSheet("background-color: red; color: yellow;")
