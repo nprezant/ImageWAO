@@ -93,15 +93,16 @@ class DragTransect(QtWidgets.QLabel):
 
         self.hide()
 
-        dropAction: QtCore.Qt.DropAction = drag.exec_(
-            QtCore.Qt.MoveAction | QtCore.Qt.CopyAction
-        )
+        dropAction: QtCore.Qt.DropAction = drag.exec_(QtCore.Qt.MoveAction)
 
-        if dropAction == QtCore.Qt.MoveAction:
+        if (
+            isinstance(drag.target(), QtWidgets.QWidget)
+            and dropAction == QtCore.Qt.MoveAction
+        ):
             self.close()
             self.update()
             self.aboutToBeRemoved = True
             self.removed.emit()
             self.aboutToBeRemoved = False
-        else:
+        else:  # copy action, outside application
             self.show()
