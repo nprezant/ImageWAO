@@ -17,11 +17,8 @@ class TotalCountLabel(QtWidgets.QLabel):
         self.setFixedWidth(fm.width("#####"))
         self.setAlignment(QtCore.Qt.AlignCenter)
 
-    def setLeastTransectsStyle(self):
-        self._appendBaseStyleSheet("background-color: red; color: white")
-
-    def setMostTransectsStyle(self):
-        self._appendBaseStyleSheet("background-color: green; color: white")
+    def setBackgroundColor(self, color: QtGui.QColor):
+        self.setStyleSheet(f"background-color: {color.name()}; color: white;")
 
     def clearStyle(self):
         self._appendBaseStyleSheet("")
