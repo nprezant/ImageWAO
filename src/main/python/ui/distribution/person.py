@@ -35,6 +35,7 @@ class Person(QtWidgets.QWidget):
         layout.addWidget(self.nameLine)
         layout.addWidget(self.assignedTransectList)
         layout.addWidget(self.numPhotosLabel)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
     def addTransect(self, transect: Transect):
