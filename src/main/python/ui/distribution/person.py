@@ -5,6 +5,7 @@ from PySide2 import QtWidgets, QtCore
 from .transect import Transect
 from .dragtransect import DragTransect
 from .dragtransectcontainer import DragTransectContainer
+from .totalcountlabel import TotalCountLabel
 
 
 class Person(QtWidgets.QWidget):
@@ -24,11 +25,7 @@ class Person(QtWidgets.QWidget):
         self.assignedTransectList = transects
         self.assignedTransectList.contentsChanged.connect(self.updateNumPhotos)
 
-        self.numPhotosLabel = QtWidgets.QLabel(self)
-        self.numPhotosLabel.setText("0")
-        fm = self.numPhotosLabel.fontMetrics()
-        self.numPhotosLabel.setFixedWidth(fm.width("###"))
-        self.numPhotosLabel.setAlignment(QtCore.Qt.AlignCenter)
+        self.numPhotosLabel = TotalCountLabel(self)
 
         layout = QtWidgets.QHBoxLayout()
         layout.addWidget(self.nameLine)

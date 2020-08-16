@@ -156,8 +156,8 @@ class DistributionForm(QtWidgets.QWidget):
 
         for p in people:
             if p.numPhotos() == smallestValue:
-                p.numPhotosLabel.setStyleSheet("background-color: green")
+                p.numPhotosLabel.setLeastTransectsStyle()
             elif p.numPhotos() == largestValue:
-                p.numPhotosLabel.setStyleSheet("background-color: red")
+                p.numPhotosLabel.setMostTransectsStyle()
             else:
-                p.numPhotosLabel.setStyleSheet("")
+                p.numPhotosLabel.clearStyle()
