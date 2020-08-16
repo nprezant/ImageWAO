@@ -104,5 +104,5 @@ class DragTransect(QtWidgets.QLabel):
             self.aboutToBeRemoved = True
             self.removed.emit()
             self.aboutToBeRemoved = False
-        else:  # copy action, outside application
+        else:  # copy action, or outside application
             self.show()
