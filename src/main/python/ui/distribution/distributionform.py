@@ -19,7 +19,7 @@ class DistributionForm(QtWidgets.QWidget):
         super().__init__()
         self.flightFolder = None
         self.transectColorGradient = TwoColorGradient(
-            QtGui.QColor("blue"), QtGui.QColor("green")
+            QtGui.QColor("#105569"), QtGui.QColor("#1fc3f0")
         )
 
         buttonBox = QtWidgets.QDialogButtonBox()
