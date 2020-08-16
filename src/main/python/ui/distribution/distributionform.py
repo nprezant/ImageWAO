@@ -97,6 +97,10 @@ class DistributionForm(QtWidgets.QWidget):
         # Update counts for each person
         self._updateCountsPerPerson()
 
+        # Color transects by their weight in photos
+        # Necessary because we just re-created all the drag transect objects
+        self._recolorTransects()
+
     def _updateCountsPerPerson(self):
         """Update the number of photos value for each person"""
         people = self._people()
@@ -152,9 +156,6 @@ class DistributionForm(QtWidgets.QWidget):
 
         # Distribute transects among the people
         self._distribute(transects)
-
-        # Color transects by their weight in photos
-        self._recolorTransects()
 
     def _people(self):
         return self.findChildren(Person)
