@@ -9,6 +9,7 @@ from .people import People
 from .transect import Transect
 from .twocolorgradient import TwoColorGradient
 from .dragtransect import DragTransect
+from .goallabel import GoalLabel
 
 
 class DistributionForm(QtWidgets.QWidget):
@@ -21,6 +22,8 @@ class DistributionForm(QtWidgets.QWidget):
         self.transectColorGradient = TwoColorGradient(
             QtGui.QColor("#105569"), QtGui.QColor("#1fc3f0")
         )
+
+        self.goalLabel = GoalLabel()
 
         buttonBox = QtWidgets.QDialogButtonBox()
         addPersonButton = buttonBox.addButton(
@@ -38,6 +41,7 @@ class DistributionForm(QtWidgets.QWidget):
         okayButton.clicked.connect(self._okPressed)
 
         layout = QtWidgets.QVBoxLayout()
+        layout.addWidget(self.goalLabel)
         layout.addWidget(buttonBox)
         self.setLayout(layout)
 
@@ -106,6 +110,7 @@ class DistributionForm(QtWidgets.QWidget):
         people = self._people()
         totalNumPhotos = sum(p.numPhotos() for p in people)
         meanPhotosPerPerson = int(totalNumPhotos / len(people))
+        self.goalLabel.setGoal(meanPhotosPerPerson)
         [p.updateNumPhotos(meanPhotosPerPerson) for p in people]
 
     def _clearPeople(self):
