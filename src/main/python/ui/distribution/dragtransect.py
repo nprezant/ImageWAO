@@ -19,6 +19,7 @@ class DragTransect(QtWidgets.QLabel):
         self.setToolTip(text)
 
         self._dragStartPosition = None
+        self._backgroundColor = QtGui.QColor(("#008080"))
         self.aboutToBeRemoved = False
         self._setupUi()
 
@@ -35,7 +36,7 @@ class DragTransect(QtWidgets.QLabel):
         font.setBold(True)
         self.setFont(font)
         self.adjustSize()
-        self.setBackgroundColor(QtGui.QColor("#008080"))
+        self.setBackgroundColor(self._backgroundColor)
 
         self.setMaximumWidth(self.width())
         self.setMaximumHeight(3 * self.fontMetrics().height())
@@ -43,6 +44,7 @@ class DragTransect(QtWidgets.QLabel):
         self.setMinimumHeight(self.height() * 1.2)
 
     def setBackgroundColor(self, color: QtGui.QColor):
+        self._backgroundColor = color
         self.setStyleSheet(f"background-color: {color.name()}; color: white;")
 
     def toDict(self):
@@ -70,8 +72,13 @@ class DragTransect(QtWidgets.QLabel):
 
         hotSpot = event.pos()
 
+        # Create serializable dict of drag widget info
+        dragData = self.transect.toDict()
+        dragData.update({"color": self._backgroundColor.name()})
+
+        # Create mime data
         mimeData = QtCore.QMimeData()
-        mimeData.setText(json.dumps(self.transect.toDict()))
+        mimeData.setText(json.dumps(dragData))
 
         pixmap = QtGui.QPixmap(self.size())
         self.render(pixmap)

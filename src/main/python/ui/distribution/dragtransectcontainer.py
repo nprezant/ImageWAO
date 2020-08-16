@@ -37,7 +37,8 @@ class DragTransectContainer(QtWidgets.QFrame):
             transectData = json.loads(mime.text())
 
             transect = Transect(transectData["name"], transectData["numPhotos"])
-            self.addTransect(transect)
+            dragTransect = self.addTransect(transect)
+            dragTransect.setBackgroundColor(QtGui.QColor(transectData["color"]))
             self._sortTransects()
 
             if event.source() in self.children():
