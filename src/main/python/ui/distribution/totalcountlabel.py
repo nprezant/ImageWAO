@@ -14,7 +14,7 @@ class TotalCountLabel(QtWidgets.QLabel):
         self.setFont(font)
 
         fm = self.fontMetrics()
-        self.setFixedWidth(fm.width("#####"))
+        self.setFixedWidth(fm.width("##########"))
         self.setAlignment(QtCore.Qt.AlignCenter)
 
     def setBackgroundColor(self, color: QtGui.QColor):

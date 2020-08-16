@@ -14,6 +14,7 @@ class Person(QtWidgets.QWidget):
 
     def __init__(self, name: str, transects: DragTransectContainer = None):
         super().__init__()
+        self._referenceNumPhotos = 0
 
         if transects is None:
             transects = DragTransectContainer()
@@ -39,8 +40,17 @@ class Person(QtWidgets.QWidget):
     def removeTransects(self) -> List[DragTransect]:
         return self.assignedTransectList.removeTransects()
 
-    def updateNumPhotos(self):
-        self.numPhotosLabel.setText(str(self.numPhotos()))
+    def updateNumPhotos(self, referenceNumPhotos: int = None):
+        if referenceNumPhotos is not None:
+            self._referenceNumPhotos = referenceNumPhotos
+        numPhotos = self.numPhotos()
+        offset = numPhotos - self._referenceNumPhotos
+        if offset > 0:
+            sign = "+"
+        else:
+            sign = ""  # negative handled by number
+        text = f"{numPhotos} ({sign}{offset})"
+        self.numPhotosLabel.setText(text)
         self.numPhotosUpdated.emit()
 
     def numPhotos(self):

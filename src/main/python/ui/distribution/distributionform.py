@@ -99,7 +99,10 @@ class DistributionForm(QtWidgets.QWidget):
 
     def _updateCountsPerPerson(self):
         """Update the number of photos value for each person"""
-        [p.updateNumPhotos() for p in self._people()]
+        people = self._people()
+        totalNumPhotos = sum(p.numPhotos() for p in people)
+        meanPhotosPerPerson = int(totalNumPhotos / len(people))
+        [p.updateNumPhotos(meanPhotosPerPerson) for p in people]
 
     def _clearPeople(self):
         """Clears all people from layout, leaving button box"""
