@@ -19,7 +19,8 @@ class DragTransectContainer(QtWidgets.QFrame):
 
         self.setFrameShape(QtWidgets.QFrame.Panel)
         self.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.setLineWidth(1)
+        self.setLineWidth(2)
+        self.setLineWidth(2)
         self.setLayout(QtWidgets.QHBoxLayout())
         self.layout().addStretch()
         self.setAcceptDrops(True)
