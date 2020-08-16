@@ -150,4 +150,14 @@ class DistributionForm(QtWidgets.QWidget):
     def _recolorPhotoSums(self):
         people: List[Person] = self._people()
         people.sort(key=lambda p: p.numPhotos())
-        # people[0].numPhotosLabel.setStyleSheet("background-color: red; color: yellow;")
+
+        smallestValue = people[0].numPhotos()
+        largestValue = people[-1].numPhotos()
+
+        for p in people:
+            if p.numPhotos() == smallestValue:
+                p.numPhotosLabel.setStyleSheet("background-color: green")
+            elif p.numPhotos() == largestValue:
+                p.numPhotosLabel.setStyleSheet("background-color: red")
+            else:
+                p.numPhotosLabel.setStyleSheet("")
