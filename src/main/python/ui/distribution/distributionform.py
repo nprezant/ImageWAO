@@ -218,7 +218,6 @@ class DistributionForm(QtWidgets.QWidget):
             dragTransect.setBackgroundColor(color)
 
     def _toggleEditing(self):
-        print(f"toggling from is editing = {self._isEditing}")
         if self._isEditing:
             # We were just editing, now we need to switch back to the default
             self.editButton.setText("Edit Names")
