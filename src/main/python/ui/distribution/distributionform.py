@@ -96,6 +96,7 @@ class DistributionForm(QtWidgets.QWidget):
 
     def _addPerson(self, person: Person):
         person.numPhotosUpdated.connect(self._recolorPhotoSums)
+        person.aboutToBeDeleted.connect(lambda: self._prepareToRemovePerson(person))
         self.layout().insertWidget(self.layout().count() - 2, person)
         self._updateCountsPerPerson()
 
@@ -246,3 +247,9 @@ class DistributionForm(QtWidgets.QWidget):
             self.editButton.setText("Edit Names")
             self.editButtonBox.hide()
             self._isEditing = False
+
+    def _prepareToRemovePerson(self, person: Person):
+        # Remove transects from this person and re-purpose
+
+        # Recalculate the goal number and update counts per person with one less person
+        pass

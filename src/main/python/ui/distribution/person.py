@@ -13,6 +13,7 @@ from .totalcountlabel import TotalCountLabel
 class Person(QtWidgets.QWidget):
 
     numPhotosUpdated = QtCore.Signal()
+    aboutToBeDeleted = QtCore.Signal()
 
     def __init__(self, name: str, transects: DragTransectContainer = None):
         super().__init__()
@@ -24,6 +25,7 @@ class Person(QtWidgets.QWidget):
         self.deleteButton: QtWidgets.QPushButton = QtWidgets.QPushButton(self)
         self.deleteButton.setIcon(ctx.closeDockIcon)
         self.deleteButton.clicked.connect(self.close)
+        self.deleteButton.clicked.connect(lambda: self.aboutToBeDeleted.emit())
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.nameLine = QtWidgets.QLineEdit(self)
