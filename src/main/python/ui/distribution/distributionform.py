@@ -19,31 +19,44 @@ class DistributionForm(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
         self.flightFolder = None
+        self._isEditing = False
         self.transectColorGradient = TwoColorGradient(
             QtGui.QColor("#105569"), QtGui.QColor("#1fc3f0")
         )
 
         self.goalLabel = GoalLabel()
 
+        # Main button box, always shown
         buttonBox = QtWidgets.QDialogButtonBox()
-        addPersonButton = buttonBox.addButton(
-            "Add Person", QtWidgets.QDialogButtonBox.ResetRole
+
+        self.editButton = buttonBox.addButton(
+            "Edit Names", QtWidgets.QDialogButtonBox.ResetRole
         )
         distributeButton = buttonBox.addButton(
             "Distribute", QtWidgets.QDialogButtonBox.ResetRole
         )
-        resetButton = buttonBox.addButton("Reset", QtWidgets.QDialogButtonBox.ResetRole)
         okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
         applyButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Apply)
 
-        addPersonButton.clicked.connect(lambda: self._addNewPerson())
+        self.editButton.clicked.connect(self._toggleEditing)
+
         distributeButton.clicked.connect(lambda: self._distribute())
-        resetButton.clicked.connect(lambda: self._reset())
         okayButton.clicked.connect(self._okPressed)
         applyButton.clicked.connect(self._save)
 
+        # Button box for editing and adding new rows and stuff
+        self.editButtonBox = QtWidgets.QDialogButtonBox()
+        addPersonButton = self.editButtonBox.addButton(
+            "Add Person", QtWidgets.QDialogButtonBox.ResetRole
+        )
+
+        # intentionally lambda expression to allow default parameters
+        addPersonButton.clicked.connect(lambda: self._addNewPerson())
+        self.editButtonBox.hide()
+
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.goalLabel)
+        layout.addWidget(self.editButtonBox)
         layout.addWidget(buttonBox)
         self.setLayout(layout)
 
@@ -76,7 +89,7 @@ class DistributionForm(QtWidgets.QWidget):
 
     def _addPerson(self, person: Person):
         person.numPhotosUpdated.connect(self._recolorPhotoSums)
-        self.layout().insertWidget(self.layout().count() - 1, person)
+        self.layout().insertWidget(self.layout().count() - 2, person)
 
     def _distribute(self, newTransects: List[Transect] = None):
         """Distributes transects among existing people.
@@ -203,3 +216,16 @@ class DistributionForm(QtWidgets.QWidget):
             percentage = (numPhotos - leastPhotos) / diff
             color = self.transectColorGradient.getColor(percentage)
             dragTransect.setBackgroundColor(color)
+
+    def _toggleEditing(self):
+        print(f"toggling from is editing = {self._isEditing}")
+        if self._isEditing:
+            # We were just editing, now we need to switch back to the default
+            self.editButton.setText("Edit Names")
+            self.editButtonBox.hide()
+            self._isEditing = False
+        else:
+            # Now we need to switch to the editing menu
+            self.editButton.setText("Done Editing")
+            self.editButtonBox.show()
+            self._isEditing = True
