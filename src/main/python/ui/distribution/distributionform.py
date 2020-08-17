@@ -63,6 +63,7 @@ class DistributionForm(QtWidgets.QWidget):
 
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.goalLabel)
+        layout.addStretch()
         layout.addWidget(self.editButtonBox)
         layout.addWidget(buttonBox)
         self.setLayout(layout)
@@ -97,7 +98,7 @@ class DistributionForm(QtWidgets.QWidget):
     def _addPerson(self, person: Person):
         person.numPhotosUpdated.connect(self._recolorPhotoSums)
         person.requestToBeDeleted.connect(lambda: self._deletePersonRequested(person))
-        self.layout().insertWidget(self.layout().count() - 2, person)
+        self.layout().insertWidget(self.layout().count() - 3, person)
         self._updateCountsPerPerson()
 
     def _distribute(self, newTransects: List[Transect] = None):
