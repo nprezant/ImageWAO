@@ -38,17 +38,26 @@ class DragTransectContainer(QtWidgets.QFrame):
             transectData = json.loads(mime.text())
 
             transect = Transect(transectData["name"], transectData["numPhotos"])
-            dragTransect = self.addTransect(transect)
-            dragTransect.setBackgroundColor(QtGui.QColor(transectData["color"]))
-            self._sortTransects()
-
-            if event.source() in self.children():
-                event.setDropAction(QtCore.Qt.MoveAction)
+            if self.contains(transect):
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "ImageWAO",
+                    f"Cannot move transect to this person because they already own the transect. {transect}",
+                    QtWidgets.QMessageBox.Ok,
+                )
+                event.ignore()
             else:
-                event.setDropAction(QtCore.Qt.MoveAction)
+                dragTransect = self.addTransect(transect)
+                dragTransect.setBackgroundColor(QtGui.QColor(transectData["color"]))
+                self._sortTransects()
 
-            event.accept()
-            self.contentsChanged.emit()
+                if event.source() in self.children():
+                    event.setDropAction(QtCore.Qt.MoveAction)
+                else:
+                    event.setDropAction(QtCore.Qt.MoveAction)
+
+                event.accept()
+                self.contentsChanged.emit()
         else:
             event.ignore()
 
@@ -88,3 +97,7 @@ class DragTransectContainer(QtWidgets.QFrame):
         container = DragTransectContainer()
         [container.addTransect(Transect.fromDict(d)) for d in rawList]
         return container
+
+    def contains(self, transect: Transect) -> bool:
+        transects = [dt.transect for dt in self.findChildren(DragTransect)]
+        return transect in transects

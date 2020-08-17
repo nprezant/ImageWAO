@@ -23,3 +23,9 @@ class Transect:
                 photos = [fp for fp in transectDir.iterdir() if fp.is_file()]
                 transects.append(Transect(transectDir.name, len(photos)))
         return transects
+
+    def __eq__(self, other) -> bool:
+        return self.name == other.name
+
+    def __str__(self):
+        return f'Transect("{self.name}", {self.numPhotos})'
