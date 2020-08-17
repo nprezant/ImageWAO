@@ -2,6 +2,8 @@ from typing import List
 
 from PySide2 import QtWidgets, QtCore
 
+from base import ctx
+
 from .transect import Transect
 from .dragtransect import DragTransect
 from .dragtransectcontainer import DragTransectContainer
@@ -19,6 +21,11 @@ class Person(QtWidgets.QWidget):
         if transects is None:
             transects = DragTransectContainer()
 
+        self.deleteButton: QtWidgets.QPushButton = QtWidgets.QPushButton(self)
+        self.deleteButton.setIcon(ctx.closeDockIcon)
+        self.deleteButton.clicked.connect(self.close)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+
         self.nameLine = QtWidgets.QLineEdit(self)
         self.nameLine.setText(name)
         self.nameLine.setFixedWidth(self.nameLine.width())
@@ -35,6 +42,7 @@ class Person(QtWidgets.QWidget):
         self.numPhotosLabel = TotalCountLabel(self)
 
         layout = QtWidgets.QHBoxLayout()
+        layout.addWidget(self.deleteButton)
         layout.addWidget(self.nameLine)
         layout.addWidget(self.assignedTransectList)
         layout.addWidget(self.numPhotosLabel)
@@ -80,6 +88,8 @@ class Person(QtWidgets.QWidget):
         if editable:
             self.nameLine.setReadOnly(False)
             self.nameLine.setDisabled(False)
+            self.deleteButton.show()
         else:
             self.nameLine.setReadOnly(True)
             self.nameLine.setDisabled(True)
+            self.deleteButton.hide()
