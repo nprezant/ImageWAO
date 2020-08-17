@@ -49,6 +49,9 @@ class DistributionForm(QtWidgets.QWidget):
         addPersonButton = self.editButtonBox.addButton(
             "Add Person", QtWidgets.QDialogButtonBox.ResetRole
         )
+        addPersonButton.setStyleSheet(
+            "background-color: green; color: white; font-weight: bold;"
+        )
 
         # intentionally lambda expression to allow default parameters
         addPersonButton.clicked.connect(lambda: self._addNewPerson())
@@ -218,13 +221,20 @@ class DistributionForm(QtWidgets.QWidget):
             dragTransect.setBackgroundColor(color)
 
     def _toggleEditing(self):
-        if self._isEditing:
-            # We were just editing, now we need to switch back to the default
-            self.editButton.setText("Edit Names")
-            self.editButtonBox.hide()
-            self._isEditing = False
+        if not self._isEditing:
+            # We were not editing, so now we need to switch to the editing menu
+            self._setEditable(True)
+            self._isEditing = True
         else:
-            # Now we need to switch to the editing menu
+            # We were just editing, now we need to switch back to the default
+            self._setEditable(False)
+            self._isEditing = False
+
+    def _setEditable(self, editable: bool):
+        """Sets the form up for editing people names and such"""
+        if editable:
             self.editButton.setText("Done Editing")
             self.editButtonBox.show()
-            self._isEditing = True
+        else:
+            self.editButton.setText("Edit Names")
+            self.editButtonBox.hide()
