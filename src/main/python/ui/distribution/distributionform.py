@@ -184,7 +184,15 @@ class DistributionForm(QtWidgets.QWidget):
 
     def _reset(self):
         if self.flightFolder is not None:
-            self._loadFromFileStructure(self.flightFolder)
+            answer = QtWidgets.QMessageBox.warning(
+                self,
+                "ImageWAO",
+                "Are you sure you want to reset?"
+                "\n\nThis operation will remove all but two people and re-populate the transects based on this flight's file structure.",
+                QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
+            )
+            if answer & QtWidgets.QMessageBox.Ok:
+                self._loadFromFileStructure(self.flightFolder)
 
     def _loadFromFileStructure(self, flightFolder: Path):
         self._clearPeople()
