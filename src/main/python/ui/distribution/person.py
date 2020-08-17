@@ -22,9 +22,12 @@ class Person(QtWidgets.QWidget):
         self.nameLine = QtWidgets.QLineEdit(self)
         self.nameLine.setText(name)
         self.nameLine.setFixedWidth(self.nameLine.width())
-        font = self.nameLine.font()
-        font.setBold(True)
-        self.nameLine.setFont(font)
+        self.setStyleSheet(
+            ":enabled { font-weight: bold; } :disabled { color: black; }"
+        )
+        sp: QtWidgets.QSizePolicy = self.nameLine.sizePolicy()
+        sp.setVerticalPolicy(QtWidgets.QSizePolicy.Expanding)
+        self.nameLine.setSizePolicy(sp)
 
         self.assignedTransectList = transects
         self.assignedTransectList.contentsChanged.connect(self.updateNumPhotos)
@@ -72,3 +75,11 @@ class Person(QtWidgets.QWidget):
         rawTransects = d["transects"]
         transects = DragTransectContainer.fromList(rawTransects)
         return Person(name, transects)
+
+    def setEditable(self, editable: bool):
+        if editable:
+            self.nameLine.setReadOnly(False)
+            self.nameLine.setDisabled(False)
+        else:
+            self.nameLine.setReadOnly(True)
+            self.nameLine.setDisabled(True)
