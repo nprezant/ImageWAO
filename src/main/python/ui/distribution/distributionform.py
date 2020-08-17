@@ -34,11 +34,13 @@ class DistributionForm(QtWidgets.QWidget):
         )
         resetButton = buttonBox.addButton("Reset", QtWidgets.QDialogButtonBox.ResetRole)
         okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
+        applyButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Apply)
 
         addPersonButton.clicked.connect(lambda: self._addNewPerson())
         distributeButton.clicked.connect(lambda: self._distribute())
         resetButton.clicked.connect(lambda: self._reset())
         okayButton.clicked.connect(self._okPressed)
+        applyButton.clicked.connect(self._save)
 
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.goalLabel)
@@ -47,6 +49,13 @@ class DistributionForm(QtWidgets.QWidget):
 
     @QtCore.Slot()
     def _okPressed(self):
+        success = self._save()
+        if success:
+            self.closeRequested.emit()
+
+    @QtCore.Slot()
+    def _save(self) -> bool:
+        """Saves form. If successful, returns True."""
         if self.flightFolder is None:
             QtWidgets.QMessageBox.warning(
                 self,
@@ -55,10 +64,11 @@ class DistributionForm(QtWidgets.QWidget):
                 " Please open this form by right clicking on a flight folder"
                 " and selecting 'distribute flight'.",
             )
+            return False
         else:
             people = People(self._people())
             people.dump(config.flightDistributionFile(self.flightFolder))
-            self.closeRequested.emit()
+            return True
 
     def _addNewPerson(self, name: str = "New Person"):
         person = Person(name)
