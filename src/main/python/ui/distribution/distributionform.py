@@ -97,6 +97,7 @@ class DistributionForm(QtWidgets.QWidget):
     def _addPerson(self, person: Person):
         person.numPhotosUpdated.connect(self._recolorPhotoSums)
         self.layout().insertWidget(self.layout().count() - 2, person)
+        self._updateCountsPerPerson()
 
     def _distribute(self, newTransects: List[Transect] = None):
         """Distributes transects among existing people.
