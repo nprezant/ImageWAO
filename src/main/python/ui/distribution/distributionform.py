@@ -30,7 +30,7 @@ class DistributionForm(QtWidgets.QWidget):
         buttonBox = QtWidgets.QDialogButtonBox()
 
         self.editButton = buttonBox.addButton(
-            "Edit Names", QtWidgets.QDialogButtonBox.ResetRole
+            "Edit People", QtWidgets.QDialogButtonBox.ResetRole
         )
         distributeButton = buttonBox.addButton(
             "Distribute", QtWidgets.QDialogButtonBox.ResetRole
@@ -96,7 +96,7 @@ class DistributionForm(QtWidgets.QWidget):
 
     def _addPerson(self, person: Person):
         person.numPhotosUpdated.connect(self._recolorPhotoSums)
-        person.aboutToBeDeleted.connect(lambda: self._prepareToRemovePerson(person))
+        person.requestToBeDeleted.connect(lambda: self._deletePersonRequested(person))
         self.layout().insertWidget(self.layout().count() - 2, person)
         self._updateCountsPerPerson()
 
@@ -137,9 +137,13 @@ class DistributionForm(QtWidgets.QWidget):
         # Necessary because we just re-created all the drag transect objects
         self._recolorTransects()
 
-    def _updateCountsPerPerson(self):
-        """Update the number of photos value for each person"""
-        people = self._people()
+    def _updateCountsPerPerson(self, people=None):
+        """Update the number of photos value for each person
+        Objects sometimes take a while to be deleted, so it can be helpful
+        to pass in the list of people you want updated.
+        """
+        if people is None:
+            people = self._people()
         totalNumPhotos = sum(p.numPhotos() for p in people)
         meanPhotosPerPerson = int(totalNumPhotos / len(people))
         self.goalLabel.setGoal(meanPhotosPerPerson)
@@ -198,8 +202,9 @@ class DistributionForm(QtWidgets.QWidget):
     def _people(self):
         return self.findChildren(Person)
 
-    def _recolorPhotoSums(self):
-        people: List[Person] = self._people()
+    def _recolorPhotoSums(self, people=None):
+        if people is None:
+            people: List[Person] = self._people()
         people.sort(key=lambda p: p.numPhotos())
 
         leastPhotos = people[0].numPhotos()
@@ -248,8 +253,43 @@ class DistributionForm(QtWidgets.QWidget):
             self.editButtonBox.hide()
             self._isEditing = False
 
-    def _prepareToRemovePerson(self, person: Person):
-        # Remove transects from this person and re-purpose
+    def _deletePersonRequested(self, person: Person):
+        # Cannot remove if there are too few people
+        people = self._people()
+        if len(people) <= 2:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "ImageWAO",
+                "Cannot distribute transects between less than two (2) people.",
+            )
 
-        # Recalculate the goal number and update counts per person with one less person
-        pass
+        else:
+            # Remove transects from this person and re-purpose
+            personsTransects: List[Transect] = [
+                dragTransect.transect for dragTransect in person.removeTransects()
+            ]
+
+            # Closing the widget will also delete it
+            person.close()
+            people.remove(person)
+
+            # Want to give transects to people who have the least
+            people.sort(key=lambda p: p.numPhotos())
+
+            # Distribute among people
+            numPeople = len(people)
+            i = 0
+            while personsTransects:
+                personIndex = i % numPeople
+                tempPerson = people[personIndex]
+                if not tempPerson.contains(personsTransects[-1]):
+                    tempPerson.addTransect(personsTransects.pop())
+                i += 1
+
+            # Update counts for each person
+            self._updateCountsPerPerson(people)
+            self._recolorPhotoSums(people)
+
+            # Color transects by their weight in photos
+            # Necessary because we just re-created some of the drag transect objects
+            self._recolorTransects()

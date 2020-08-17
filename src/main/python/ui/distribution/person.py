@@ -13,7 +13,7 @@ from .totalcountlabel import TotalCountLabel
 class Person(QtWidgets.QWidget):
 
     numPhotosUpdated = QtCore.Signal()
-    aboutToBeDeleted = QtCore.Signal()
+    requestToBeDeleted = QtCore.Signal()
 
     def __init__(self, name: str, transects: DragTransectContainer = None):
         super().__init__()
@@ -24,13 +24,13 @@ class Person(QtWidgets.QWidget):
 
         self.deleteButton: QtWidgets.QPushButton = QtWidgets.QPushButton(self)
         self.deleteButton.setIcon(ctx.closeDockIcon)
-        self.deleteButton.clicked.connect(self.close)
-        self.deleteButton.clicked.connect(lambda: self.aboutToBeDeleted.emit())
+        self.deleteButton.clicked.connect(lambda: self.requestToBeDeleted.emit())
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.nameLine = QtWidgets.QLineEdit(self)
         self.nameLine.setText(name)
-        self.nameLine.setFixedWidth(self.nameLine.width())
+        fm = self.nameLine.fontMetrics()
+        self.nameLine.setFixedWidth(fm.width("a pretty long name"))
         self.setStyleSheet(
             ":enabled { font-weight: bold; } :disabled { color: black; }"
         )
@@ -95,3 +95,6 @@ class Person(QtWidgets.QWidget):
             self.nameLine.setReadOnly(True)
             self.nameLine.setDisabled(True)
             self.deleteButton.hide()
+
+    def contains(self, transect: Transect):
+        return self.assignedTransectList.contains(transect)
