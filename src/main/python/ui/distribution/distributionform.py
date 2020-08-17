@@ -55,6 +55,12 @@ class DistributionForm(QtWidgets.QWidget):
         # intentionally lambda expression to allow default parameters
         addPersonButton.clicked.connect(lambda: self._addNewPerson())
 
+        resetButton = self.editButtonBox.addButton(
+            "Reset", QtWidgets.QDialogButtonBox.ResetRole
+        )
+        # intentionally lambda expression to allow default parameters
+        resetButton.clicked.connect(lambda: self._reset())
+
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.goalLabel)
         layout.addWidget(self.editButtonBox)
@@ -176,7 +182,7 @@ class DistributionForm(QtWidgets.QWidget):
     def _loadFromFileStructure(self, flightFolder: Path):
         self._clearPeople()
 
-        # Default people. Need at least two for this to make any sense
+        # Need at least two people for this to make any sense
         self._addNewPerson("Josh")
         self._addNewPerson("Pawel")
 
