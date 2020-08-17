@@ -23,26 +23,22 @@ class DockTitleWidget(QtWidgets.QWidget):
         self.titleLabel.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.titleLabel.setContentsMargins(4, 0, 0, 0)
         self.titleLabel.setMinimumWidth(1)
-        # self.titleLabel.setFont(Font('Roboto', 13))
+
         # CREATE STANDARD BUTTONS
         close = QtWidgets.QPushButton(self)
         close.setIcon(ctx.closeDockIcon)
         close.setFixedSize(18, 18)
         close.clicked.connect(parent.close)
         self.buttons = [close]
+
         # CONFIGURE LAYOUT
         self.mainLayout = QtWidgets.QHBoxLayout(self)
         self.mainLayout.setContentsMargins(0, 0, 0, 0)
         self.mainLayout.setSpacing(0)
         self.setContentsMargins(6, 4, 6, 4)
         self.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
-        self.setMinimumWidth(self.imageLabel.width())
-        # self.setFont(Font('Roboto', 13))
+        # self.setMinimumWidth(self.imageLabel.width())
         self.updateLayout()
-
-    #############################################
-    #   INTERFACE
-    #################################
 
     def addButton(self, button):
         """
@@ -70,20 +66,6 @@ class DockTitleWidget(QtWidgets.QWidget):
             self.mainLayout.addWidget(
                 button, 0, QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter
             )
-
-    #############################################
-    #   EVENTS
-    #################################
-
-    def mouseDoubleClickEvent(self, mouseEvent):
-        """
-        Executed when the mouse is double clicked on the widget.
-        By re-implementing the method, the original functionality
-        is not called, and therefore double clicking no longer
-        detaches the dock widget from the main window.
-        :type mouseEvent: QMouseEvent
-        """
-        pass
 
     def paintEvent(self, paintEvent):
         """
