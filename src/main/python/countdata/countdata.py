@@ -50,12 +50,15 @@ class CountData:
         """
         Converts the data in this object into a string suitable for a tool tip.
         """
-        s = f"{self.number} {self.species}"
-        if self.isDuplicate:
-            s += " (already counted)"
-        if self.notes:
-            s += f"\n{self.notes}"
-        return s
+        if self.isEmpty():
+            return "No animals here!"
+        else:
+            s = f"{self.number} {self.species}"
+            if self.isDuplicate:
+                s += " (already counted)"
+            if self.notes:
+                s += f"\n{self.notes}"
+            return s
 
     def isEmpty(self):
         """
