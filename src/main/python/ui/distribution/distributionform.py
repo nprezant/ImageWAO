@@ -278,7 +278,7 @@ class DistributionForm(QtWidgets.QWidget):
             QtWidgets.QMessageBox.warning(
                 self,
                 "ImageWAO",
-                "Cannot distribute transects between less than two (2) people.",
+                "Cannot distribute transects between fewer than two people.",
             )
 
         else:
