@@ -188,7 +188,7 @@ class DistributionForm(QtWidgets.QWidget):
                 self,
                 "ImageWAO",
                 "Are you sure you want to reset?"
-                "\n\nThis operation will remove all but two people and re-populate the transects based on this flight's file structure.",
+                "\n\nThis operation will remove all but four people and re-populate the transects based on this flight's file structure.",
                 QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel,
             )
             if answer & QtWidgets.QMessageBox.Ok:
@@ -197,7 +197,9 @@ class DistributionForm(QtWidgets.QWidget):
     def _loadFromFileStructure(self, flightFolder: Path):
         self._clearPeople()
 
-        # Need at least two people for this to make any sense
+        # Need at least four people for this to make any sense
+        self._addNewPerson("Joe")
+        self._addNewPerson("Matt")
         self._addNewPerson("Josh")
         self._addNewPerson("Pawel")
 

@@ -29,7 +29,7 @@ class DragTransect(QtWidgets.QLabel):
         self.setLineWidth(3)
         self.setMidLineWidth(3)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setAlignment(QtCore.Qt.AlignCenter)
+        self.setAlignment(QtCore.Qt.AlignLeft)
         sp = self.sizePolicy()
         sp.setRetainSizeWhenHidden(True)
         self.setSizePolicy(sp)
@@ -40,14 +40,17 @@ class DragTransect(QtWidgets.QLabel):
         self.adjustSize()
         self.setBackgroundColor(self._backgroundColor)
 
-        self.setFixedWidth(self.width() * 1.15)
+        self.setMinimumWidth(self.width() * 0.4)
         self.setMaximumHeight(3 * self.fontMetrics().height())
         self.setMinimumHeight(self.height() * 1.2)
 
     def setBackgroundColor(self, color: QtGui.QColor):
         self._backgroundColor = color
         self.setStyleSheet(
-            f"background-color: {color.name()}; color: white; font-weight: bold;"
+            "DragTransect { background-color: "
+            + color.name()
+            + "; color: white; font-weight: bold; }"
+            "QToolTip { color: black; }"
         )
 
     def toDict(self):
