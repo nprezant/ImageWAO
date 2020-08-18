@@ -32,8 +32,15 @@ class DistributionForm(QtWidgets.QWidget):
         self.editButton = buttonBox.addButton(
             "Edit People", QtWidgets.QDialogButtonBox.ResetRole
         )
+        self.editButton.setToolTip("Add, remove, or rename people.")
+
         distributeButton = buttonBox.addButton(
             "Distribute", QtWidgets.QDialogButtonBox.ResetRole
+        )
+        distributeButton.setToolTip(
+            "Runs the main distribution algorithm."
+            "\nThis will sort all transects largest to smallest, then"
+            "\nassign them one by one to each person in the form."
         )
         okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
         applyButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Apply)
@@ -58,6 +65,7 @@ class DistributionForm(QtWidgets.QWidget):
         resetButton = self.editButtonBox.addButton(
             "Reset", QtWidgets.QDialogButtonBox.ResetRole
         )
+        resetButton.setToolTip("Reset form to it's original state")
         # intentionally lambda expression to allow default parameters
         resetButton.clicked.connect(lambda: self._reset())
 
