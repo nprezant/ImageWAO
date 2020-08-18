@@ -1,5 +1,6 @@
 from PySide2 import QtGui, QtWidgets
-from PySide2 import QtCore
+
+from base import config
 
 from .transectmodel import TransectTableModel
 
@@ -9,10 +10,12 @@ class TransectTableView(QtWidgets.QTableView):
         super().__init__(parent)
 
         # Alternate row colors
-        p = self.palette()
-        p.setColor(p.AlternateBase, QtGui.QColor("#ffe8c9"))
-        self.setPalette(p)
         self.setAlternatingRowColors(True)
+        color = config.colors["purple"]
+        altColor = config.colors["lightpurple"]
+        self.setStyleSheet(
+            f"background-color: {color}; alternate-background-color: {altColor};"
+        )
 
         # Underline header text
         self.horizontalHeader().setStyleSheet(
