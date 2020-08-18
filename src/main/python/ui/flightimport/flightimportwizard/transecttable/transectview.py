@@ -1,4 +1,7 @@
 from PySide2 import QtGui, QtWidgets
+from PySide2 import QtCore
+
+from .transectmodel import TransectTableModel
 
 
 class TransectTableView(QtWidgets.QTableView):
@@ -15,6 +18,9 @@ class TransectTableView(QtWidgets.QTableView):
         self.horizontalHeader().setStyleSheet(
             "QHeaderView { text-decoration: underline; }"
         )
+
+        model = TransectTableModel()
+        self.setModel(model)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
         if event.matches(QtGui.QKeySequence.Paste):

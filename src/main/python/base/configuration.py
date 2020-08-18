@@ -74,12 +74,62 @@ class Configuration:
             "Zebra",
         ]
 
+        self.natoAlphabet = [
+            "Alfa",
+            "Bravo",
+            "Charlie",
+            "Delta",
+            "Echo",
+            "Foxtrot",
+            "Golf",
+            "Hotel",
+            "India",
+            "Juliett",
+            "Kilo",
+            "Lima",
+            "Mike",
+            "November",
+            "Oscar",
+            "Papa",
+            "Quebec",
+            "Romeo",
+            "Sierra",
+            "Tango",
+            "Uniform",
+            "Victor",
+            "Whiskey",
+            "X-ray",
+            "Yankee",
+            "Zulu",
+        ]
+
         # Threshold for resizing image grids
         self.gridImageUpdateWidth = 25
         self.gridImageMargin = 2
 
         # Button sizes
         self.toolbuttonSize = (20, 20)
+
+    def getNatoAtPosition(self, pos: int) -> str:
+        """Returns the NATO word at a given position.
+        If necessary, concatenates AlfaAlfa, AlfaBravo, etc.
+        """
+        natoLength = len(self.natoAlphabet)
+
+        if pos < natoLength:
+            return self.natoAlphabet[pos]
+
+        else:
+            howFarOver = pos % natoLength
+            lastBit = self.natoAlphabet[howFarOver]
+
+            howManyTimesThrough = pos // natoLength
+
+            if howManyTimesThrough > 0:
+                firstPart = self.getNatoAtPosition(howManyTimesThrough - 1)
+                return firstPart + lastBit
+            else:
+                return lastBit
 
     # ImageWAO data files
 

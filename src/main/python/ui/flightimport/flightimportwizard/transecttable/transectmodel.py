@@ -36,6 +36,12 @@ class TransectTableModel(QtCore.QAbstractTableModel):
     def renameByOrder(self):
         for i, t in enumerate(self.transects):
             t.name = f"Transect{str(i).zfill(2)}"
+        self.dataChanged.emit(self.index(0, 1), self.index(self.rowCount(), 1))
+
+    def renameNATO(self):
+        for i, t in enumerate(self.transects):
+            t.name = config.getNatoAtPosition(i)
+        self.dataChanged.emit(self.index(0, 1), self.index(self.rowCount(), 1))
 
     def readFolder(self, folder, maxDelay, minCount):
         """

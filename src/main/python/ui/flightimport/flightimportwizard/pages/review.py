@@ -26,17 +26,23 @@ class ReviewPage(QtWidgets.QWizardPage):
         self.progressBar = QtWidgets.QProgressBar(self)
 
         self.view = TransectTableView()
-        self.model = TransectTableModel()
+        self.model: TransectTableModel = self.view.model()
+
         self.model.categorizeProgress.connect(self.progressBar.setValue)
         self.model.categorizeSuccess.connect(self._categorizationSuccess)
         self.model.categorizeError.connect(self._categorizationError)
 
-        self.view.setModel(self.model)
+        buttonBox = QtWidgets.QDialogButtonBox()
+        self.toggleTransectNamesButton = buttonBox.addButton(
+            "Rename to numeric", QtWidgets.QDialogButtonBox.ResetRole
+        )
+        self.toggleTransectNamesButton.clicked.connect(self._toggleTransectNames)
 
         layout = QtWidgets.QVBoxLayout()
         layout.addWidget(self.loadingLabel)
         layout.addWidget(self.progressBar)
         layout.addWidget(self.mainLabel)
+        layout.addWidget(buttonBox)
         layout.addWidget(self.view)
         self.setLayout(layout)
 
@@ -52,7 +58,7 @@ class ReviewPage(QtWidgets.QWizardPage):
         self.completeChanged.emit()
 
         # Ensure that the model gets renamed nicely, and share it with the other pages
-        self.model.renameByOrder()
+        self.model.renameNATO()
         self.modelChanged.emit(self.model)
 
         # Adjust the size of the wizard to fit in the new data
@@ -76,6 +82,7 @@ class ReviewPage(QtWidgets.QWizardPage):
 
         # Initally the categorization has not finished
         self._categorizationFinished = False
+        self.loadingLabel.setText("Categorizing images...")
 
         # read data from previous fields
         folder = self.field("importFolder")
@@ -88,3 +95,12 @@ class ReviewPage(QtWidgets.QWizardPage):
 
     def nextId(self):
         return PageIds.Page_Metadata
+
+    @QtCore.Slot()
+    def _toggleTransectNames(self):
+        if self.toggleTransectNamesButton.text() == "Rename to NATO":
+            self.model.renameNATO()
+            self.toggleTransectNamesButton.setText("Rename to numberic")
+        else:
+            self.model.renameByOrder()
+            self.toggleTransectNamesButton.setText("Rename to NATO")
