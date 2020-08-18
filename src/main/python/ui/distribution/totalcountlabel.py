@@ -3,7 +3,8 @@ from PySide2 import QtWidgets, QtCore, QtGui
 
 class TotalCountLabel(QtWidgets.QLabel):
 
-    baseStyleSheet = ""
+    toolTipStyle = "QToolTip { color: black; }"
+    baseWidgetStyle = "font-weight: bold;"
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -14,20 +15,24 @@ class TotalCountLabel(QtWidgets.QLabel):
         self.setMidLineWidth(2)
 
         self.setText("0")
-        font: QtGui.QFont = self.font()
-        font.setBold(True)
-        self.setFont(font)
+        self.setToolTip("Total number of photos (distance to mean)")
 
         fm = self.fontMetrics()
         self.setFixedWidth(fm.width("##########"))
         self.setAlignment(QtCore.Qt.AlignCenter)
 
     def setBackgroundColor(self, color: QtGui.QColor):
-        self._appendBaseStyleSheet(f"background-color: {color.name()}; color: white;")
+        self._appendBaseStyleSheet(f"background-color: {color.name()}; color: white; ")
 
     def clearStyle(self):
         self._appendBaseStyleSheet("")
         pass
 
     def _appendBaseStyleSheet(self, additionalStyle: str):
-        self.setStyleSheet(self.baseStyleSheet + additionalStyle)
+        self.setStyleSheet(
+            self.toolTipStyle
+            + "TotalCountLabel { "
+            + self.baseWidgetStyle
+            + additionalStyle
+            + "}"
+        )

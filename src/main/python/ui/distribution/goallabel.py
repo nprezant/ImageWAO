@@ -16,8 +16,12 @@ class GoalLabel(QtWidgets.QLabel):
             " to create the perfect balance among your team.\n"
             " In an ideal world, all members would have the same number"
             " of photos to go through.\nHowever, since the photos are grouped"
-            " by transect, this cannot always be achieved."
+            " by transect, this is a rare outcome."
+        )
+        self.setStyleSheet(
+            "GoalLabel { font-weight: bold; text-decoration: underline; }"
+            "QToolTip { font-weight: normal }"
         )
 
     def setGoal(self, goal: int):
-        self.setText(f"The goal number of photos per person is {goal}.")
+        self.setText(f"The target number of photos per person is {goal}.")
