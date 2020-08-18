@@ -38,9 +38,8 @@ class DistributionForm(QtWidgets.QWidget):
             "Distribute", QtWidgets.QDialogButtonBox.ResetRole
         )
         distributeButton.setToolTip(
-            "Runs the main distribution algorithm."
-            "\nThis will sort all transects largest to smallest, then"
-            "\nassign them one by one to each person in the form."
+            "Sorts all transects largest to smallest, then assigns"
+            "\nthem one by one to each person."
         )
         okayButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Ok)
         applyButton = buttonBox.addButton(QtWidgets.QDialogButtonBox.Apply)
