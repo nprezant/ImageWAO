@@ -98,3 +98,6 @@ class Person(QtWidgets.QWidget):
 
     def contains(self, transect: Transect):
         return self.assignedTransectList.contains(transect)
+
+    def sortTransects(self):
+        self.assignedTransectList._sortTransects()

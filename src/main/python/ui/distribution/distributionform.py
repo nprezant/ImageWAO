@@ -299,10 +299,13 @@ class DistributionForm(QtWidgets.QWidget):
             i = 0
             while personsTransects:
                 personIndex = i % numPeople
-                tempPerson = people[personIndex]
+                tempPerson: Person = people[personIndex]
                 if not tempPerson.contains(personsTransects[-1]):
                     tempPerson.addTransect(personsTransects.pop())
                 i += 1
+
+            # Ensure good order for transects
+            [p.sortTransects() for p in people]
 
             # Update counts for each person
             self._updateCountsPerPerson(people)
