@@ -2,6 +2,8 @@ from pathlib import Path
 
 from PySide2 import QtCore, QtWidgets, QtGui
 
+from base import config
+
 from .totalsmodel import TotalsModel
 from .enums import UserRoles
 
@@ -17,10 +19,12 @@ class TotalsView(QtWidgets.QListView):
         self.activated.connect(self.indexActivated)
 
         # Alternate row colors
-        p = self.palette()
-        p.setColor(p.AlternateBase, QtGui.QColor("#ffe8c9"))
-        self.setPalette(p)
+        color = config.colors["green"]
+        altColor = config.colors["lightgreen"]
         self.setAlternatingRowColors(True)
+        self.setStyleSheet(
+            f"background-color: {color}; alternate-background-color: {altColor};"
+        )
 
         # Handle selection changes and map to appropriate signals
         self.selectionModel().selectionChanged.connect(self._handleSelectionChange)

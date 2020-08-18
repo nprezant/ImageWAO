@@ -103,6 +103,15 @@ class Configuration:
             "Zulu",
         ]
 
+        self.colors = {
+            "blue": "#b7ffff",
+            "lightblue": "#e2ffff",
+            "green": "#acffbe",
+            "lightgreen": "#d8ffde",
+            "purple": "#f4befd",
+            "lightpurple": "#f9dffe",
+        }
+
         # Threshold for resizing image grids
         self.gridImageUpdateWidth = 25
         self.gridImageMargin = 2
