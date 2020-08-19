@@ -17,7 +17,7 @@ class TotalsModel(QtCore.QAbstractListModel):
     def __init__(self):
         super().__init__()
 
-        self._data = TransectDataGroupList()
+        self._data: TransectDataGroupList = TransectDataGroupList()
         self._parentDir = None
         self.inTransect = False
 
@@ -123,7 +123,7 @@ class TotalsModel(QtCore.QAbstractListModel):
             saveDatas.load(saveFile, groupName=topLevel)
         self._resetData(saveDatas)
 
-    def _resetData(self, data):
+    def _resetData(self, data: TransectDataGroupList):
         self.beginResetModel()
         self._data = data.sorted()
         self.endResetModel()

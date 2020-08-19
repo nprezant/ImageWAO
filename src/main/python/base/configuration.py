@@ -213,11 +213,11 @@ class Configuration:
         settings.setValue("config/username", value)
 
     @property
-    def libraryDirectory(self):
+    def libraryDirectory(self) -> str:
         settings = QtCore.QSettings()
-        return settings.value(
+        return str(settings.value(
             "library/homeDirectory", str(self.defaultLibraryDirectory)
-        )
+        ))
 
     @libraryDirectory.setter
     def libraryDirectory(self, value):

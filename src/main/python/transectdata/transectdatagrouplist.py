@@ -1,4 +1,4 @@
-from collections import UserList, OrderedDict
+from collections import OrderedDict
 from pathlib import Path
 from typing import List
 
@@ -9,17 +9,17 @@ from .transectdata import TransectData
 from .transectdatagroup import TransectDataGroup
 
 
-class TransectDataGroupList(UserList):
+class TransectDataGroupList:
     """
     This class manages multiple transect save files and
     provides easy access methods for displaying and
     summarizing the data.
 
-    `data` is a list of `TransectData`
+    `dataGroups` is a list of `TransectData`
     """
 
-    def __init__(self, data: List[TransectDataGroup] = []):
-        super().__init__(data)
+    def __init__(self, dataGroups: List[TransectDataGroup] = []):
+        self.dataGroups = dataGroups
 
         # Used for internal optimization
         self._groupedDict = None
@@ -30,7 +30,7 @@ class TransectDataGroupList(UserList):
         Specify the `groupName` if you want to group the save
         data any particular way.
         """
-        self.data.append(TransectDataGroup(groupName, TransectData.load(fp)))
+        self.dataGroups.append(TransectDataGroup(groupName, TransectData.load(fp)))
 
     def clipboardText(self):
         """
@@ -38,7 +38,7 @@ class TransectDataGroupList(UserList):
         """
         s = "Flight\tAircraft\tFlightDate\tFlightTime\tTransect\tImage\tSpecies\tCount\tIsDuplicate\tCountNotes\tUser\tFlightNotes"
 
-        for saveGroup in self.data:
+        for saveGroup in self.dataGroups:
             datafp = saveGroup.saveData.fp  # data.transect file path
 
             # Extract flight folder and transect folder
@@ -82,7 +82,7 @@ class TransectDataGroupList(UserList):
         Returns a list of all the image names.
         """
         imageNames = []
-        for dataGroup in self.data:
+        for dataGroup in self.dataGroups:
             imageNames.extend(dataGroup.saveData.uniqueImages())
         return imageNames
 
@@ -100,7 +100,7 @@ class TransectDataGroupList(UserList):
 
         s = f"{targetImage}:"
 
-        for dataGroup in self.data:
+        for dataGroup in self.dataGroups:
             for imageName, countData in dataGroup.saveData.imageCounts():
                 if imageName == targetImage:
                     # This is the image, make the string to display!
@@ -124,28 +124,28 @@ class TransectDataGroupList(UserList):
 
     def numSpecies(self):
         num = 0
-        for dataGroup in self.data:
+        for dataGroup in self.dataGroups:
             num += len(dataGroup.saveData.uniqueSpecies())
         return num
 
     def numUniqueAnimals(self):
         num = 0
-        for dataGroup in self.data:
+        for dataGroup in self.dataGroups:
             num += len(dataGroup.saveData.uniqueAnimals())
         return num
 
     def sorted(self):
         # First sort each internal structure
-        for dataGroup in self.data:
+        for dataGroup in self.dataGroups:
             dataGroup.saveData = dataGroup.saveData.sorted()
 
         # Sort the overall list
-        return TransectDataGroupList(sorted(self, key=lambda dg: dg.name))
+        return TransectDataGroupList(sorted(self.dataGroups, key=lambda dg: dg.name))
 
     def numImages(self):
         """ The number of images in the save data """
         num = 0
-        for dataGroup in self.data:
+        for dataGroup in self.dataGroups:
             num += len(dataGroup.saveData.uniqueImages())
         return num
 
@@ -162,7 +162,7 @@ class TransectDataGroupList(UserList):
             return self._groupedDict
 
         d = OrderedDict()
-        for dataGroup in self.data:
+        for dataGroup in self.dataGroups:
 
             # Only include save files that have at least one count,
             # not just a drawing.
@@ -210,3 +210,9 @@ class TransectDataGroupList(UserList):
             return self.allImages().index(name)
         except ValueError:
             return None
+
+    def append(self, other: object):
+        if not isinstance(other, TransectDataGroup):
+            raise NotImplementedError()
+        else:
+            self.dataGroups.append(other)
