@@ -215,9 +215,9 @@ class Configuration:
     @property
     def libraryDirectory(self) -> str:
         settings = QtCore.QSettings()
-        return str(settings.value(
-            "library/homeDirectory", str(self.defaultLibraryDirectory)
-        ))
+        return str(
+            settings.value("library/homeDirectory", str(self.defaultLibraryDirectory))
+        )
 
     @libraryDirectory.setter
     def libraryDirectory(self, value):
