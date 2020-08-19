@@ -28,15 +28,19 @@ class Configuration:
         self.supportedImageExtensions = (".JPG", ".jpg", ".JPEG", ".jpeg")
 
         # Drawing colors
-        self.colors = [
-            "Teal",
-            "Blue",
-            "DarkGreen",
-            "Red",
-            "Orange",
-            "Magenta",
-            "Black",
-            "White",
+        self.drawingColors = [
+            "purple",
+            "blue",
+            "lightblue",
+            "teal",
+            "darkgreen",
+            "lightgreen",
+            "orange",
+            "red",
+            "darkred",
+            "magenta",
+            "black",
+            "white",
         ]
 
         # Drawing widths

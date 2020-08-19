@@ -121,7 +121,7 @@ class ImageController(QtCore.QObject):
         self.colorButton.setPopupMode(QtWidgets.QToolButton.InstantPopup)
 
         # Color palette popup menu
-        self._colorMenu = ColorMenu(config.colors)
+        self._colorMenu = ColorMenu(config.drawingColors)
         self._colorMenu.colorChanged.connect(self._colorChanged)
 
         # Assign menu to button & button to toolbar
