@@ -1,22 +1,35 @@
 import json
-from collections import UserDict
+from pathlib import Path
+from typing import Dict
 
 from countdata import CountData
 from drawingdata import DrawingDataList
 
 
-class TransectData(UserDict):
+class TransectData:
     """
     Manages transect save data in a primitive
     data state, such that it can be easily
     serialized.
     """
 
-    def __init__(self, data, fp):
+    def __init__(self, transectData: Dict[str, Dict[str, list]], fp: Path):
         """
-        A UserDict. Include `fp` for traceability.
+        {
+            'ImageName.jpg':
+            {
+                "drawings":
+                [
+                    DrawingData1.toDict(),
+                    DrawingData2.toDict(),
+                    ...
+                ]
+            }
+        }
+
+        Include `fp` for traceability.
         """
-        super().__init__(data)
+        self._transectData: Dict[str, Dict[str, list]] = transectData
         self.fp = fp
 
     @staticmethod
@@ -29,11 +42,11 @@ class TransectData(UserDict):
             with open(fp, "r") as f:
                 data = json.load(f)
         except json.decoder.JSONDecodeError:
-            print(f"Badly formed JSON file: {fp}")
+            print(
+                f"Badly formed JSON file. Data will be overwritten when file is saved: {fp}"
+            )
             data = {}
 
-        # Legacy -- if drawings are stored as a string, upgrade them
-        # TODO fix this
         return TransectData(data, fp)
 
     def dump(self, fp):
@@ -42,15 +55,15 @@ class TransectData(UserDict):
         Writes this data on top of already existing data.
         """
         with open(fp, "w") as f:
-            json.dump(self.data, f, indent=4)
+            json.dump(self._transectData, f, indent=4)
 
     def addImage(self, imageName):
         """
         Ensure that an image with the name
         imageName is in this save data.
         """
-        if imageName not in self.data.keys():
-            self.data[imageName] = {}
+        if imageName not in self._transectData.keys():
+            self._transectData[imageName] = {}
 
     def addDrawings(self, imageName, drawings: DrawingDataList):
         """
@@ -64,15 +77,15 @@ class TransectData(UserDict):
         self.addImage(imageName)
 
         # Add these drawings the image dict
-        self.data[imageName]["drawings"] = drawings.toDict()
+        self._transectData[imageName]["drawings"] = drawings.toDict()
 
     def removeDrawings(self, imageName: str):
         """
         Remove the drawings associated with an image.
         """
-        if imageName in self.data.keys():
+        if imageName in self._transectData.keys():
             try:
-                self.data[imageName].pop("drawings")
+                self._transectData[imageName].pop("drawings")
 
             # There might not have been this data saved yet
             except KeyError:
@@ -85,16 +98,18 @@ class TransectData(UserDict):
         """
 
         # Check if image has no drawings or data
-        if imageName not in self.data.keys():
+        if imageName not in self._transectData.keys():
             return False
 
         # Check if image has no drawings
-        if "drawings" not in self.data[imageName].keys():
+        if "drawings" not in self._transectData[imageName].keys():
             return False
 
         # Check if image drawings are the same as the input
         # also lol TODO stop this maddness
-        drawings = DrawingDataList.loads(json.dumps(self.data[imageName]["drawings"]))
+        drawings = DrawingDataList.loads(
+            json.dumps(self._transectData[imageName]["drawings"])
+        )
         return drawings == otherDrawings
 
     def drawings(self):
@@ -103,7 +118,7 @@ class TransectData(UserDict):
         with corresponding drawings.
         (imageName:str, drawings:DrawingDataList)
         """
-        for imageName, imageData in self.data.items():
+        for imageName, imageData in self._transectData.items():
             if "drawings" in imageData.keys():
                 yield imageName, DrawingDataList.load(imageData["drawings"])
 
@@ -113,7 +128,7 @@ class TransectData(UserDict):
         and their counts.
         (imageName:str, counts:CountData)
         """
-        for imageName, imageData in self.data.items():
+        for imageName, imageData in self._transectData.items():
             if "drawings" in imageData.keys():
                 drawings = imageData["drawings"]
                 for drawing in drawings:
@@ -157,4 +172,7 @@ class TransectData(UserDict):
         return f"TransectData({super().__repr__()})"
 
     def sorted(self):
-        return TransectData(sorted(self.items(), key=lambda t: t[0]), self.fp)
+        """Sort by key values (image names)"""
+        return TransectData(
+            dict(sorted(self._transectData.items(), key=lambda t: t[0])), self.fp
+        )
