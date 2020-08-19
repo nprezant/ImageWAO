@@ -137,6 +137,8 @@ class TransectDataGroupList:
     def sorted(self):
         # First sort each internal structure
         for dataGroup in self.dataGroups:
+            if dataGroup.name is None:
+                print("why")
             dataGroup.saveData = dataGroup.saveData.sorted()
 
         # Sort the overall list

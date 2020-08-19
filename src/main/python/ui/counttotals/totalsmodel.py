@@ -97,7 +97,7 @@ class TotalsModel(QtCore.QAbstractListModel):
             # If the save file exists, read it
             saveFile = config.markedDataFile(transectFolder=fp)
             if saveFile.exists():
-                saveDatas = TransectDataGroupList()
+                saveDatas = TransectDataGroupList([])
                 saveDatas.load(saveFile)
                 self._resetData(saveDatas)
             else:
@@ -112,7 +112,7 @@ class TotalsModel(QtCore.QAbstractListModel):
             if filesToLoad:
                 self._loadFiles(filesToLoad)
             else:
-                self._resetData(TransectDataGroupList())
+                self._resetData(TransectDataGroupList([]))
 
     def _loadFiles(self, filesToLoad):
         """

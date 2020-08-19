@@ -1,7 +1,7 @@
 import json
 from collections import UserDict
 
-from countdata import CountData, CountDataSet
+from countdata import CountData
 from drawingdata import DrawingDataList
 
 
@@ -152,23 +152,6 @@ class TransectData(UserDict):
             if imageName not in imageNames:
                 imageNames.append(imageName)
         return imageNames
-
-    def countDataSet(self, topLevel=None):
-        """
-        Computes the count data set from this save data.
-
-        If the `topLevel` is not specified, the data set will
-        be categorized with respect to the image name.
-        If the `topLevel` is given, all counts will be categorized
-        with respect to that `topLevel`.
-        """
-        countSet = CountDataSet()
-        for imageName, countData in self.imageCounts():
-            if topLevel is not None:
-                countSet.addData(topLevel, countData)
-            else:
-                countSet.addData(imageName, countData)
-        return countSet
 
     def __repr__(self):
         return f"TransectData({super().__repr__()})"
