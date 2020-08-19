@@ -1,5 +1,6 @@
 from collections import UserList, OrderedDict
 from pathlib import Path
+from typing import List
 
 from base import config
 from flightinfo import FlightInfo
@@ -17,8 +18,8 @@ class TransectDataGroupList(UserList):
     `data` is a list of `TransectData`
     """
 
-    def __init__(self, initlist=[]):
-        super().__init__(initlist)
+    def __init__(self, data: List[TransectDataGroup] = []):
+        super().__init__(data)
 
         # Used for internal optimization
         self._groupedDict = None
@@ -54,13 +55,25 @@ class TransectDataGroupList(UserList):
             else:
                 flightInfo = FlightInfo("", "", "", "")
 
+            # Remove invalid characters from strings
+            invalidCharacters = ["\t", "\n", "\r"]
+
             # Combine into string
             for imageName, countData in saveGroup.saveData.imageCounts():
                 isDuplicate = 1 if countData.isDuplicate else 0
+
+                countDataNotes: str = countData.notes
+                flightInfoNotes: str = flightInfo.notes
+
+                # remove line feeds and tabs and stuff
+                for char in invalidCharacters:
+                    countDataNotes = countDataNotes.replace(char, "")
+                    flightInfoNotes = flightInfoNotes.replace(char, "")
+
                 s += (
                     f"\n{flight}\t{flightInfo.airframe}\t{flightInfo.date}\t{flightInfo.time}"
                     f"\t{transect}\t{imageName}\t{countData.species}\t{countData.number}"
-                    f"\t{isDuplicate}\t{countData.notes}\t{config.username}\t{flightInfo.notes}"
+                    f"\t{isDuplicate}\t{countDataNotes}\t{config.username}\t{flightInfoNotes}"
                 )
         return s
 
