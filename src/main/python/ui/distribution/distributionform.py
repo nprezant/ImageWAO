@@ -59,7 +59,9 @@ class DistributionForm(QtWidgets.QWidget):
             "background-color: green; color: white; font-weight: bold;"
         )
         # intentionally lambda expression to allow default parameters
-        addPersonButton.clicked.connect(lambda: self._addNewPerson())
+        addPersonButton.clicked.connect(
+            lambda: [self._addNewPerson(), self._updateCountsPerPerson()]
+        )
 
         resetButton = self.editButtonBox.addButton(
             "Reset", QtWidgets.QDialogButtonBox.ResetRole
@@ -106,7 +108,6 @@ class DistributionForm(QtWidgets.QWidget):
         person.numPhotosUpdated.connect(self._recolorPhotoSums)
         person.requestToBeDeleted.connect(lambda: self._deletePersonRequested(person))
         self.layout().insertWidget(self.layout().count() - 3, person)
-        self._updateCountsPerPerson()
 
     def _distribute(self, newTransects: List[Transect] = None):
         """Distributes transects among existing people.
@@ -153,9 +154,9 @@ class DistributionForm(QtWidgets.QWidget):
         if people is None:
             people = self._people()
         totalNumPhotos = sum(p.numPhotos() for p in people)
-        meanPhotosPerPerson = int(totalNumPhotos / len(people))
+        meanPhotosPerPerson = totalNumPhotos / len(people)
         self.goalLabel.setGoal(meanPhotosPerPerson)
-        [p.updateNumPhotos(meanPhotosPerPerson) for p in people]
+        [p.updateNumPhotos(int(meanPhotosPerPerson)) for p in people]
 
     def _clearPeople(self):
         """Clears all people from layout, leaving button box"""
@@ -267,7 +268,7 @@ class DistributionForm(QtWidgets.QWidget):
             self._isEditing = True
         else:
             [p.setEditable(False) for p in self._people()]
-            self.editButton.setText("Edit Names")
+            self.editButton.setText("Edit People")
             self.editButtonBox.hide()
             self._isEditing = False
 

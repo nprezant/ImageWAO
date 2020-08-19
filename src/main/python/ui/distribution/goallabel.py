@@ -23,5 +23,5 @@ class GoalLabel(QtWidgets.QLabel):
             "QToolTip { font-weight: normal }"
         )
 
-    def setGoal(self, goal: int):
-        self.setText(f"The target number of photos per person is {goal}.")
+    def setGoal(self, goal: float):
+        self.setText(f"The target number of photos per person is {round(goal, 1)}.")
