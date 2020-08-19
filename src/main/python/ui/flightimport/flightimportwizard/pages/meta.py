@@ -4,12 +4,6 @@ from .ids import PageIds
 
 from ...flightinfoform import FlightInfoForm
 
-# TODO save to file and allow user to view/edit later (right click on folder name?)
-# TODO right click on flight folder for a few options:
-#   view distribution
-#   view migration report
-#   view meta data
-
 
 class MetadataPage(QtWidgets.QWizardPage):
 
