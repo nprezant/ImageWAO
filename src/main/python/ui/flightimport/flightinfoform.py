@@ -30,7 +30,8 @@ class FlightInfoForm(QtWidgets.QWidget):
 
         # additional notes
         self.flightNotesLabel = QtWidgets.QLabel("Additional Notes")
-        self.flightNotesBox = QtWidgets.QTextEdit()
+        self.flightNotesBox = QtWidgets.QPlainTextEdit()
+        self.flightNotesBox.setTabChangesFocus(True)
 
         layout = QtWidgets.QFormLayout()
         layout.addRow(self.airframeLabel, self.airframeBox)
@@ -89,7 +90,7 @@ class FlightInfoForm(QtWidgets.QWidget):
             self.airframeBox.setText("")
             self.flightDateBox.setText("")
             self.flightTimeBox.setText("")
-            self.flightNotesBox.setText("")
+            self.flightNotesBox.setPlainText("")
             return
 
         flightInfo = FlightInfo.readInfoFile(flightMetaFile)
@@ -97,7 +98,7 @@ class FlightInfoForm(QtWidgets.QWidget):
         self.airframeBox.setText(flightInfo.airframe)
         self.flightDateBox.setText(flightInfo.date)
         self.flightTimeBox.setText(flightInfo.time)
-        self.flightNotesBox.setText(flightInfo.notes)
+        self.flightNotesBox.setPlainText(flightInfo.notes)
 
     def save(self, flightFolder: Path):
         """
