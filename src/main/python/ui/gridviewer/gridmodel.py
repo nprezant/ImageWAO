@@ -334,7 +334,7 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         # On another thread, do the heavily-lifing of
         # saving the images.
         if len(markedImages) != 1:
-            msg = f"Saving {len(markedImages) + 1} images..."
+            msg = f"Saving {len(markedImages)} images..."
         else:
             msg = f"Saving {Path(*markedImages[0][1]).name}..."
         self.message.emit((msg,))
@@ -359,7 +359,8 @@ class QImageGridModel(QtCore.QAbstractTableModel):
         image.setDrawings(r, c, drawings)
 
         # Mark this index as "changed"
-        self._changedIndexes.append(index)
+        if not index in self._changedIndexes:
+            self._changedIndexes.append(index)
 
         # Note that the data for this index changed
         # so the view can update accordingly
