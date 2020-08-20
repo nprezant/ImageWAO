@@ -19,18 +19,20 @@ class TransectDataGroupList:
     """
 
     def __init__(self, dataGroups: List[TransectDataGroup] = []):
-        self.dataGroups = dataGroups
+        self.dataGroups: List[TransectDataGroup] = dataGroups
 
         # Used for internal optimization
         self._groupedDict = None
 
-    def load(self, fp, groupName=None):
+    def load(self, transectDataFile, groupName=None):
         """
         Loads a save file into this collection of save files.
         Specify the `groupName` if you want to group the save
         data any particular way.
         """
-        self.dataGroups.append(TransectDataGroup(groupName, TransectData.load(fp)))
+        self.dataGroups.append(
+            TransectDataGroup(groupName, TransectData.load(transectDataFile))
+        )
 
     def clipboardText(self):
         """
@@ -137,8 +139,6 @@ class TransectDataGroupList:
     def sorted(self):
         # First sort each internal structure
         for dataGroup in self.dataGroups:
-            if dataGroup.name is None:
-                print("why")
             dataGroup.saveData = dataGroup.saveData.sorted()
 
         # Sort the overall list

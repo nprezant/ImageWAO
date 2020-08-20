@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Tuple, List
 
 from PySide2 import QtCore, QtWidgets
 
@@ -108,20 +109,21 @@ class TotalsModel(QtCore.QAbstractListModel):
 
             self.inTransect = False
 
-            filesToLoad = GetSaveFiles(fp)
+            filesToLoad: List[Tuple[str, Path]] = GetSaveFiles(fp)
             if filesToLoad:
-                self._loadFiles(filesToLoad)
+                newTransectDataGroupList = self._loadFiles(filesToLoad)
             else:
-                self._resetData(TransectDataGroupList([]))
+                newTransectDataGroupList = TransectDataGroupList([])
+            self._resetData(newTransectDataGroupList)
 
-    def _loadFiles(self, filesToLoad):
+    def _loadFiles(self, filesToLoad: List[Tuple[str, Path]]):
         """
         Loads files from `filesToLoad` list of (topLevelGroup, fp)
         """
-        saveDatas = TransectDataGroupList()
+        saveDatas = TransectDataGroupList([])
         for topLevel, saveFile in filesToLoad:
             saveDatas.load(saveFile, groupName=topLevel)
-        self._resetData(saveDatas)
+        return saveDatas
 
     def _resetData(self, data: TransectDataGroupList):
         self.beginResetModel()
