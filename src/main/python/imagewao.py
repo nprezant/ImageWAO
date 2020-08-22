@@ -1,14 +1,26 @@
+from pathlib import Path
+
 from PySide2 import QtGui, QtCore, QtWidgets
 
-from base import ctx, config
+from base import ctx
 from migrator import Migrator
-from importwizards import FlightImportWizard
-from ui import DockWidget, TitleBarText, StatusBar, LoadingOverlay, Notifier, Library
-from ui.messageboxes import DoYouWantToSave
-
-from gridviewer import QImageGridView
-from imageviewer import QImageEditor
-from counttotals import CountTotals
+from ui import (
+    DockWidget,
+    TitleBarText,
+    StatusBar,
+    LoadingOverlay,
+    Notifier,
+    Library,
+    FlightImportWizard,
+    QImageGridView,
+    QImageEditor,
+    CountTotals,
+    DoYouWantToSave,
+    FlightInfoForm,
+    MigrationLogForm,
+    DistributionForm,
+    PreferencesDialog,
+)
 
 QtCore.QCoreApplication.setOrganizationName("Namibia WAO")
 QtCore.QCoreApplication.setOrganizationDomain("imagewao.com")
@@ -36,19 +48,18 @@ class QImageWAO(QtWidgets.QMainWindow):
         self.titleBarText.changed.connect(self.setWindowTitle)
 
         # The image editor is the central widget
-        self.viewer = QImageEditor()
-        self.setCentralWidget(self.viewer)
+        self.imageViewer = QImageEditor()
+        self.setCentralWidget(self.imageViewer)
 
         # Dock widget references
-        self.grid = QImageGridView()
+        self.imageGridView = QImageGridView()
         self.library = Library()
         self.countTotals = CountTotals()
-
-        # Dock widgets are saved in a dictionary
-        self._dockWidgets = {}
+        self.flightInfoForm = FlightInfoForm.CreateWithApplyCancel()
+        self.migrationLogForm = MigrationLogForm()
+        self.distributionForm = DistributionForm()
 
         # Dock widget creation
-        # Access dock widgets like so: self._dockWidgets['Flight Explorer']
         self._addDockWidget(
             self.library,
             ctx.explorerIcon,
@@ -56,7 +67,7 @@ class QImageWAO(QtWidgets.QMainWindow):
             startArea=QtCore.Qt.LeftDockWidgetArea,
         )
         self._addDockWidget(
-            self.grid,
+            self.imageGridView,
             ctx.defaultDockIcon,
             "Image Grids",
             startArea=QtCore.Qt.RightDockWidgetArea,
@@ -66,6 +77,30 @@ class QImageWAO(QtWidgets.QMainWindow):
             ctx.defaultDockIcon,
             "Count Totals",
             startArea=QtCore.Qt.LeftDockWidgetArea,
+        )
+        self.flightInfoDock = self._addDockWidget(
+            self.flightInfoForm,
+            ctx.defaultDockIcon,
+            "Flight Info",
+            startArea=QtCore.Qt.BottomDockWidgetArea,
+            startVisible=False,
+            startFloating=True,
+        )
+        self.migrationLogDock = self._addDockWidget(
+            self.migrationLogForm,
+            ctx.defaultDockIcon,
+            "Migration Log",
+            startArea=QtCore.Qt.BottomDockWidgetArea,
+            startVisible=False,
+            startFloating=True,
+        )
+        self.distributionDock = self._addDockWidget(
+            self.distributionForm,
+            ctx.defaultDockIcon,
+            "Flight Distribution",
+            startArea=QtCore.Qt.BottomDockWidgetArea,
+            startVisible=False,
+            startFloating=True,
         )
 
         # Event filters
@@ -86,119 +121,141 @@ class QImageWAO(QtWidgets.QMainWindow):
 
         # Flight library signal connections
         self.library.fileSelected.connect(self.countTotals.selectFile)
-        self.library.fileActivated.connect(self.grid.selectFile)
-        self.library.directoryChanged.connect(self.grid.addFolder)
+        self.library.fileActivated.connect(self.imageGridView.selectFile)
+        self.library.directoryChanged.connect(self.imageGridView.addFolder)
         self.library.directoryChanged.connect(self.titleBarText.setFolderName)
         self.library.directoryChanged.connect(self.countTotals.readDirectory)
+        self.library.showFlightInfoRequested.connect(self._showFlightInfoDock)
+        self.library.showMigrationLogRequested.connect(self._showMigrationLogDock)
+        self.library.showDistributionFormRequested.connect(self._showDistributionDock)
 
         # Image grid signal connections
-        self.grid.loadProgress.connect(self.loadingOverlay.setProgress)
-        self.grid.loadFinished.connect(self.loadingOverlay.fadeOut)
-        self.grid.selectedImageChanged.connect(self.viewer.setImage)
-        self.grid.selectedFilesChanged.connect(self.library.selectFiles)
-        self.grid.notificationMessage.connect(self.notifier.notify)
-        self.grid.statusMessage.connect(self.showStatusMessage)
-        self.grid.countDataChanged.connect(self.countTotals.setTransectData)
+        self.imageGridView.loadProgress.connect(self.loadingOverlay.setProgress)
+        self.imageGridView.loadFinished.connect(self.loadingOverlay.fadeOut)
+        self.imageGridView.selectedImageChanged.connect(self.imageViewer.setImage)
+        self.imageGridView.selectedFilesChanged.connect(self.library.selectFiles)
+        self.imageGridView.notificationMessage.connect(self.notifier.notify)
+        self.imageGridView.statusMessage.connect(self.showStatusMessage)
+        self.imageGridView.countDataChanged.connect(self.countTotals.setTransectData)
 
         # Image viewer signal connections
-        self.viewer.drawnItemsChanged.connect(self.grid.setDrawings)
-        self.viewer.drawnItemsChanged.connect(self._markAsDirty)
+        self.imageViewer.drawnItemsChanged.connect(self.imageGridView.setDrawings)
+        self.imageViewer.drawnItemsChanged.connect(self._markAsDirty)
 
         # Count totals form connections
-        self.countTotals.fileActivated.connect(self.grid.selectFile)
+        self.countTotals.fileActivated.connect(self.imageGridView.selectFile)
         self.countTotals.selectedFilesChanged.connect(self.library.selectFiles)
         self.countTotals.requestDrawingUpdate.connect(
-            self.grid.save
+            self.imageGridView.save
         )  # Hacky. Ideally you could request the data without saving.
 
+        # Flight info form signals
+        self.flightInfoForm.closeRequested.connect(self.flightInfoDock.hide)
+        self.migrationLogForm.closeRequested.connect(self.migrationLogDock.hide)
+        self.distributionForm.closeRequested.connect(self.distributionDock.hide)
+
         # File | Etc. Menus
-        self._menusCreated = False
-        self._makeMenus()
+        fileMenu = self._createFileMenu()
+        expMenu = self._createExperimentalMenu()
+        infoMenu = self._createInfoMenu()
+
+        self.menuBar().addMenu(fileMenu)
+        self.menuBar().addMenu(expMenu)
+        self.menuBar().addMenu(infoMenu)
 
         # Toolbars
-        self.addToolBar(QtCore.Qt.TopToolBarArea, self.viewer.toolbar)
+        self.addToolBar(QtCore.Qt.TopToolBarArea, self.imageViewer.toolbar)
 
     @QtCore.Slot(tuple)
     def showStatusMessage(self, args):
         self.statusBar().showMessage(*args)
 
+    @QtCore.Slot(str)
+    def _showFlightInfoDock(self, flightFolder: str):
+        fp = Path(flightFolder)
+        self.flightInfoForm.readFlightFolder(fp)
+        self.flightInfoDock.setTitleBarText(f"Flight Info - {fp.name}")
+        self.flightInfoDock.show()
+
+    @QtCore.Slot(str)
+    def _showMigrationLogDock(self, transectFolder: str):
+        fp = Path(transectFolder)
+        self.migrationLogForm.readTransectFolder(fp)
+        self.migrationLogDock.setTitleBarText(
+            f"Migration Log - {fp.parent.name}/{fp.name}"
+        )
+        self.migrationLogDock.show()
+
+    @QtCore.Slot(str)
+    def _showDistributionDock(self, flightFolder: str):
+        fp = Path(flightFolder)
+        self.distributionForm.openFlightFolder(fp)
+        self.distributionDock.setTitleBarText(f"Distribute flight - {fp.name}")
+        self.distributionDock.show()
+
     def _addDockWidget(
-        self, w, icon, name: str, startArea=QtCore.Qt.LeftDockWidgetArea
-    ):
+        self,
+        w,
+        icon,
+        name: str,
+        startArea=QtCore.Qt.LeftDockWidgetArea,
+        startVisible=True,
+        startFloating=False,
+    ) -> DockWidget:
         dock = DockWidget(name, icon, parent=self)
         dock.setWidget(w)
+        dock.setVisible(startVisible)
+        dock.setFloating(startFloating)
+        dock.setAllowedAreas(
+            QtCore.Qt.LeftDockWidgetArea | QtCore.Qt.RightDockWidgetArea | startArea
+        )
         self.addDockWidget(startArea, dock)
-        self._dockWidgets[name] = dock
+        return dock
 
-    def _makeMenus(self):
-        self._createMenus()
-        self._clearMenus()
-        self._populateMenus()
-        self._arrangeMenus()
+    def _createFileMenu(self) -> QtWidgets.QMenu:
 
-    def _clearMenus(self):
-        self.fileMenu.clear()
-        self.infoMenu.clear()
-
-    def _createMenus(self):
-        if self._menusCreated is False:
-            self.fileMenu = QtWidgets.QMenu("&File", self)
-            self.expeMenu = QtWidgets.QMenu("&Exp.", self)  # Experimental
-            self.infoMenu = QtWidgets.QMenu("&Info", self)
-            self._menusCreated = True
-
-    def _populateMenus(self):
+        menu = QtWidgets.QMenu("&File", self)
 
         # File Menu
         a = QtWidgets.QAction("Save", self)
         a.setShortcut("Ctrl+S")
         a.triggered.connect(self._saveIfDirty)
-        self.fileMenu.addAction(a)
+        menu.addAction(a)
 
         a = QtWidgets.QAction("Import Flight Images", self)
         a.triggered.connect(FlightImportWizard().openNew)
-        self.fileMenu.addAction(a)
+        menu.addAction(a)
 
-        # Experimental Menu
+        menu.addSeparator()
+
+        a = QtWidgets.QAction("Preferences", self)
+        a.triggered.connect(self._showPreferencesForm)
+        menu.addAction(a)
+
+        return menu
+
+    def _createExperimentalMenu(self) -> QtWidgets.QMenu:
+        menu = QtWidgets.QMenu("&Exp.", self)
+
         a = QtWidgets.QAction("Test notification", self)
         a.setShortcut("Ctrl+N")
         a.triggered.connect(lambda: self.notifier.notify(""))
-        self.expeMenu.addAction(a)
+        menu.addAction(a)
 
         a = QtWidgets.QAction("Reset settings", self)
         a.triggered.connect(lambda: QtCore.QSettings().clear())
-        self.expeMenu.addAction(a)
+        menu.addAction(a)
 
-        # Info Menu
-        self.infoMenu.addAction(QtWidgets.QAction(f"Version: {self.version}", self))
+        a = QtWidgets.QAction("Throw runtime error", self)
+        a.triggered.connect(self._raiseError)
+        menu.addAction(a)
 
-        # Create text box for user name
-        widgetAction = QtWidgets.QWidgetAction(self.infoMenu)
+        return menu
 
-        userNameWidget = QtWidgets.QWidget()
-        userNameLayout = QtWidgets.QHBoxLayout()
-        userNameLayout.setContentsMargins(0, 0, 0, 0)
-
-        nameLabel = QtWidgets.QLabel("User")
-        nameLabel.setToolTip("Username is exported to Excel along with animal counts")
-        nameEdit = QtWidgets.QLineEdit(config.username)
-        nameEdit.editingFinished.connect(
-            lambda: setattr(config, "username", nameEdit.text())
-        )
-        nameEdit.setToolTip(nameLabel.toolTip())
-
-        userNameLayout.addWidget(nameLabel)
-        userNameLayout.addWidget(nameEdit)
-
-        userNameWidget.setLayout(userNameLayout)
-        widgetAction.setDefaultWidget(userNameWidget)
-
-        self.infoMenu.addAction(widgetAction)
-
-    def _arrangeMenus(self):
-        self.menuBar().addMenu(self.fileMenu)
-        self.menuBar().addMenu(self.expeMenu)
-        self.menuBar().addMenu(self.infoMenu)
+    def _createInfoMenu(self) -> QtWidgets.QMenu:
+        menu = QtWidgets.QMenu("&Info", self)
+        menu.addAction(QtWidgets.QAction(f"Version: {self.version}", self))
+        return menu
 
     def _saveIfDirty(self):
         if self._dirty:
@@ -209,7 +266,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         All save operations. Once saving is completed,
         The application will be marked clean.
         """
-        self.grid.save()
+        self.imageGridView.save()
         self._markAsClean()
 
     def _markAsDirty(self, *args):
@@ -242,8 +299,8 @@ class QImageWAO(QtWidgets.QMainWindow):
                 # If we are going to change the directory, we'll need to clear
                 # the images from the grid and from the viewer.
                 if event.isAccepted():
-                    self.grid.clear()
-                    self.viewer.clear()
+                    self.imageGridView.clear()
+                    self.imageViewer.clear()
                     return False  # Don't filter it, allow to progate
                 else:
                     return True  # Filter this one! Don't let the dir change
@@ -282,3 +339,12 @@ class QImageWAO(QtWidgets.QMainWindow):
         the user wants to save them.
         """
         self._exitDirectoryEvent(event)
+
+    @QtCore.Slot()
+    def _raiseError(self):
+        raise RuntimeError("this is a problem")
+
+    @QtCore.Slot()
+    def _showPreferencesForm(self):
+        dialog = PreferencesDialog(self)  # shares taskbar entry and is centered on self
+        dialog.exec_()

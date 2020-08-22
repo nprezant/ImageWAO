@@ -116,9 +116,9 @@ AddressBar {
 }
 
 /*******************************************/
-/*  CountForm                             */
+/*  CountPopup                             */
 /*******************************************/
-CountForm {
+CountPopup {
     border-color: black;
     border-width: 2px;
     border-radius: 2px;
@@ -134,40 +134,3 @@ CountForm {
 QToolTip { 
     font-size: 15px;
 }
-
-
-/*******************************************/
-/*  QToolBar                               */
-/*******************************************/
-
-/* QToolBar {
-  padding: 4px;
-  spacing: 2px;
-  border: 0;
-}
-QToolBar QToolButton {
-  border: 1px solid transparent;
-}
-QToolBar QToolButton:hover {
-  background: #CFD8DC;
-  border: 1px solid #90A4AE;
-}
-QToolBar QToolButton:pressed {
-  background: #B0BEC5;
-  border: 1px solid #607D8B;
-}
-QToolBar QToolButton::menu-indicator {
-  image: none;
-}
-QToolBar QComboBox:!editable,
-QToolBar QComboBox::drop-down:editable {
-  background: #FFFFFF;
-}
-QToolBar QComboBox:!editable:on,
-QToolBar QComboBox::drop-down:editable:on {
-  background: #FFFFFF;
-}
-QToolBar QComboBox {
-  background: #FFFFFF;
-  spacing: 0;
-} */

@@ -17,7 +17,7 @@ class Migrator:
 
         elif projectVersion > appVersion:
             raise EnvironmentError(
-                "Software out of date."
+                "Software out of date. Please update ImageWAO!"
                 f"App version: {appVersion}; "
                 f"Project version: {projectVersion}"
             )

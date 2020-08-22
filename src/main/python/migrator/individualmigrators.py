@@ -1,7 +1,7 @@
 import json
 
 from base import config
-from transects import GetSaveFiles
+from transectdata import GetSaveFiles
 
 
 class IndividualMigrators:
@@ -48,5 +48,5 @@ class IndividualMigrators:
                     upgradedData[key] = value
 
             # Overwrite save data with upgraded data, include pretty indents
-            with open(savePath, 'w') as f:
+            with open(savePath, "w") as f:
                 json.dump(upgradedData, f, indent=4)

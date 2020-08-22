@@ -53,34 +53,39 @@ class AddressBar(QtWidgets.QWidget):
         # get relative file path
         rel = self.home_path.relativeFilePath(self.path.absolutePath())
 
-        # clear the address bar
+        # clear the address bar, re-add the home button
         layout = self.layout()
         clearLayout(layout)
-
-        # init actions list
-        actions = []
-
-        # add home action
-        act = QtWidgets.QAction(ctx.icon("icons/home.png"), "Home")
-        act.triggered.connect(self.emitHomePath)
-        act.setToolTip(f"Home: {self.home_path.absolutePath()}")
-        actions.append(act)
+        layout.addWidget(self._createHomeButton())
 
         # home path
         home = Path(self.home_path.absolutePath())
         full = home
 
-        # make actions for each path part
+        # Make list of buttons for each path part
         for part in Path(rel).parts:
-            act = QtWidgets.QAction(part + " /")
+            button = QtWidgets.QPushButton()
+            button.setText(part + " /")
+            button.setStyleSheet("text-align: left;")
+
             full = full / part
-            act.triggered.connect(
+
+            button.clicked.connect(
                 lambda _=False, p=str(full): self.emitArbitraryPath(p)
             )
-            actions.append(act)
-
-        # combine actions with buttons and add to layout
-        for a in actions:
-            button = QtWidgets.QToolButton()
-            button.setDefaultAction(a)
+            button.setMinimumWidth(1)
             layout.addWidget(button)
+
+    def _createHomeButton(self) -> QtWidgets.QToolButton:
+        button = QtWidgets.QPushButton()
+        button.setIcon(ctx.icon("icons/home.png"))
+        button.setToolTip(f"Home: {self.home_path.absolutePath()}")
+        button.clicked.connect(self.emitHomePath)
+        button.setStyleSheet(
+            "padding-left: 5px;"
+            "padding-right: 5px;"
+            "padding-top: 2px;"
+            "padding-bottom: 2px;"
+        )
+        button.setIconSize(QtCore.QSize(24, 24))
+        return button

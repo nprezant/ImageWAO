@@ -9,7 +9,10 @@ class Configuration:
     def __init__(self):
 
         # Invalid path characters (windows allows more than this but better safe than sorry)
-        self.invalidPathCharacters = "/!@#$%^&*`'\"\\\{\}[]?:;+=|<>"
+        self.invalidPathCharacters = "/!@#$%^&*`'\"\\}{[]?:;+=|<>"
+
+        # Files and folders on a top (meta) level. E.g. database version.
+        self.imageWaoMetaFolderName = ".imagewao"
 
         # Files and folders in the "Flight" directory.
         # E.g. Flight01/.flight/meta.json
@@ -25,15 +28,19 @@ class Configuration:
         self.supportedImageExtensions = (".JPG", ".jpg", ".JPEG", ".jpeg")
 
         # Drawing colors
-        self.colors = [
-            "Teal",
-            "Blue",
-            "DarkGreen",
-            "Red",
-            "Orange",
-            "Magenta",
-            "Black",
-            "White",
+        self.drawingColors = [
+            "purple",
+            "blue",
+            "lightblue",
+            "teal",
+            "darkgreen",
+            "lightgreen",
+            "orange",
+            "red",
+            "darkred",
+            "magenta",
+            "black",
+            "white",
         ]
 
         # Drawing widths
@@ -71,6 +78,44 @@ class Configuration:
             "Zebra",
         ]
 
+        self.natoAlphabet = [
+            "Alfa",
+            "Bravo",
+            "Charlie",
+            "Delta",
+            "Echo",
+            "Foxtrot",
+            "Golf",
+            "Hotel",
+            "India",
+            "Juliett",
+            "Kilo",
+            "Lima",
+            "Mike",
+            "November",
+            "Oscar",
+            "Papa",
+            "Quebec",
+            "Romeo",
+            "Sierra",
+            "Tango",
+            "Uniform",
+            "Victor",
+            "Whiskey",
+            "X-ray",
+            "Yankee",
+            "Zulu",
+        ]
+
+        self.colors = {
+            "blue": "#b7ffff",
+            "lightblue": "#e2ffff",
+            "green": "#acffbe",
+            "lightgreen": "#d8ffde",
+            "purple": "#f4befd",
+            "lightpurple": "#f9dffe",
+        }
+
         # Threshold for resizing image grids
         self.gridImageUpdateWidth = 25
         self.gridImageMargin = 2
@@ -78,10 +123,31 @@ class Configuration:
         # Button sizes
         self.toolbuttonSize = (20, 20)
 
+    def getNatoAtPosition(self, pos: int) -> str:
+        """Returns the NATO word at a given position.
+        If necessary, concatenates AlfaAlfa, AlfaBravo, etc.
+        """
+        natoLength = len(self.natoAlphabet)
+
+        if pos < natoLength:
+            return self.natoAlphabet[pos]
+
+        else:
+            howFarOver = pos % natoLength
+            lastBit = self.natoAlphabet[howFarOver]
+
+            howManyTimesThrough = pos // natoLength
+
+            if howManyTimesThrough > 0:
+                firstPart = self.getNatoAtPosition(howManyTimesThrough - 1)
+                return firstPart + lastBit
+            else:
+                return lastBit
+
     # ImageWAO data files
 
     def _imageWaoMetaFolder(self):
-        folder = Path(self.libraryDirectory) / ".imagewao"
+        folder = Path(self.libraryDirectory) / self.imageWaoMetaFolderName
         folder.mkdir(parents=True, exist_ok=True)
         return folder
 
@@ -115,7 +181,9 @@ class Configuration:
     # Flight Data Files
 
     def flightDataFolder(self, flightFolder):
-        return Path(flightFolder) / self.flightDataFolderName
+        folder = Path(flightFolder) / self.flightDataFolderName
+        folder.mkdir(exist_ok=True)
+        return folder
 
     def flightMetaFile(self, flightFolder):
         return self.flightDataFolder(flightFolder) / "meta.json"
@@ -145,10 +213,10 @@ class Configuration:
         settings.setValue("config/username", value)
 
     @property
-    def libraryDirectory(self):
+    def libraryDirectory(self) -> str:
         settings = QtCore.QSettings()
-        return settings.value(
-            "library/homeDirectory", str(self.defaultLibraryDirectory)
+        return str(
+            settings.value("library/homeDirectory", str(self.defaultLibraryDirectory))
         )
 
     @libraryDirectory.setter
