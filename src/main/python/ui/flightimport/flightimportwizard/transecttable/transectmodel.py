@@ -5,7 +5,7 @@ from datetime import datetime
 
 from PIL import Image
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from base import config, QWorker
 

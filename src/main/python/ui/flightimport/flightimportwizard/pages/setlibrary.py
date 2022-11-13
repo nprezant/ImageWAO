@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui
 
 from base import config
 from tools import FileNameValidator

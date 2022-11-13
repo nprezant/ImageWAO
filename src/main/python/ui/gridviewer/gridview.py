@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 
 from transectdata import TransectData
 from drawingdata import DrawingDataList

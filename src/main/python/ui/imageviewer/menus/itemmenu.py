@@ -2,7 +2,7 @@
 The menu for the popup that displays on graphic items.
 """
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 
 class ItemMenu(QtWidgets.QMenu):

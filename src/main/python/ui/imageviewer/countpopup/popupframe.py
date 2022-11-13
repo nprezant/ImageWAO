@@ -3,7 +3,7 @@ Custom popup implementation with opacity tied into
 the mouse cursor distance from it.
 """
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from .tools import distanceToRect
 

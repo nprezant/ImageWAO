@@ -2,7 +2,7 @@
 Message boxes used in the interface
 """
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 
 class DoYouWantToSave(QtWidgets.QMessageBox):

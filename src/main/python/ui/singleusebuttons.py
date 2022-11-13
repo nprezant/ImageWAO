@@ -2,7 +2,7 @@
 Custom button implementations.
 """
 
-from PySide2 import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 
 
 class SingleUseAction(QtWidgets.QAction):

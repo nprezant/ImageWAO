@@ -1,7 +1,7 @@
 from fbs_runtime.application_context import cached_property
-from fbs_runtime.application_context.PySide2 import ApplicationContext
+from fbs_runtime.application_context.PySide6 import ApplicationContext
 
-from PySide2 import QtGui
+from PySide6 import QtGui
 
 
 class AppContext(ApplicationContext):

@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Tuple, List
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 from transectdata import TransectDataGroupList, GetSaveFiles
 from base import config

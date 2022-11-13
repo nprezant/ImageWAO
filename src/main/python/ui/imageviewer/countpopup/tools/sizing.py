@@ -1,4 +1,4 @@
-from PySide2 import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 
 
 def setPlainTextEditHeight(ptxt: QtWidgets.QPlainTextEdit, nRows: int):

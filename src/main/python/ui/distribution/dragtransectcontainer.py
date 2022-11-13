@@ -1,7 +1,7 @@
 import json
 from typing import List
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore
 
 from .transect import Transect
 from .dragtransect import DragTransect

@@ -6,7 +6,7 @@ import os
 import sys
 from pathlib import Path
 
-from PySide2 import QtCore, QtGui
+from PySide6 import QtCore, QtGui
 
 from base import config
 

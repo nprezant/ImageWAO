@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import List
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from base import config
 from .person import Person

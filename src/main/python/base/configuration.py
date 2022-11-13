@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 
 from .version import Version
 

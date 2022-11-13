@@ -3,7 +3,7 @@ This file contains widgets that can be easily overlaid on top
 of other widgets, such as loading widgets that block user input.
 """
 
-from PySide2 import QtWidgets, QtCore, QtGui
+from PySide6 import QtWidgets, QtCore, QtGui
 
 from base import ctx
 from tools import clearLayout

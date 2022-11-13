@@ -4,7 +4,7 @@ about the animal counts associated, and to be able to
 display this information.
 """
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 
 from countdata import CountData
 

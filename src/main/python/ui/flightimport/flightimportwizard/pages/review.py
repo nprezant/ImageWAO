@@ -1,4 +1,4 @@
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 # TODO button to toggle numeric or alpha bravo etc
 from ..transecttable import TransectTableModel, TransectTableView

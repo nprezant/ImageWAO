@@ -2,7 +2,7 @@
 Custom cursors used in the image editor window
 """
 
-from PySide2 import QtGui
+from PySide6 import QtGui
 
 from base import ctx
 

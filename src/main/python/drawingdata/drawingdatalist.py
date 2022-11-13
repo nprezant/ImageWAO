@@ -1,7 +1,7 @@
 import json
 from typing import List
 
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui
 
 import scenegraphics as sg
 
