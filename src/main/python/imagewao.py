@@ -32,7 +32,7 @@ class QImageWAO(QtWidgets.QMainWindow):
         super().__init__()
 
         # Read build settings
-        self.version = ctx.build_settings["version"]
+        self.version = ctx.version()
 
         # Migrate if necessary
         Migrator().migrate()
@@ -217,18 +217,18 @@ class QImageWAO(QtWidgets.QMainWindow):
         menu = QtWidgets.QMenu("&File", self)
 
         # File Menu
-        a = QtWidgets.QAction("Save", self)
+        a = QtGui.QAction("Save", self)
         a.setShortcut("Ctrl+S")
         a.triggered.connect(self._saveIfDirty)
         menu.addAction(a)
 
-        a = QtWidgets.QAction("Import Flight Images", self)
+        a = QtGui.QAction("Import Flight Images", self)
         a.triggered.connect(FlightImportWizard().openNew)
         menu.addAction(a)
 
         menu.addSeparator()
 
-        a = QtWidgets.QAction("Preferences", self)
+        a = QtGui.QAction("Preferences", self)
         a.triggered.connect(self._showPreferencesForm)
         menu.addAction(a)
 
@@ -237,16 +237,16 @@ class QImageWAO(QtWidgets.QMainWindow):
     def _createExperimentalMenu(self) -> QtWidgets.QMenu:
         menu = QtWidgets.QMenu("&Exp.", self)
 
-        a = QtWidgets.QAction("Test notification", self)
+        a = QtGui.QAction("Test notification", self)
         a.setShortcut("Ctrl+N")
         a.triggered.connect(lambda: self.notifier.notify(""))
         menu.addAction(a)
 
-        a = QtWidgets.QAction("Reset settings", self)
+        a = QtGui.QAction("Reset settings", self)
         a.triggered.connect(lambda: QtCore.QSettings().clear())
         menu.addAction(a)
 
-        a = QtWidgets.QAction("Throw runtime error", self)
+        a = QtGui.QAction("Throw runtime error", self)
         a.triggered.connect(self._raiseError)
         menu.addAction(a)
 
@@ -254,7 +254,7 @@ class QImageWAO(QtWidgets.QMainWindow):
 
     def _createInfoMenu(self) -> QtWidgets.QMenu:
         menu = QtWidgets.QMenu("&Info", self)
-        menu.addAction(QtWidgets.QAction(f"Version: {self.version}", self))
+        menu.addAction(QtGui.QAction(f"Version: {self.version}", self))
         return menu
 
     def _saveIfDirty(self):

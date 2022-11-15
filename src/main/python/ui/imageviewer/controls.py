@@ -97,7 +97,7 @@ class ImageController(QtCore.QObject):
 
     widthChanged = QtCore.Signal(int)
     colorChanged = QtCore.Signal(QtGui.QColor)
-    mouseActionChanged = QtCore.Signal(QtWidgets.QAction)
+    mouseActionChanged = QtCore.Signal(QtGui.QAction)
     zoomToFitRequested = QtCore.Signal()
     zoomInRequested = QtCore.Signal()
     zoomOutRequested = QtCore.Signal()
@@ -142,7 +142,7 @@ class ImageController(QtCore.QObject):
         self.widthButton.setMenu(self._widthMenu)
 
         # Fit to screen button
-        _zoomAct = QtWidgets.QAction("Zoom to fit (SPACE)", self.parent())
+        _zoomAct = QtGui.QAction("Zoom to fit (SPACE)", self.parent())
         _zoomAct.setIcon(QtGui.QIcon(ctx.get_resource("icons/fitscreen.png")))
         _zoomAct.setShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space))
         self.zoomToFitButton = QtWidgets.QToolButton(self.parent())
@@ -152,13 +152,13 @@ class ImageController(QtCore.QObject):
         )
 
         # Zoom in button
-        _zoomInAct = QtWidgets.QAction("Zoom in (+)", self.parent())
+        _zoomInAct = QtGui.QAction("Zoom in (+)", self.parent())
         _zoomInAct.setIcon(QtGui.QIcon(ctx.get_resource("icons/zoomin.png")))
         # Shortcuts
-        self._plusShortcut = QtWidgets.QShortcut(
+        self._plusShortcut = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key_Plus), self.parent()
         )
-        self._equalShortcut = QtWidgets.QShortcut(
+        self._equalShortcut = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key_Equal), self.parent()
         )
         self._plusShortcut.activated.connect(_zoomInAct.trigger)
@@ -169,13 +169,13 @@ class ImageController(QtCore.QObject):
         self.zoomInButton.triggered.connect(lambda *args: self.zoomInRequested.emit())
 
         # Zoom out button
-        _zoomOutAct = QtWidgets.QAction("Zoom out (-)", self.parent())
+        _zoomOutAct = QtGui.QAction("Zoom out (-)", self.parent())
         _zoomOutAct.setIcon(QtGui.QIcon(ctx.get_resource("icons/zoomout.png")))
         # Shortcuts
-        self._minusShortcut = QtWidgets.QShortcut(
+        self._minusShortcut = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key_Minus), self.parent()
         )
-        self._hyphenShortcut = QtWidgets.QShortcut(
+        self._hyphenShortcut = QtGui.QShortcut(
             QtGui.QKeySequence(QtCore.Qt.Key_hyphen), self.parent()
         )
         self._minusShortcut.activated.connect(_zoomOutAct.trigger)

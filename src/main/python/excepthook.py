@@ -22,8 +22,7 @@ def excepthook(exctype, value, exctb):
     # Display error as a dialog window and attempt to continue
     topLabel = QtWidgets.QLabel()
     topLabel.setText(
-        "A team of highly trained monkeys may been dispatched to resolve this issue."
-        " If you find them, please show them this text."
+        "Error."
     )
     topLabel.setWordWrap(QtGui.QTextOption.WrapAtWordBoundaryOrAnywhere)
 

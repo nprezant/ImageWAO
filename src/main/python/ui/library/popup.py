@@ -48,11 +48,11 @@ class LibraryMenu(QtWidgets.QMenu):
 
         # Create menu actions
         if sys.platform == "win32":
-            self.revealAction = QtWidgets.QAction("Show in Explorer", self.parent())
+            self.revealAction = QtGui.QAction("Show in Explorer", self.parent())
         elif sys.platform == "darwin":
-            self.revealAction = QtWidgets.QAction("Reveal in Finder", self.parent())
+            self.revealAction = QtGui.QAction("Reveal in Finder", self.parent())
         else:
-            self.revealAction = QtWidgets.QAction("Show file", self.parent())
+            self.revealAction = QtGui.QAction("Show file", self.parent())
 
         # Connect handlers for actions
         self.revealAction.triggered.connect(lambda: showInFolder(path))
@@ -61,7 +61,7 @@ class LibraryMenu(QtWidgets.QMenu):
         """
         Creates the import wizard action. Will be added to the menu during `popup()`
         """
-        self.importWizardAction = QtWidgets.QAction("Import new images", self.parent())
+        self.importWizardAction = QtGui.QAction("Import new images", self.parent())
         self.importWizardAction.triggered.connect(FlightImportWizard.openNew)
 
     def enableShowFlightInfo(self):
@@ -69,7 +69,7 @@ class LibraryMenu(QtWidgets.QMenu):
         Creates the action to show the flight info dialog.
         Will be added to the menu during popup()
         """
-        self.showFlightInfoAction = QtWidgets.QAction("Flight info", self.parent())
+        self.showFlightInfoAction = QtGui.QAction("Flight info", self.parent())
         self.showFlightInfoAction.triggered.connect(
             lambda: self.showFlightInfoRequested.emit(self._targetPath)
         )
@@ -79,7 +79,7 @@ class LibraryMenu(QtWidgets.QMenu):
         Creates the action to show the migration log dialog.
         Will be added to the menu during popup()
         """
-        self.showMigrationLogAction = QtWidgets.QAction("Migration log", self.parent())
+        self.showMigrationLogAction = QtGui.QAction("Migration log", self.parent())
         self.showMigrationLogAction.triggered.connect(
             lambda: self.showMigrationLogRequested.emit(self._targetPath)
         )
@@ -89,7 +89,7 @@ class LibraryMenu(QtWidgets.QMenu):
         Creates the action to show the distribution form.
         Will be added to the menu during popup()
         """
-        self.showDistributionFormAction = QtWidgets.QAction(
+        self.showDistributionFormAction = QtGui.QAction(
             "Distribute flight", self.parent()
         )
         self.showDistributionFormAction.triggered.connect(

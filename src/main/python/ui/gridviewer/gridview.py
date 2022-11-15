@@ -70,7 +70,7 @@ class QImageGridView(QtWidgets.QTableView):
         self.menu = QtWidgets.QMenu(self)
 
         # Create menu actions
-        previewAction = QtWidgets.QAction("Preview", self)
+        previewAction = QtGui.QAction("Preview", self)
 
         # Connect handlers for actions
         previewAction.triggered.connect(self._handlePreviewRequest)

@@ -114,7 +114,7 @@ class QImageEditor(QImageViewer):
         """
         self._pen.setWidth(width)
 
-    @QtCore.Slot(QtWidgets.QAction)
+    @QtCore.Slot(QtGui.QAction)
     def _updateCursor(self, action=None):
         """
         Update the mouse cursor based on the currently

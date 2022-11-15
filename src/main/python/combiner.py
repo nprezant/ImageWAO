@@ -1,4 +1,4 @@
-from fbs_runtime.application_context import cached_property
+from functools import cached_property
 
 from imagewao import QImageWAO
 

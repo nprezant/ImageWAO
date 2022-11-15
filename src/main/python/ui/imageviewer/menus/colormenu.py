@@ -20,7 +20,7 @@ class ColorMenu(QtWidgets.QMenu):
             qcolor = QtGui.QColor(color)
             icon = self.circularColorIcon(qcolor)
 
-            action = QtWidgets.QAction(icon, qcolor.name(QtGui.QColor.HexRgb))
+            action = QtGui.QAction(icon, qcolor.name(QtGui.QColor.HexRgb))
             action.qcolor = qcolor
             action.setCheckable(True)
             action.triggered.connect(self.handleColorChanged)
@@ -92,7 +92,7 @@ class ColorMenu(QtWidgets.QMenu):
                 return
 
 
-class ColorableAction(QtWidgets.QAction):
+class ColorableAction(QtGui.QAction):
     """
     An action whose icon can be re-colored with a mask.
     Instance also contains information about what kind of drawing

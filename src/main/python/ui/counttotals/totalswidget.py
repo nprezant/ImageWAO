@@ -23,7 +23,7 @@ class CountTotals(QtWidgets.QWidget):
         self.totalsView.selectedFilesChanged.connect(self.selectedFilesChanged.emit)
 
         # Export Action
-        self.exportAction = QtWidgets.QAction(
+        self.exportAction = QtGui.QAction(
             ctx.icon("icons/excel.png"), "Export", self
         )
         self.exportAction.triggered.connect(self.totalsView.export)
@@ -35,7 +35,7 @@ class CountTotals(QtWidgets.QWidget):
         )
 
         # Refresh Action
-        self.refreshAction = QtWidgets.QAction(
+        self.refreshAction = QtGui.QAction(
             ctx.icon("icons/refresh.png"), "Refresh", self
         )
         self.refreshAction.triggered.connect(self.refresh)

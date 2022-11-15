@@ -5,7 +5,7 @@ Custom button implementations.
 from PySide6 import QtGui, QtWidgets
 
 
-class SingleUseAction(QtWidgets.QAction):
+class SingleUseAction(QtGui.QAction):
     """
     Same as a normal QAction, but will note whether the action is intended
     for single use or multiple uses.

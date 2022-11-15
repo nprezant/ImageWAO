@@ -1,4 +1,4 @@
-from PySide6 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore, QtGui
 
 
 class WidthMenu(QtWidgets.QMenu):
@@ -17,7 +17,7 @@ class WidthMenu(QtWidgets.QMenu):
         self._activeIndex = 0
         for v in values:
 
-            action = QtWidgets.QAction(str(v))
+            action = QtGui.QAction(str(v))
             action.setCheckable(True)
             action.width = v
             action.triggered.connect(self.handleSelectionChanged)
