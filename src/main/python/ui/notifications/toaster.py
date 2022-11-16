@@ -55,7 +55,7 @@ class QToaster(QtWidgets.QFrame):
 
     def checkClosed(self):
         # if we have been fading out, we're closing the notification
-        if self.opacityAni.direction() == self.opacityAni.Backward:
+        if self.opacityAni.direction() == QtCore.QAbstractAnimation.Backward:
             self.close()
             self.closed.emit()
 
@@ -74,7 +74,7 @@ class QToaster(QtWidgets.QFrame):
 
     def hide(self):
         # start hiding
-        self.opacityAni.setDirection(self.opacityAni.Backward)
+        self.opacityAni.setDirection(QtCore.QAbstractAnimation.Backward)
         self.opacityAni.setDuration(500)
         self.opacityAni.start()
 

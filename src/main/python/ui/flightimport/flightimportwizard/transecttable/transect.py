@@ -1,7 +1,10 @@
+import os
+
+
 class Transect:
-    def __init__(self, name="Transect", files=[]):
-        self.name = name
-        self.files = files
+    def __init__(self, name=None, files=None):
+        self.name = name if name is not None else "Transect"
+        self.files = files if files is not None else []
 
     @property
     def numFiles(self):
@@ -11,7 +14,7 @@ class Transect:
     def firstLastText(self):
         first = self.files[0]
         last = self.files[-1]
-        return f"{first.name} . . . {last.name}"
+        return f"{os.path.basename(first)} . . . {os.path.basename(last)}"
 
     def addFile(self, fp):
         self.files.append(fp)

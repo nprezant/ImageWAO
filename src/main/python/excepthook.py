@@ -24,7 +24,7 @@ def excepthook(exctype, value, exctb):
     topLabel.setText(
         "Error."
     )
-    topLabel.setWordWrap(QtGui.QTextOption.WrapAtWordBoundaryOrAnywhere)
+    topLabel.setWordWrap(True)
 
     errorTextEdit = QtWidgets.QTextEdit()
     errorTextEdit.setReadOnly(True)
@@ -41,7 +41,7 @@ def excepthook(exctype, value, exctb):
     layout.addWidget(buttonBox)
 
     dialog = QtWidgets.QDialog()
-    dialog.setWindowTitle("ImageWAO encountered a wild error")
+    dialog.setWindowTitle("Error")
     dialog.setWindowFlags(
         dialog.windowFlags() & (~QtCore.Qt.WindowContextHelpButtonHint)
     )

@@ -59,7 +59,10 @@ class ConclusionPage(QtWidgets.QWizardPage):
         self._model.copyTransects(flightPath)
 
         # Write out flight import meta data
-        self._flightInfoForm.save(flightPath)
+        if self._flightInfoForm is None:
+            print("Flight info form must be updated for conclusion page")
+        else:
+            self._flightInfoForm.save(flightPath)
 
     @QtCore.Slot()
     def _copyComplete(self):

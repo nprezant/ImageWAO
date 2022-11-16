@@ -30,7 +30,7 @@ class Person(QtWidgets.QWidget):
         self.nameLine = QtWidgets.QLineEdit(self)
         self.nameLine.setText(name)
         fm = self.nameLine.fontMetrics()
-        self.nameLine.setFixedWidth(fm.width("a pretty long name"))
+        self.nameLine.setFixedWidth(fm.horizontalAdvance("a pretty long name"))
         self.setStyleSheet(
             ":enabled { font-weight: bold; } :disabled { color: black; }"
         )

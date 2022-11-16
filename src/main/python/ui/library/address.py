@@ -20,7 +20,7 @@ class AddressBar(QtWidgets.QWidget):
         # layout
         layout = QtWidgets.QHBoxLayout()
         layout.setAlignment(QtCore.Qt.AlignLeft)
-        layout.setMargin(0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         self.setLayout(layout)
 

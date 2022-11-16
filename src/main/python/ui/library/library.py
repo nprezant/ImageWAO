@@ -76,7 +76,7 @@ class Library(QtWidgets.QWidget):
 
         # add to layout
         layout = QtWidgets.QVBoxLayout()
-        layout.addWidget(label, stretch=1)
+        layout.addWidget(label, 1)
 
         # Make widget with this layout
         self.noFoldersWidget = QtWidgets.QWidget()
@@ -87,7 +87,7 @@ class Library(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(self.address)
-        layout.addWidget(self.proxyView, stretch=1)
+        layout.addWidget(self.proxyView, 1)
         self.hasFoldersWidget = QtWidgets.QWidget()
         self.hasFoldersWidget.setLayout(layout)
 
@@ -120,7 +120,7 @@ class Library(QtWidgets.QWidget):
             self,
             "Choose Flight Folder",
             Path().home().anchor,
-            QtWidgets.QFileDialog().ShowDirsOnly,
+            QtWidgets.QFileDialog.ShowDirsOnly,
         )
 
         if not folder == "":

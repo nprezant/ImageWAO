@@ -1,3 +1,4 @@
+import os
 import glob
 import shutil
 from pathlib import Path
@@ -68,6 +69,7 @@ class TransectTableModel(QtCore.QAbstractTableModel):
         self.beginResetModel()
         self.transects.clear()
         self.transects = transects
+        print("setting ", len(transects), "transects")
         self.endResetModel()
 
     def rowCount(self, index=QtCore.QModelIndex()):
@@ -231,7 +233,7 @@ def copyTransectFiles(transects, toFolder, progress=None):
         for i, fp in enumerate(t.files):
 
             # Destination file name
-            name = t.name + "_" + str(i).zfill(3) + fp.suffix
+            name = t.name + "_" + str(i).zfill(3) + os.path.splitext(fp)[1]
             dst = tFolder / name
 
             # Copy files
@@ -246,7 +248,22 @@ def copyTransectFiles(transects, toFolder, progress=None):
         # Write log
         with open(log, "w") as f:
             for fromPath, toPath in copyLog:
-                f.write(f"{fromPath.name}\t-->\t{toPath.name}\n")
+                f.write(f"{os.path.basename(fromPath)}\t-->\t{os.path.basename(toPath)}\n")
+
+
+def getExifDateTime(f):
+    """
+    retrieve date and time image was taken
+    """
+    img = Image.open(f)
+    try:
+        t = img._getexif()[36867]
+    except:
+        raise RuntimeError(
+            f"The following image has no time data and cannot be categorized: {f}"
+        )
+    else:
+        return datetime.strptime(t, "%Y:%m:%d %H:%M:%S")
 
 
 def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
@@ -260,43 +277,27 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
 
     lastdt = None
     transects = []
-    currentTransect = Transect()
 
-    # necessary because otherwise python references the last
-    # transect used (odd behavior...?)
-    currentTransect.clearFiles()
+    # Get image files, sorted by exif image date and time
+    files = [f for f in glob.iglob(str(searchFolder), recursive=True)]
+    files = [f for f in files if Path(f).is_file() and Path(f).suffix in config.supportedImageExtensions]
+    filesAndDates = [(f,getExifDateTime(f)) for f in files]
+    filesAndDates = sorted(filesAndDates, key=lambda fd: fd[1])
 
-    # Find the total number of files to go through.
-    numFiles = len([1 for f in glob.iglob(str(searchFolder), recursive=True)])
+    numFiles = len(files)
 
-    for i, filename in enumerate(glob.iglob(str(searchFolder), recursive=True)):
+    i = 0
+    for f, dt in filesAndDates:
 
         # If we have a progress indicater, use it
         if progress is not None:
             progress.emit(int(i / numFiles * 100))
+            i += 1
 
-        # rule out non-image files
-        fp = Path(filename)
-        if not fp.is_file():
-            continue
-
-        if fp.suffix not in config.supportedImageExtensions:
-            continue
-
-        # retrieve date and time image was taken
-        img = Image.open(fp)
-        try:
-            t = img._getexif()[36867]
-        except:
-            raise RuntimeError(
-                f"The following image has no time data and cannot be categorized: {fp.name}"
-            )
-        else:
-            dt = datetime.strptime(t, "%Y:%m:%d %H:%M:%S")
-
-        # add the file if this is the first one in a transect
         if lastdt is None:
-            currentTransect.addFile(fp)
+            # add the file if this is the first one we're looking at
+            transects.append(Transect())
+            transects[-1].addFile(f)
 
         else:
 
@@ -305,26 +306,27 @@ def categorizeFlightImages(searchFolder, maxDelay, minCount, progress=None):
 
             # if the time is small, add to the current transect
             if delta <= maxDelay:
-                currentTransect.addFile(fp)
+                transects[-1].addFile(f)
                 lastdt = dt
 
             # if the time is large, conclude this transect
             # and add the file to the next one
             else:
 
-                # only record transect if it has enough images
-                if currentTransect.numFiles >= minCount:
-                    transects.append(currentTransect)
+                # Delete transect if it does not have enough images
+                if transects[-1].numFiles < minCount:
+                    transects.pop()
 
                 # make a new transect instance
-                currentTransect = Transect(files=[fp])
+                transects.append(Transect())
+                transects[-1].addFile(f)
 
         # record time of this image
         lastdt = dt
 
-    # record the last transect if it has enough images
-    if currentTransect.numFiles >= minCount:
-        transects.append(currentTransect)
+    # Delete last transect if it does not have enough images
+    if len(transects) > 0 and transects[-1].numFiles < minCount:
+        transects.pop()
 
     # If there is a progress bar, note that progress is 100%
     if progress is not None:

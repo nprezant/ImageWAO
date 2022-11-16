@@ -50,7 +50,7 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
         if val == 0:
             if not self.isHidden():
                 # Fade out
-                self.opacityAni.setDirection(self.opacityAni.Backward)
+                self.opacityAni.setDirection(QtCore.QAbstractAnimation.Backward)
                 self.opacityAni.start()
                 return  # return so the progress bar stays full
         else:
@@ -58,13 +58,13 @@ class QAbsoluteProgressBar(QtWidgets.QProgressBar):
                 # Fade in
                 self.opacityEffect.setOpacity(0)
                 self.show()
-                self.opacityAni.setDirection(self.opacityAni.Forward)
+                self.opacityAni.setDirection(QtCore.QAbstractAnimation.Forward)
                 self.opacityAni.start()
         super().setValue(val)
 
     def _checkHidden(self):
         """ If we have been fading out, we should hide the progress bar"""
-        if self.opacityAni.direction() == self.opacityAni.Backward:
+        if self.opacityAni.direction() == QtCore.QAbstractAnimation.Backward:
             self.hide()
 
     def eventFilter(self, source, event):

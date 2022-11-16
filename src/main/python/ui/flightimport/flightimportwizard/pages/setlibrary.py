@@ -62,7 +62,7 @@ class SetLibraryPage(QtWidgets.QWizardPage):
             self,
             "Import to ...",
             self.pathEdit.text(),
-            QtWidgets.QFileDialog().ShowDirsOnly,
+            QtWidgets.QFileDialog.ShowDirsOnly,
         )
 
         if not folder == "":

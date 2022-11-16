@@ -18,7 +18,7 @@ class TotalCountLabel(QtWidgets.QLabel):
         self.setToolTip("Total number of photos (distance to mean)")
 
         fm = self.fontMetrics()
-        self.setFixedWidth(fm.width("##########"))
+        self.setFixedWidth(fm.horizontalAdvance("##########"))
         self.setAlignment(QtCore.Qt.AlignCenter)
 
     def setBackgroundColor(self, color: QtGui.QColor):

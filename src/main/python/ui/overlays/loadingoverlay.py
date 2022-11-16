@@ -63,7 +63,7 @@ class LoadingOverlay(OverlayWidget):
         Hides this widget if it has just been fading out.
         Connected to the `finished` signal of the opacity animation.
         """
-        if self.opacityAni.direction() == self.opacityAni.Backward:
+        if self.opacityAni.direction() == QtCore.QAbstractAnimation.Backward:
             self.hide()
 
     @QtCore.Slot()
@@ -75,7 +75,7 @@ class LoadingOverlay(OverlayWidget):
         for extra in self.extraOverlays:
             extra.fadeOut()
 
-        self.opacityAni.setDirection(self.opacityAni.Backward)
+        self.opacityAni.setDirection(QtCore.QAbstractAnimation.Backward)
         self.opacityAni.start()
 
     @QtCore.Slot()
@@ -101,7 +101,7 @@ class LoadingOverlay(OverlayWidget):
 
             # Start fading in if hidden
             self.opacityEffect.setOpacity(0)
-            self.opacityAni.setDirection(self.opacityAni.Forward)
+            self.opacityAni.setDirection(QtCore.QAbstractAnimation.Forward)
             self.opacityAni.start()
             self.show()
 

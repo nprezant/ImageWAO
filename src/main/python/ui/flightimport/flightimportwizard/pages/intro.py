@@ -61,7 +61,7 @@ class IntroPage(QtWidgets.QWizardPage):
             self,
             "Choose Import Folder",
             self.pathEdit.text(),
-            QtWidgets.QFileDialog().ShowDirsOnly,
+            QtWidgets.QFileDialog.ShowDirsOnly,
         )
 
         if not folder == "":

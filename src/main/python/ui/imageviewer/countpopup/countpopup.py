@@ -72,13 +72,14 @@ class CountPopup(PopupFrame):
 
         # Layout form items
         layout.addWidget(self.speciesLabel, 0, 0)
-        layout.addWidget(self.speciesText, 0, 1, stretch=1)
+        layout.addWidget(self.speciesText, 0, 1)
         layout.addWidget(self.numberLabel, 1, 0)
-        layout.addWidget(self.numberBox, 1, 1, stretch=1)
-        layout.addWidget(self.duplicateLabel, 2, 1, stretch=1)
+        layout.addWidget(self.numberBox, 1, 1)
+        layout.addWidget(self.duplicateLabel, 2, 1)
         layout.addWidget(self.duplicateBox, 2, 0, alignment=QtCore.Qt.AlignHCenter)
         layout.addWidget(self.notesLabel, 3, 0, 1, 2)
         layout.addWidget(self.notesText, 4, 0, 1, 2)
+        layout.setColumnStretch(1, 1)
 
         self.setLayout(layout)
         self.adjustSize()

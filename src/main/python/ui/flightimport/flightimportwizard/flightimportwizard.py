@@ -42,7 +42,7 @@ class FlightImportWizard(QtWidgets.QWizard):
         self.setWindowTitle("Flight Import Wizard")
 
         # connect next button to save page defaults if applicable
-        self.button(self.NextButton).clicked.connect(self._saveCurrentPageDefaults)
+        self.button(QtWidgets.QWizard.NextButton).clicked.connect(self._saveCurrentPageDefaults)
 
     def _saveCurrentPageDefaults(self):
         try:
