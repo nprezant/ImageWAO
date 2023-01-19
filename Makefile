@@ -1,6 +1,6 @@
 
 run:
-	python src/main/python/imagewao.py
+	python src/main/python/main.py
 
 tags:
 	ctags -R .
